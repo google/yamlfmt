@@ -114,7 +114,7 @@ func (f *Formatter) LintFile(path string) error {
 
 func (f *Formatter) Format(yamlContent []byte) ([]byte, error) {
 	var unmarshalled map[string]interface{}
-	err := yaml.UnmarshalStrict(yamlContent, &unmarshalled)
+	err := yaml.Unmarshal(yamlContent, &unmarshalled)
 	if err != nil {
 		return nil, err
 	}

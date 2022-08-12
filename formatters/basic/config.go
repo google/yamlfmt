@@ -21,3 +21,7 @@ import (
 type Config struct {
 	yamlfmt.BaseConfig `mapstructure:",squash"`
 }
+
+func NewDefaultConfig() Config {
+	return Config{yamlfmt.DefaultBaseConfig()}
+}

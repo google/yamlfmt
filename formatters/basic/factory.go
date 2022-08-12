@@ -23,24 +23,23 @@ import (
 type BasicFormatterFactory struct{}
 
 func (f *BasicFormatterFactory) NewDefault() yamlfmt.Formatter {
-	formatter := NewDefaultFormatter()
-	return &formatter
+	return &Formatter{config: NewDefaultConfig()}
+
 }
 
 func (f *BasicFormatterFactory) NewWithConfig(configData map[string]interface{}) (yamlfmt.Formatter, error) {
+	defaultConfig := NewDefaultConfig()
 	var config Config
 	err := mapstructure.Decode(configData, &config)
 	if err != nil {
 		return nil, err
 	}
+	if len(config.Include) == 0 {
+		config.Include = defaultConfig.Include
+	}
+	if len(config.Exclude) == 0 {
+		config.Exclude = defaultConfig.Exclude
+	}
 	formatter := Formatter{config: config}
 	return &formatter, nil
-}
-
-func NewDefaultFormatter() Formatter {
-	return Formatter{
-		config: Config{
-			yamlfmt.DefaultBaseConfig(),
-		},
-	}
 }
