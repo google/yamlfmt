@@ -15,42 +15,32 @@
 package basic
 
 import (
-	"os"
-	"path"
+	"github.com/mitchellh/mapstructure"
 
-	"github.com/google/yamlfmt/formatter"
-	"gopkg.in/yaml.v2"
+	"github.com/google/yamlfmt"
 )
 
-const defaultConfigName = "yamlfmt.yaml"
+type BasicFormatterFactory struct{}
 
-type Config struct {
-	formatter.BaseConfig
+func (f *BasicFormatterFactory) NewDefault() yamlfmt.Formatter {
+	formatter := NewDefaultFormatter()
+	return &formatter
 }
 
-func NewDefaultConfig() *Config {
-	return &Config{
-		Include: []string{"*"},
-	}
-}
-
-func NewConfigFromFile() (*Config, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	configPath := path.Join(wd, defaultConfigName)
-	if _, err := os.Stat(configPath); err != nil {
-		return nil, err
-	}
-	yamlBytes, err := os.ReadFile(configPath)
-	if err != nil {
-		return nil, err
-	}
+func (f *BasicFormatterFactory) NewWithConfig(configData map[string]interface{}) (yamlfmt.Formatter, error) {
 	var config Config
-	err = yaml.UnmarshalStrict(yamlBytes, &config)
+	err := mapstructure.Decode(configData, &config)
 	if err != nil {
 		return nil, err
 	}
-	return &config, nil
+	formatter := Formatter{config: config}
+	return &formatter, nil
+}
+
+func NewDefaultFormatter() Formatter {
+	return Formatter{
+		config: Config{
+			yamlfmt.DefaultBaseConfig(),
+		},
+	}
 }

@@ -15,33 +15,72 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"path"
 
-	"github.com/google/yamlfmt/formatter/basic"
+	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/formatters/basic"
 	"github.com/google/yamlfmt/internal/config"
 )
 
-const defaultConfigName = "yamlfmt.yaml"
+var lint *bool = flag.Bool("lint", false, `Check if there are any differences between
+source yaml and formatted yaml`)
+
+const defaultConfigName = ".yamlfmt"
 
 func main() {
+	flag.Parse()
 	if err := run(); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func run() error {
-	wd, err := os.Getwd()
+	registry := getFullRegistry()
+
+	var formatter yamlfmt.Formatter
+	configData, err := readDefaultConfig()
 	if err != nil {
-		return err
-	}
-	path := path.Join(wd, defaultConfigName)
-	configData, err := config.ReadRawConfigFromPath(path)
-	if err != nil {
-		return err
+		factory, err := registry.GetFactory(basic.BasicFormatterType)
+		if err != nil {
+			return err
+		}
+		formatter = factory.NewDefault()
+		if err != nil {
+			return err
+		}
+	} else {
+		fType, ok := configData["type"].(string)
+		if !ok {
+			fType = basic.BasicFormatterType
+		}
+		factory, err := registry.GetFactory(fType)
+		if err != nil {
+			return err
+		}
+		formatter, err = factory.NewWithConfig(configData)
+		if err != nil {
+			return err
+		}
 	}
 
-	factory := basic.BasicFormatterFactory{}
-	formatter, err := factory.NewWithConfig(configData)
+	if *lint {
+		return formatter.LintAllFiles()
+	}
+	return formatter.FormatAllFiles()
+}
+
+func readDefaultConfig() (map[string]interface{}, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	path := path.Join(wd, defaultConfigName)
+	configData, err := config.ReadFullConfigFromPath(path)
+	if err != nil {
+		return nil, err
+	}
+	return configData, nil
 }

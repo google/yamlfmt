@@ -12,20 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package formatter
+package main
 
-type YamlFormatter interface {
-	FormatAllFiles() error
-	Format(path string) error
-	Type() string
-}
+import (
+	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/formatters/basic"
+)
 
-type Factory interface {
-	NewWithConfig(config map[string]interface{}) (YamlFormatter, error)
-	NewDefault() YamlFormatter
-}
-
-type BaseConfig struct {
-	Include []string `mapstructure:"include"`
-	Exclude []string `mapstructure:"exclude"`
+func getFullRegistry() *yamlfmt.FormatterRegistry {
+	r := yamlfmt.NewFormatterRegistry()
+	r.Add(basic.BasicFormatterType, &basic.BasicFormatterFactory{})
+	return r
 }

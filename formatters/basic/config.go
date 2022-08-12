@@ -14,10 +14,10 @@
 
 package basic
 
-type formatFileErrors struct {
-	formatErrors map[string]error
-}
+import (
+	"github.com/google/yamlfmt"
+)
 
-func (e *formatFileErrors) Error() string {
-	return "messed up some files"
+type Config struct {
+	yamlfmt.BaseConfig `mapstructure:",squash"`
 }

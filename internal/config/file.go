@@ -20,7 +20,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func ReadRawConfigFromPath(configPath string) (map[string]interface{}, error) {
+func ReadFullConfigFromPath(configPath string) (map[string]interface{}, error) {
 	if _, err := os.Stat(configPath); err != nil {
 		return nil, err
 	}

@@ -2,4 +2,9 @@ module github.com/google/yamlfmt
 
 go 1.19
 
-require gopkg.in/yaml.v2 v2.4.0
+require (
+	github.com/bmatcuk/doublestar/v4 v4.2.0
+	github.com/google/go-cmp v0.5.8
+	github.com/mitchellh/mapstructure v1.5.0
+	gopkg.in/yaml.v2 v2.4.0
+)

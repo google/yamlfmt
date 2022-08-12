@@ -1,0 +1,5 @@
+bad:
+  something: "true"
+  x:
+  - false
+  - z
