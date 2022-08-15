@@ -15,31 +15,19 @@
 package basic
 
 import (
-	"github.com/mitchellh/mapstructure"
-
 	"github.com/google/yamlfmt"
 )
 
 type BasicFormatterFactory struct{}
 
-func (f *BasicFormatterFactory) NewDefault() yamlfmt.Formatter {
-	return &Formatter{config: NewDefaultConfig()}
+func (f *BasicFormatterFactory) Type() string {
+	return BasicFormatterType
+}
 
+func (f *BasicFormatterFactory) NewDefault() yamlfmt.Formatter {
+	return &BasicFormatter{}
 }
 
 func (f *BasicFormatterFactory) NewWithConfig(configData map[string]interface{}) (yamlfmt.Formatter, error) {
-	defaultConfig := NewDefaultConfig()
-	var config Config
-	err := mapstructure.Decode(configData, &config)
-	if err != nil {
-		return nil, err
-	}
-	if len(config.Include) == 0 {
-		config.Include = defaultConfig.Include
-	}
-	if len(config.Exclude) == 0 {
-		config.Exclude = defaultConfig.Exclude
-	}
-	formatter := Formatter{config: config}
-	return &formatter, nil
+	return f.NewDefault(), nil
 }

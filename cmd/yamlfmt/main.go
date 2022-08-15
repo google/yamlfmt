@@ -21,66 +21,71 @@ import (
 	"path"
 
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/formatters/basic"
-	"github.com/google/yamlfmt/internal/config"
+	"gopkg.in/yaml.v2"
 )
 
-var lint *bool = flag.Bool("lint", false, `Check if there are any differences between
-source yaml and formatted yaml`)
+var (
+	lint *bool = flag.Bool("lint", false, `Check if there are any differences between
+source yaml and formatted yaml.`)
+	dry *bool = flag.Bool("dry", false, `Perform a dry run; show the output of a formatting
+operation without performing it.`)
+)
 
 const defaultConfigName = ".yamlfmt"
 
 func main() {
-	flag.Parse()
 	if err := run(); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func run() error {
-	registry := getFullRegistry()
+	flag.Parse()
 
-	var formatter yamlfmt.Formatter
-	configData, err := readDefaultConfig()
-	if err != nil {
-		factory, err := registry.GetFactory(basic.BasicFormatterType)
-		if err != nil {
-			return err
-		}
-		formatter = factory.NewDefault()
-		if err != nil {
-			return err
-		}
-	} else {
-		fType, ok := configData["type"].(string)
-		if !ok {
-			fType = basic.BasicFormatterType
-		}
-		factory, err := registry.GetFactory(fType)
-		if err != nil {
-			return err
-		}
-		formatter, err = factory.NewWithConfig(configData)
-		if err != nil {
-			return err
-		}
-	}
-
+	var op command.Operation
 	if *lint {
-		return formatter.LintAllFiles()
+		op = command.OperationLint
+	} else if *dry {
+		op = command.OperationDry
+	} else {
+		op = command.OperationFormat
 	}
-	return formatter.FormatAllFiles()
+
+	configData, err := readDefaultConfigFile()
+	if err != nil {
+		return err
+	}
+
+	return command.RunCommand(op, getFullRegistry(), configData)
 }
 
-func readDefaultConfig() (map[string]interface{}, error) {
+func readDefaultConfigFile() (map[string]interface{}, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 	path := path.Join(wd, defaultConfigName)
-	configData, err := config.ReadFullConfigFromPath(path)
+	return readConfig(path)
+}
+
+func readConfig(path string) (map[string]interface{}, error) {
+	if _, err := os.Stat(path); err != nil {
+		return nil, err
+	}
+	yamlBytes, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var configData map[string]interface{}
+	err = yaml.UnmarshalStrict(yamlBytes, &configData)
 	if err != nil {
 		return nil, err
 	}
 	return configData, nil
+}
+
+func getFullRegistry() *yamlfmt.Registry {
+	return yamlfmt.NewFormatterRegistry(&basic.BasicFormatterFactory{})
 }

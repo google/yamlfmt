@@ -16,48 +16,47 @@ package yamlfmt
 
 import "fmt"
 
-type BaseConfig struct {
-	Include []string `mapstructure:"include"`
-	Exclude []string `mapstructure:"exclude"`
-}
-
-func DefaultBaseConfig() BaseConfig {
-	return BaseConfig{
-		Include: []string{"**/*.yaml", "**/*.yml"},
-		Exclude: []string{},
-	}
-}
-
 type Formatter interface {
 	Type() string
-	FormatAllFiles() error
-	FormatFile(path string) error
-	LintAllFiles() error
-	LintFile(path string) error
 	Format(yamlContent []byte) ([]byte, error)
 }
 
 type Factory interface {
-	NewWithConfig(config map[string]interface{}) (Formatter, error)
+	Type() string
 	NewDefault() Formatter
+	NewWithConfig(config map[string]interface{}) (Formatter, error)
 }
 
-type FormatterRegistry struct {
-	registry map[string]Factory
+type Registry struct {
+	registry    map[string]Factory
+	defaultType string
 }
 
-func NewFormatterRegistry() *FormatterRegistry {
-	return &FormatterRegistry{registry: map[string]Factory{}}
+func NewFormatterRegistry(defaultFactory Factory) *Registry {
+	return &Registry{
+		registry: map[string]Factory{
+			defaultFactory.Type(): defaultFactory,
+		},
+		defaultType: defaultFactory.Type(),
+	}
 }
 
-func (r *FormatterRegistry) Add(fType string, f Factory) {
-	r.registry[fType] = f
+func (r *Registry) Add(f Factory) {
+	r.registry[f.Type()] = f
 }
 
-func (r *FormatterRegistry) GetFactory(fType string) (Factory, error) {
+func (r *Registry) GetFactory(fType string) (Factory, error) {
 	factory, ok := r.registry[fType]
 	if !ok {
 		return nil, fmt.Errorf("no formatter registered with type \"%s\"", fType)
+	}
+	return factory, nil
+}
+
+func (r *Registry) GetDefaultFactory() (Factory, error) {
+	factory, ok := r.registry[r.defaultType]
+	if !ok {
+		return nil, fmt.Errorf("no default formatter registered for type \"%s\"", r.defaultType)
 	}
 	return factory, nil
 }
