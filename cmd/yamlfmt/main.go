@@ -15,6 +15,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"log"
 	"os"
@@ -55,7 +56,11 @@ func run() error {
 
 	configData, err := readDefaultConfigFile()
 	if err != nil {
-		return err
+		if errors.Is(err, os.ErrNotExist) {
+			configData = map[string]interface{}{}
+		} else {
+			return err
+		}
 	}
 
 	if len(flag.Args()) > 0 {

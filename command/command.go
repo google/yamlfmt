@@ -34,7 +34,7 @@ func RunCommand(
 		return err
 	}
 	if len(config.Include) == 0 {
-		config.Include = []string{"**/*.yaml", "**/*.yml"}
+		config.Include = []string{"**/*.{yaml,yml}"}
 	}
 
 	var formatter yamlfmt.Formatter
