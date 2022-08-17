@@ -58,6 +58,10 @@ func run() error {
 		return err
 	}
 
+	if len(flag.Args()) > 0 {
+		configData["include"] = flag.Args()
+	}
+
 	return command.RunCommand(op, getFullRegistry(), configData)
 }
 
