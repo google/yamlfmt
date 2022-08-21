@@ -44,9 +44,6 @@ func RunCommand(
 			return err
 		}
 		formatter = factory.NewDefault()
-		if err != nil {
-			return err
-		}
 	} else {
 		fType, ok := config.FormatterConfig["type"].(string)
 		if !ok {
