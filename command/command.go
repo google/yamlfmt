@@ -66,10 +66,19 @@ func RunCommand(
 			return err
 		}
 	} else {
-		factory, err := registry.GetFactory(config.FormatterConfig.Type)
+		var (
+			factory yamlfmt.Factory
+			err     error
+		)
+		if config.FormatterConfig.Type == "" {
+			factory, err = registry.GetDefaultFactory()
+		} else {
+			factory, err = registry.GetFactory(config.FormatterConfig.Type)
+		}
 		if err != nil {
 			return err
 		}
+
 		if len(config.FormatterConfig.FormatterSettings) > 0 {
 			formatter, err = factory.NewWithConfig(config.FormatterConfig.FormatterSettings)
 			if err != nil {
