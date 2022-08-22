@@ -1,0 +1,1 @@
+exclude = ["gomod2nix.toml"]
