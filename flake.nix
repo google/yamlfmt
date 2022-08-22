@@ -34,7 +34,7 @@
     in {
       packages.yamlfmt = pkgs.buildGoApplication {
         pname = "yamlfmt";
-        version = "0.0.1";
+        version = "0.1.0";
         src = with nix-filter.lib;
           filter {
             root = ./.;
