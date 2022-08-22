@@ -49,7 +49,7 @@
               (inDirectory "formatters")
             ];
           };
-        modules = ./gomod2nix.toml;
+        modules = ./packaging/nix/gomod2nix.toml;
       };
       packages.default = self.packages.${system}.yamlfmt;
 
@@ -60,14 +60,15 @@
       apps.default = self.apps.${system}.yamlfmt;
 
       devShells.default = pkgs.devshell.mkShell {
+        commands = with pkgs; [
+          {
+            name = "generate-gomod2nix";
+            command = "gomod2nix --outdir ./packaging/nix/"; 
+          }
+        ];
         packages = with pkgs; [
-          (mkGoEnv {pwd = ./.;})
-          gomod2nix
-          golangci-lint
           alejandra
-          taplo-cli
-          treefmt
-          self.packages.${system}.yamlfmt
+          gomod2nix
         ];
       };
     })
