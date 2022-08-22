@@ -24,7 +24,7 @@ import (
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/formatters/basic"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -88,7 +88,7 @@ func readConfig(path string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	var configData map[string]interface{}
-	err = yaml.UnmarshalStrict(yamlBytes, &configData)
+	err = yaml.Unmarshal(yamlBytes, &configData)
 	if err != nil {
 		return nil, err
 	}

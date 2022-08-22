@@ -1,4 +1,5 @@
 .yamlfmt
+dist/
 
 # Nix
 .direnv
