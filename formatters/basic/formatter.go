@@ -15,7 +15,7 @@
 package basic
 
 import (
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 const BasicFormatterType string = "basic"
@@ -27,12 +27,12 @@ func (f *BasicFormatter) Type() string {
 }
 
 func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
-	var unmarshalled map[string]interface{}
+	var unmarshalled yaml.Node
 	err := yaml.Unmarshal(yamlContent, &unmarshalled)
 	if err != nil {
 		return nil, err
 	}
-	marshalled, err := yaml.Marshal(unmarshalled)
+	marshalled, err := yaml.Marshal(&unmarshalled)
 	if err != nil {
 		return nil, err
 	}
