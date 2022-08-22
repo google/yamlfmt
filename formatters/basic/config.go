@@ -14,34 +14,12 @@
 
 package basic
 
-import (
-	"bytes"
-
-	"gopkg.in/yaml.v3"
-)
-
-const BasicFormatterType string = "basic"
-
-type BasicFormatter struct {
-	Config *Config
+type Config struct {
+	Indent int `mapstructure:"indent"`
 }
 
-func (f *BasicFormatter) Type() string {
-	return BasicFormatterType
-}
-
-func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
-	var unmarshalled yaml.Node
-	err := yaml.Unmarshal(yamlContent, &unmarshalled)
-	if err != nil {
-		return nil, err
+func DefaultConfig() *Config {
+	return &Config{
+		Indent: 2,
 	}
-	var b bytes.Buffer
-	e := yaml.NewEncoder(&b)
-	e.SetIndent(f.Config.Indent)
-	err = e.Encode(&unmarshalled)
-	if err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
 }

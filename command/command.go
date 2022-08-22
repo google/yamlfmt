@@ -19,7 +19,6 @@ import (
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/engine"
-	"github.com/google/yamlfmt/formatters/basic"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -31,10 +30,15 @@ const (
 	OperationDry
 )
 
+type formatterConfig struct {
+	Type              string                 `mapstructure:"type"`
+	FormatterSettings map[string]interface{} `mapstructure:",remain"`
+}
+
 type commandConfig struct {
-	Include         []string               `mapstructure:"include"`
-	Exclude         []string               `mapstructure:"exclude"`
-	FormatterConfig map[string]interface{} `mapstructure:"formatter"`
+	Include         []string         `mapstructure:"include"`
+	Exclude         []string         `mapstructure:"exclude"`
+	FormatterConfig *formatterConfig `mapstructure:"formatter,omitempty"`
 }
 
 func RunCommand(
@@ -62,17 +66,17 @@ func RunCommand(
 			return err
 		}
 	} else {
-		fType, ok := config.FormatterConfig["type"].(string)
-		if !ok {
-			fType = basic.BasicFormatterType
-		}
-		factory, err := registry.GetFactory(fType)
+		factory, err := registry.GetFactory(config.FormatterConfig.Type)
 		if err != nil {
 			return err
 		}
-		formatter, err = factory.NewWithConfig(config.FormatterConfig)
-		if err != nil {
-			return err
+		if len(config.FormatterConfig.FormatterSettings) > 0 {
+			formatter, err = factory.NewWithConfig(config.FormatterConfig.FormatterSettings)
+			if err != nil {
+				return err
+			}
+		} else {
+			formatter = factory.NewDefault()
 		}
 	}
 

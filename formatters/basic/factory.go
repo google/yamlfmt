@@ -16,6 +16,7 @@ package basic
 
 import (
 	"github.com/google/yamlfmt"
+	"github.com/mitchellh/mapstructure"
 )
 
 type BasicFormatterFactory struct{}
@@ -25,9 +26,14 @@ func (f *BasicFormatterFactory) Type() string {
 }
 
 func (f *BasicFormatterFactory) NewDefault() yamlfmt.Formatter {
-	return &BasicFormatter{}
+	return &BasicFormatter{Config: DefaultConfig()}
 }
 
 func (f *BasicFormatterFactory) NewWithConfig(configData map[string]interface{}) (yamlfmt.Formatter, error) {
-	return f.NewDefault(), nil
+	var c Config
+	err := mapstructure.Decode(configData, &c)
+	if err != nil {
+		return nil, err
+	}
+	return &BasicFormatter{Config: &c}, nil
 }

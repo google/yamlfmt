@@ -22,7 +22,7 @@ import (
 )
 
 func TestFormatterRetainsComments(t *testing.T) {
-	f := &basic.BasicFormatter{}
+	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
 
 	yaml := `x: "y" # foo comment`
 
@@ -36,7 +36,7 @@ func TestFormatterRetainsComments(t *testing.T) {
 }
 
 func TestFormatterPreservesKeyOrder(t *testing.T) {
-	f := &basic.BasicFormatter{}
+	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
 
 	yaml := `
 b:
