@@ -1,3 +1,17 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package command
 
 import (
@@ -5,7 +19,6 @@ import (
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/engine"
-	"github.com/google/yamlfmt/formatters/basic"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -17,10 +30,15 @@ const (
 	OperationDry
 )
 
+type formatterConfig struct {
+	Type              string                 `mapstructure:"type"`
+	FormatterSettings map[string]interface{} `mapstructure:",remain"`
+}
+
 type commandConfig struct {
-	Include         []string               `mapstructure:"include"`
-	Exclude         []string               `mapstructure:"exclude"`
-	FormatterConfig map[string]interface{} `mapstructure:"formatter"`
+	Include         []string         `mapstructure:"include"`
+	Exclude         []string         `mapstructure:"exclude"`
+	FormatterConfig *formatterConfig `mapstructure:"formatter,omitempty"`
 }
 
 func RunCommand(
@@ -45,17 +63,26 @@ func RunCommand(
 		}
 		formatter = factory.NewDefault()
 	} else {
-		fType, ok := config.FormatterConfig["type"].(string)
-		if !ok {
-			fType = basic.BasicFormatterType
+		var (
+			factory yamlfmt.Factory
+			err     error
+		)
+		if config.FormatterConfig.Type == "" {
+			factory, err = registry.GetDefaultFactory()
+		} else {
+			factory, err = registry.GetFactory(config.FormatterConfig.Type)
 		}
-		factory, err := registry.GetFactory(fType)
 		if err != nil {
 			return err
 		}
-		formatter, err = factory.NewWithConfig(config.FormatterConfig)
-		if err != nil {
-			return err
+
+		if len(config.FormatterConfig.FormatterSettings) > 0 {
+			formatter, err = factory.NewWithConfig(config.FormatterConfig.FormatterSettings)
+			if err != nil {
+				return err
+			}
+		} else {
+			formatter = factory.NewDefault()
 		}
 	}
 
