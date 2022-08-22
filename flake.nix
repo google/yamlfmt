@@ -43,10 +43,10 @@
               "go.sum"
               "gomod2nix.toml"
               "yamlfmt.go"
-              "cmd"
-              "command"
-              "engine"
-              "formatters"
+              (inDirectory "cmd")
+              (inDirectory "command")
+              (inDirectory "engine")
+              (inDirectory "formatters")
             ];
           };
         modules = ./gomod2nix.toml;
