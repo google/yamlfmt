@@ -15,7 +15,10 @@
 package command
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/engine"
@@ -28,6 +31,7 @@ const (
 	OperationFormat Operation = iota
 	OperationLint
 	OperationDry
+	OperationStdin
 )
 
 type formatterConfig struct {
@@ -109,7 +113,34 @@ func RunCommand(
 			return err
 		}
 		fmt.Println(out)
+	case OperationStdin:
+		stdinYaml, err := readFromStdin()
+		if err != nil {
+			return err
+		}
+		out, err := engine.Formatter.Format(stdinYaml)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(out))
 	}
 
 	return nil
+}
+
+func readFromStdin() ([]byte, error) {
+	stdin := bufio.NewReader(os.Stdin)
+	data := []byte{}
+	for {
+		b, err := stdin.ReadByte()
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				return nil, err
+			}
+		}
+		data = append(data, b)
+	}
+	return data, nil
 }
