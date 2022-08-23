@@ -61,15 +61,15 @@ func (e *Engine) FormatFile(path string) error {
 	return err
 }
 
-func (f *Engine) LintAllFiles() error {
-	paths, err := CollectPathsToFormat(f.Include, f.Exclude)
+func (e *Engine) LintAllFiles() error {
+	paths, err := CollectPathsToFormat(e.Include, e.Exclude)
 	if err != nil {
 		return err
 	}
 
 	lintErrors := NewLintFileErrors()
 	for _, path := range paths {
-		err := f.LintFile(path)
+		err := e.LintFile(path)
 		if err != nil {
 			lintErrors.Add(path, err)
 		}
@@ -97,8 +97,8 @@ func (e *Engine) LintFile(path string) error {
 	return nil
 }
 
-func (f *Engine) DryRunAllFiles() (string, error) {
-	paths, err := CollectPathsToFormat(f.Include, f.Exclude)
+func (e *Engine) DryRunAllFiles() (string, error) {
+	paths, err := CollectPathsToFormat(e.Include, e.Exclude)
 	if err != nil {
 		return "", err
 	}
@@ -106,7 +106,7 @@ func (f *Engine) DryRunAllFiles() (string, error) {
 	formatErrors := NewFormatFileErrors()
 	dryRunDiffs := NewDryRunDiffs()
 	for _, path := range paths {
-		diff, err := f.DryRunFile(path)
+		diff, err := e.DryRunFile(path)
 		if err != nil {
 			formatErrors.Add(path, err)
 		} else if diff != "" {

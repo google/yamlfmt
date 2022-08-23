@@ -15,7 +15,8 @@
 package basic
 
 type Config struct {
-	Indent int `mapstructure:"indent"`
+	Indent               int  `mapstructure:"indent"`
+	IncludeDocumentStart bool `mapstructure:"include_document_start"`
 }
 
 func DefaultConfig() *Config {
