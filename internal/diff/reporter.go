@@ -22,8 +22,9 @@ import (
 )
 
 type prettyReporter struct {
-	path  cmp.Path
-	lines []string
+	path      cmp.Path
+	lines     []string
+	diffCount int
 }
 
 func (r *prettyReporter) PushStep(ps cmp.PathStep) {
@@ -33,6 +34,7 @@ func (r *prettyReporter) PushStep(ps cmp.PathStep) {
 func (r *prettyReporter) Report(rs cmp.Result) {
 	vx, vy := r.path.Last().Values()
 	if !rs.Equal() {
+		r.diffCount++
 		if vx.IsValid() {
 			r.lines = append(r.lines, fmt.Sprintf("- %+v", vx))
 		}
@@ -49,5 +51,8 @@ func (r *prettyReporter) PopStep() {
 }
 
 func (r *prettyReporter) String() string {
+	if r.diffCount == 0 {
+		return ""
+	}
 	return strings.Join(r.lines, "\n")
 }

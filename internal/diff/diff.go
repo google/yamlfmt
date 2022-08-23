@@ -21,14 +21,14 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func MultilineStringDiff(a, b string) (bool, string) {
+func MultilineStringDiff(a, b string) string {
 	var reporter prettyReporter
-	diff := cmp.Diff(
+	cmp.Diff(
 		a, b,
 		cmpopts.AcyclicTransformer("multiline", func(s string) []string {
 			return strings.Split(s, "\n")
 		}),
 		cmp.Reporter(&reporter),
 	)
-	return diff != "", reporter.String()
+	return reporter.String()
 }

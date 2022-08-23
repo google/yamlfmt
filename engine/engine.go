@@ -90,9 +90,9 @@ func (e *Engine) LintFile(path string) error {
 	if err != nil {
 		return err
 	}
-	d, out := diff.MultilineStringDiff(string(yamlBytes), string(formatted))
-	if d {
-		return fmt.Errorf(out)
+	diffContent := diff.MultilineStringDiff(string(yamlBytes), string(formatted))
+	if diffContent != "" {
+		return fmt.Errorf(diffContent)
 	}
 	return nil
 }
@@ -129,10 +129,6 @@ func (e *Engine) DryRunFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	d, out := diff.MultilineStringDiff(string(yamlBytes), string(formatted))
-	dryRunDiff := ""
-	if d {
-		dryRunDiff = out
-	}
-	return dryRunDiff, nil
+	diffContent := diff.MultilineStringDiff(string(yamlBytes), string(formatted))
+	return diffContent, nil
 }

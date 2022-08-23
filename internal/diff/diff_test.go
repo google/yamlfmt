@@ -58,12 +58,21 @@ bar`,
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			d, diffStr := diff.MultilineStringDiff(tc.before, tc.after)
-			if !d {
+			diffStr := diff.MultilineStringDiff(tc.before, tc.after)
+			if diffStr == "" {
 				t.Log("there should have been a diff")
 				t.Fail()
 			}
 			fmt.Println(diffStr)
 		})
+	}
+}
+
+func TestMultilineDiffNoDiff(t *testing.T) {
+	before := "content"
+
+	diffStr := diff.MultilineStringDiff(before, before)
+	if diffStr != "" {
+		t.Fatalf("diff output should be empty with no diff, output contained:\n%s", diffStr)
 	}
 }
