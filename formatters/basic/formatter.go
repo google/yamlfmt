@@ -16,6 +16,8 @@ package basic
 
 import (
 	"bytes"
+	"errors"
+	"io"
 
 	"gopkg.in/yaml.v3"
 )
@@ -31,17 +33,29 @@ func (f *BasicFormatter) Type() string {
 }
 
 func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
-	var unmarshalled yaml.Node
-	err := yaml.Unmarshal(yamlContent, &unmarshalled)
-	if err != nil {
-		return nil, err
+	decoder := yaml.NewDecoder(bytes.NewReader(yamlContent))
+	documents := []yaml.Node{}
+	for {
+		var docNode yaml.Node
+		err := decoder.Decode(&docNode)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			return nil, err
+		}
+		documents = append(documents, docNode)
 	}
+
 	var b bytes.Buffer
 	e := yaml.NewEncoder(&b)
 	e.SetIndent(f.Config.Indent)
-	err = e.Encode(&unmarshalled)
-	if err != nil {
-		return nil, err
+	for _, doc := range documents {
+		err := e.Encode(&doc)
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	return b.Bytes(), nil
 }
