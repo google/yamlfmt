@@ -8,6 +8,10 @@
 * Make it simple to extend with new custom formatters
 * Enable alternative use as a library, providing a foundation for users to create a tool that meets specific needs 
 
+## Maintainers
+
+This tool is not yet officially supported by Google. It is currenlty maintained solely by @braydonk.
+
 ## Installation
 
 To download the `yamlfmt` command, you can download the desired binary from releases or install the module directly:
@@ -63,7 +67,3 @@ The CLI supports 3 operation modes:
     - Format the matched files and output the diff to `stdout`, exits with status 1 if there are any differences
 
 (NOTE: If providing paths as command line arguments, the flags must be specified before any paths)
-
-## Maintainers
-
-This tool is not yet officially supported by Google. It is currenlty maintained solely by @braydonk.
