@@ -1,2 +1,4 @@
 .yamlfmt
 dist/
+
+.vscode
