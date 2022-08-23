@@ -19,6 +19,7 @@ import (
 	"os"
 
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/diff"
 )
 
 type Engine struct {
@@ -89,9 +90,9 @@ func (e *Engine) LintFile(path string) error {
 	if err != nil {
 		return err
 	}
-	diff := MultilineStringDiff(string(yamlBytes), string(formatted))
-	if diff != "" {
-		return fmt.Errorf(diff)
+	diffContent := diff.MultilineStringDiff(string(yamlBytes), string(formatted))
+	if diffContent != "" {
+		return fmt.Errorf(diffContent)
 	}
 	return nil
 }
@@ -128,6 +129,6 @@ func (e *Engine) DryRunFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	diff := MultilineStringDiff(string(yamlBytes), string(formatted))
-	return diff, nil
+	diffContent := diff.MultilineStringDiff(string(yamlBytes), string(formatted))
+	return diffContent, nil
 }

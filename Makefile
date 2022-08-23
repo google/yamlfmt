@@ -9,3 +9,6 @@ install_tools:
 
 addlicense:
 	addlicense -c "Google LLC" -l apache .
+
+test_diff:
+	go test -v -mod=mod github.com/google/yamlfmt/internal/diff
