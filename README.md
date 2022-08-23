@@ -65,5 +65,7 @@ The CLI supports 3 operation modes:
     - Format the matched files and output the diff to `stdout`
 * Lint (`-lint` flag)
     - Format the matched files and output the diff to `stdout`, exits with status 1 if there are any differences
+* Stdin (`-in` flag)
+    - Format the yaml data from `stdin` and output the result to `stdout`
 
 (NOTE: If providing paths as command line arguments, the flags must be specified before any paths)
