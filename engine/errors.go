@@ -55,7 +55,7 @@ func NewLintFileErrors() *LintFileErrors {
 func (e *LintFileErrors) Error() string {
 	errStr := "encountered the following linting errors:\n"
 	for file, err := range e.lintErrors {
-		errStr += fmt.Sprintf("%s:\n%v\n,", file, err)
+		errStr += fmt.Sprintf("%s:\n%v\n", file, err)
 	}
 	return errStr
 }
