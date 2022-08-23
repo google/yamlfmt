@@ -32,6 +32,7 @@ var (
 source yaml and formatted yaml.`)
 	dry *bool = flag.Bool("dry", false, `Perform a dry run; show the output of a formatting
 operation without performing it.`)
+	in *bool = flag.Bool("in", false, "Format yaml read from stdin and output to stdout")
 )
 
 const defaultConfigName = ".yamlfmt"
@@ -50,6 +51,8 @@ func run() error {
 		op = command.OperationLint
 	} else if *dry {
 		op = command.OperationDry
+	} else if *in {
+		op = command.OperationStdin
 	} else {
 		op = command.OperationFormat
 	}
