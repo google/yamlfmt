@@ -2,7 +2,7 @@ before:
   hooks:
     - go mod tidy
 builds:
-  - id: yamlfmt 
+  - id: yamlfmt
     main: ./cmd/yamlfmt
     binary: yamlfmt
     env:
