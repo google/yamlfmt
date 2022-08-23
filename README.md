@@ -63,3 +63,7 @@ The CLI supports 3 operation modes:
     - Format the matched files and output the diff to `stdout`, exits with status 1 if there are any differences
 
 (NOTE: If providing paths as command line arguments, the flags must be specified before any paths)
+
+## Maintainers
+
+This tool is not yet officially supported by Google. It is currenlty maintained solely by @braydonk.
