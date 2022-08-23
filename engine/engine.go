@@ -20,6 +20,7 @@ import (
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/internal/diff"
+	"github.com/google/yamlfmt/internal/paths"
 )
 
 type Engine struct {
@@ -29,7 +30,7 @@ type Engine struct {
 }
 
 func (e *Engine) FormatAllFiles() error {
-	paths, err := CollectPathsToFormat(e.Include, e.Exclude)
+	paths, err := paths.CollectPathsToFormat(e.Include, e.Exclude)
 	if err != nil {
 		return err
 	}
@@ -62,7 +63,7 @@ func (e *Engine) FormatFile(path string) error {
 }
 
 func (e *Engine) LintAllFiles() error {
-	paths, err := CollectPathsToFormat(e.Include, e.Exclude)
+	paths, err := paths.CollectPathsToFormat(e.Include, e.Exclude)
 	if err != nil {
 		return err
 	}
@@ -98,7 +99,7 @@ func (e *Engine) LintFile(path string) error {
 }
 
 func (e *Engine) DryRunAllFiles() (string, error) {
-	paths, err := CollectPathsToFormat(e.Include, e.Exclude)
+	paths, err := paths.CollectPathsToFormat(e.Include, e.Exclude)
 	if err != nil {
 		return "", err
 	}
