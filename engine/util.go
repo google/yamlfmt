@@ -39,14 +39,18 @@ func CollectPathsToFormat(include, exclude []string) ([]string, error) {
 			pathsToFormatSet[path] = struct{}{}
 			continue
 		}
+		excluded := false
 		for _, pattern := range exclude {
 			match, err := doublestar.Match(pattern, path)
 			if err != nil {
 				return nil, err
 			}
-			if !match {
-				pathsToFormatSet[path] = struct{}{}
+			if match {
+				excluded = true
 			}
+		}
+		if !excluded {
+			pathsToFormatSet[path] = struct{}{}
 		}
 	}
 	pathsToFormat := []string{}
