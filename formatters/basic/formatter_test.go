@@ -53,3 +53,19 @@ a:`
 		t.Fatalf("keys were reordered:\n%s", s)
 	}
 }
+
+func TestFormatterParsesMultipleDocuments(t *testing.T) {
+	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
+
+	yaml := `b:
+---
+a:
+`
+	s, err := f.Format([]byte(yaml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	if len(s) != len([]byte(yaml)) {
+		t.Fatalf("expected yaml not to change, result: %s", string(s))
+	}
+}
