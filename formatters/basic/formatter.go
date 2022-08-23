@@ -57,5 +57,13 @@ func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
 		}
 	}
 
+	if f.Config.IncludeDocumentStart {
+		return withDocumentStart(b.Bytes()), nil
+	}
 	return b.Bytes(), nil
+}
+
+func withDocumentStart(document []byte) []byte {
+	documentStart := "---\n"
+	return append([]byte(documentStart), document...)
 }

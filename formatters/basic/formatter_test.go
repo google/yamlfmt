@@ -69,3 +69,17 @@ a:
 		t.Fatalf("expected yaml not to change, result: %s", string(s))
 	}
 }
+
+func TestWithDocumentStart(t *testing.T) {
+	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
+	f.Config.IncludeDocumentStart = true
+
+	yaml := "a:"
+	s, err := f.Format([]byte(yaml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	if strings.Index(string(s), "---\n") != 0 {
+		t.Fatalf("expected document start to be included, result was: %s", string(s))
+	}
+}
