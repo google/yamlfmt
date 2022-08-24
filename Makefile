@@ -12,3 +12,6 @@ addlicense:
 
 test_diff:
 	go test -v -mod=mod github.com/google/yamlfmt/internal/diff
+
+test_basic_formatter:
+	go test -v -mod=mod github.com/google/yamlfmt/formatters/basic
