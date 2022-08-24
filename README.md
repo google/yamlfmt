@@ -51,7 +51,7 @@ In your `.yamlfmt` file you can also specify configuration for the formatter if 
 ```yaml
 formatter:
   type: basic
-  indentation: 4
+  indent: 4
 ```
 If the type is not specified, the default formatter will be used. In the tool included in this repo, the default is the [basic formatter](formatters/basic).
 
