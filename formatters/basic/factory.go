@@ -30,10 +30,10 @@ func (f *BasicFormatterFactory) NewDefault() yamlfmt.Formatter {
 }
 
 func (f *BasicFormatterFactory) NewWithConfig(configData map[string]interface{}) (yamlfmt.Formatter, error) {
-	var c Config
-	err := mapstructure.Decode(configData, &c)
+	config := DefaultConfig()
+	err := mapstructure.Decode(configData, &config)
 	if err != nil {
 		return nil, err
 	}
-	return &BasicFormatter{Config: &c}, nil
+	return &BasicFormatter{Config: config}, nil
 }
