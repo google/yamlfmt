@@ -6,5 +6,5 @@ The basic formatter is a barebones formatter that simply takes the data provided
 
 | Key                      | Default | Description |
 |:-------------------------|:--------|:------------|
-| `indentation`            | 2       | The indentation level in spaces to use for the formatted yaml|
+| `indent`                 | 2       | The indentation level in spaces to use for the formatted yaml|
 | `include_document_start` | false   | Include `---` at document start |
