@@ -60,15 +60,15 @@ If the type is not specified, the default formatter will be used. In the tool in
 The CLI supports the following flags/arguments:
 
 * Format (default, no flags)
-  - Format and write the matched files
+	- Format and write the matched files
 * Dry run (`-dry` flag)
-  - Format the matched files and output the diff to `stdout`
+	- Format the matched files and output the diff to `stdout`
 * Lint (`-lint` flag)
-  - Format the matched files and output the diff to `stdout`, exits with status 1 if there are any differences
+	- Format the matched files and output the diff to `stdout`, exits with status 1 if there are any differences
 * Stdin (just `-` or `/dev/stdin` argument)
-  - Format the yaml data from `stdin` and output the result to `stdout`
+	- Format the yaml data from `stdin` and output the result to `stdout`
 * Custom config path (`-conf` flag)
-  - If you would like to use a config not stored at `.yamlfmt` in the working directory, you can pass a relative or absolute path to a separate configuration file
+	- If you would like to use a config not stored at `.yamlfmt` in the working directory, you can pass a relative or absolute path to a separate configuration file
 
 
 (NOTE: If providing paths as command line arguments, the flags must be specified before any paths)
