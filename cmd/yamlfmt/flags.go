@@ -75,7 +75,8 @@ func printHelpMessage() {
 Arguments:
 
   Glob paths to yaml files
-        Send any number of paths to yaml files specified in doublestar glob format (see: https://github.com/bmatcuk/doublestar). Any flags must be specified before the paths.
+        Send any number of paths to yaml files specified in doublestar glob format (see: https://github.com/bmatcuk/doublestar). 
+        Any flags must be specified before the paths.
 
   - or /dev/stdin
         Passing in a single - or /dev/stdin will read the yaml from stdin and output the formatted result to stdout
