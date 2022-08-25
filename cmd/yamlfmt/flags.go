@@ -28,11 +28,12 @@ var (
 source yaml and formatted yaml.`)
 	flagDry *bool = flag.Bool("dry", false, `Perform a dry run; show the output of a formatting
 operation without performing it.`)
+	flagIn   *bool   = flag.Bool("in", false, "Format yaml read from stdin and output to stdout")
 	flagConf *string = flag.String("conf", "", "Read yamlfmt config from this path")
 )
 
 func getOperation() command.Operation {
-	if len(flag.Args()) == 1 && isStdin(flag.Args()[0]) {
+	if *flagIn || isStdinArg() {
 		return command.OperationStdin
 	}
 	if *flagLint {
@@ -44,7 +45,11 @@ func getOperation() command.Operation {
 	return command.OperationFormat
 }
 
-func isStdin(arg string) bool {
+func isStdinArg() bool {
+	if len(flag.Args()) != 1 {
+		return false
+	}
+	arg := flag.Args()[0]
 	return arg == "-" || arg == "/dev/stdin"
 }
 
