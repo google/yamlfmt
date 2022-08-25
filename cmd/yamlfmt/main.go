@@ -32,7 +32,6 @@ var (
 source yaml and formatted yaml.`)
 	dry *bool = flag.Bool("dry", false, `Perform a dry run; show the output of a formatting
 operation without performing it.`)
-	in *bool = flag.Bool("in", false, "Format yaml read from stdin and output to stdout")
 )
 
 const defaultConfigName = ".yamlfmt"
@@ -51,10 +50,12 @@ func run() error {
 		op = command.OperationLint
 	} else if *dry {
 		op = command.OperationDry
-	} else if *in {
-		op = command.OperationStdin
 	} else {
 		op = command.OperationFormat
+	}
+
+	if len(flag.Args()) == 1 && isStdin(flag.Args()[0]) {
+		op = command.OperationStdin
 	}
 
 	configData, err := readDefaultConfigFile()
@@ -100,4 +101,8 @@ func readConfig(path string) (map[string]interface{}, error) {
 
 func getFullRegistry() *yamlfmt.Registry {
 	return yamlfmt.NewFormatterRegistry(&basic.BasicFormatterFactory{})
+}
+
+func isStdin(arg string) bool {
+	return arg == "-" || arg == "/dev/stdin"
 }
