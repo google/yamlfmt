@@ -19,20 +19,11 @@ import (
 	"flag"
 	"log"
 	"os"
-	"path"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/formatters/basic"
 	"gopkg.in/yaml.v3"
-)
-
-var (
-	flagLint *bool = flag.Bool("lint", false, `Check if there are any differences between
-source yaml and formatted yaml.`)
-	flagDry *bool = flag.Bool("dry", false, `Perform a dry run; show the output of a formatting
-operation without performing it.`)
-	flagConf *string = flag.String("conf", "", "Read yamlfmt config from this path")
 )
 
 const defaultConfigName = ".yamlfmt"
@@ -44,6 +35,7 @@ func main() {
 }
 
 func run() error {
+	configureHelp()
 	flag.Parse()
 
 	operation := getOperation()
@@ -69,23 +61,6 @@ func run() error {
 	return command.RunCommand(operation, getFullRegistry(), configData)
 }
 
-func getConfigPath() (string, error) {
-	configPath := *flagConf
-	if configPath == "" {
-		configPath = defaultConfigName
-	}
-
-	if path.IsAbs(configPath) {
-		return configPath, nil
-	}
-
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	return path.Join(wd, configPath), nil
-}
-
 func readConfig(path string) (map[string]interface{}, error) {
 	if _, err := os.Stat(path); err != nil {
 		return nil, err
@@ -100,23 +75,6 @@ func readConfig(path string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	return configData, nil
-}
-
-func getOperation() command.Operation {
-	if len(flag.Args()) == 1 && isStdin(flag.Args()[0]) {
-		return command.OperationStdin
-	}
-	if *flagLint {
-		return command.OperationLint
-	}
-	if *flagDry {
-		return command.OperationDry
-	}
-	return command.OperationFormat
-}
-
-func isStdin(arg string) bool {
-	return arg == "-" || arg == "/dev/stdin"
 }
 
 func getFullRegistry() *yamlfmt.Registry {
