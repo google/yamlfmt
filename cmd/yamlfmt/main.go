@@ -28,10 +28,11 @@ import (
 )
 
 var (
-	lint *bool = flag.Bool("lint", false, `Check if there are any differences between
+	flagLint *bool = flag.Bool("lint", false, `Check if there are any differences between
 source yaml and formatted yaml.`)
-	dry *bool = flag.Bool("dry", false, `Perform a dry run; show the output of a formatting
+	flagDry *bool = flag.Bool("dry", false, `Perform a dry run; show the output of a formatting
 operation without performing it.`)
+	flagConf *string = flag.String("conf", "", "Read yamlfmt config from this path")
 )
 
 const defaultConfigName = ".yamlfmt"
@@ -45,20 +46,14 @@ func main() {
 func run() error {
 	flag.Parse()
 
-	var op command.Operation
-	if *lint {
-		op = command.OperationLint
-	} else if *dry {
-		op = command.OperationDry
-	} else {
-		op = command.OperationFormat
+	operation := getOperation()
+
+	configPath, err := getConfigPath()
+	if err != nil {
+		return err
 	}
 
-	if len(flag.Args()) == 1 && isStdin(flag.Args()[0]) {
-		op = command.OperationStdin
-	}
-
-	configData, err := readDefaultConfigFile()
+	configData, err := readConfig(configPath)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			configData = map[string]interface{}{}
@@ -71,16 +66,24 @@ func run() error {
 		configData["include"] = flag.Args()
 	}
 
-	return command.RunCommand(op, getFullRegistry(), configData)
+	return command.RunCommand(operation, getFullRegistry(), configData)
 }
 
-func readDefaultConfigFile() (map[string]interface{}, error) {
+func getConfigPath() (string, error) {
+	configPath := *flagConf
+	if configPath == "" {
+		configPath = defaultConfigName
+	}
+
+	if path.IsAbs(configPath) {
+		return configPath, nil
+	}
+
 	wd, err := os.Getwd()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	path := path.Join(wd, defaultConfigName)
-	return readConfig(path)
+	return path.Join(wd, configPath), nil
 }
 
 func readConfig(path string) (map[string]interface{}, error) {
@@ -99,10 +102,23 @@ func readConfig(path string) (map[string]interface{}, error) {
 	return configData, nil
 }
 
-func getFullRegistry() *yamlfmt.Registry {
-	return yamlfmt.NewFormatterRegistry(&basic.BasicFormatterFactory{})
+func getOperation() command.Operation {
+	if len(flag.Args()) == 1 && isStdin(flag.Args()[0]) {
+		return command.OperationStdin
+	}
+	if *flagLint {
+		return command.OperationLint
+	}
+	if *flagDry {
+		return command.OperationDry
+	}
+	return command.OperationFormat
 }
 
 func isStdin(arg string) bool {
 	return arg == "-" || arg == "/dev/stdin"
+}
+
+func getFullRegistry() *yamlfmt.Registry {
+	return yamlfmt.NewFormatterRegistry(&basic.BasicFormatterFactory{})
 }
