@@ -65,7 +65,7 @@ The CLI supports the following flags/arguments:
 	- Format the matched files and output the diff to `stdout`
 * Lint (`-lint` flag)
 	- Format the matched files and output the diff to `stdout`, exits with status 1 if there are any differences
-* Stdin (just `-` or `/dev/stdin` argument)
+* Stdin (just `-` or `/dev/stdin` argument, or `-in` flag)
 	- Format the yaml data from `stdin` and output the result to `stdout`
 * Custom config path (`-conf` flag)
 	- If you would like to use a config not stored at `.yamlfmt` in the working directory, you can pass a relative or absolute path to a separate configuration file
