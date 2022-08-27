@@ -35,7 +35,7 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 			expectedConfig: basic.Config{
 				Indent:               4,
 				IncludeDocumentStart: false,
-				LineEndings:          yamlfmt.LineBreakStyleLF,
+				LineEnding:           yamlfmt.LineBreakStyleLF,
 			},
 		},
 		{
@@ -46,7 +46,7 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 			expectedConfig: basic.Config{
 				Indent:               2,
 				IncludeDocumentStart: true,
-				LineEndings:          yamlfmt.LineBreakStyleLF,
+				LineEnding:           yamlfmt.LineBreakStyleLF,
 			},
 		},
 		{
@@ -57,7 +57,7 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 			expectedConfig: basic.Config{
 				Indent:               2,
 				IncludeDocumentStart: false,
-				LineEndings:          yamlfmt.LineBreakStyleCRLF,
+				LineEnding:           yamlfmt.LineBreakStyleCRLF,
 			},
 		},
 		{
@@ -70,7 +70,7 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 			expectedConfig: basic.Config{
 				Indent:               4,
 				IncludeDocumentStart: true,
-				LineEndings:          yamlfmt.LineBreakStyleCRLF,
+				LineEnding:           yamlfmt.LineBreakStyleCRLF,
 			},
 		},
 	}

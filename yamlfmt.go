@@ -61,9 +61,7 @@ func (r *Registry) GetDefaultFactory() (Factory, error) {
 	return factory, nil
 }
 
-type LineBreakStyle string
-
 const (
-	LineBreakStyleLF   LineBreakStyle = "lf"
-	LineBreakStyleCRLF LineBreakStyle = "crlf"
+	LineBreakStyleLF   = "lf"
+	LineBreakStyleCRLF = "crlf"
 )

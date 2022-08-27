@@ -21,9 +21,9 @@ import (
 )
 
 type Config struct {
-	Indent               int                    `mapstructure:"indent"`
-	IncludeDocumentStart bool                   `mapstructure:"include_document_start"`
-	LineEndings          yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
+	Indent               int    `mapstructure:"indent"`
+	IncludeDocumentStart bool   `mapstructure:"include_document_start"`
+	LineEnding           string `mapstructure:"line_ending"`
 }
 
 func DefaultConfig() *Config {
@@ -32,7 +32,7 @@ func DefaultConfig() *Config {
 		lineBreakStyle = yamlfmt.LineBreakStyleCRLF
 	}
 	return &Config{
-		Indent:      2,
-		LineEndings: lineBreakStyle,
+		Indent:     2,
+		LineEnding: lineBreakStyle,
 	}
 }

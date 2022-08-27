@@ -87,7 +87,7 @@ func TestWithDocumentStart(t *testing.T) {
 
 func TestCRLFLineEnding(t *testing.T) {
 	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
-	f.Config.LineEndings = yamlfmt.LineBreakStyleCRLF
+	f.Config.LineEnding = yamlfmt.LineBreakStyleCRLF
 
 	yaml := "# comment\r\na:\r\n"
 	result, err := f.Format([]byte(yaml))

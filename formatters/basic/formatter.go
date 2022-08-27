@@ -36,7 +36,7 @@ func (f *BasicFormatter) Type() string {
 
 func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
 	var reader *bytes.Reader
-	if f.Config.LineEndings == yamlfmt.LineBreakStyleCRLF {
+	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
 		crStrippedContent := hotfix.StripCRBytes(yamlContent)
 		reader = bytes.NewReader(crStrippedContent)
 	} else {
@@ -71,7 +71,7 @@ func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
 	if f.Config.IncludeDocumentStart {
 		encodedContent = withDocumentStart(b.Bytes())
 	}
-	if f.Config.LineEndings == yamlfmt.LineBreakStyleCRLF {
+	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
 		return hotfix.WriteCRLFBytes(encodedContent), nil
 	}
 	return encodedContent, nil
