@@ -4,7 +4,8 @@ The basic formatter is a barebones formatter that simply takes the data provided
 
 ## Configuration
 
-| Key                      | Default | Description |
-|:-------------------------|:--------|:------------|
-| `indent`                 | 2       | The indentation level in spaces to use for the formatted yaml|
-| `include_document_start` | false   | Include `---` at document start |
+| Key                      | Type           | Default | Description |
+|:-------------------------|:---------------|:--------|:------------|
+| `indent`                 | int            | 2       | The indentation level in spaces to use for the formatted yaml|
+| `include_document_start` | bool           | false   | Include `---` at document start |
+| `line_ending`           | `lf` or `crlf` | `crlf` on Windows, `lf` otherwise | Parse and write the file with "lf" or "crlf" line endings |

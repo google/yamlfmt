@@ -19,6 +19,8 @@ import (
 	"errors"
 	"io"
 
+	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/hotfix"
 	"gopkg.in/yaml.v3"
 )
 
@@ -33,7 +35,15 @@ func (f *BasicFormatter) Type() string {
 }
 
 func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
-	decoder := yaml.NewDecoder(bytes.NewReader(yamlContent))
+	var reader *bytes.Reader
+	if f.Config.LineEndings == yamlfmt.LineBreakStyleCRLF {
+		crStrippedContent := hotfix.StripCRBytes(yamlContent)
+		reader = bytes.NewReader(crStrippedContent)
+	} else {
+		reader = bytes.NewReader(yamlContent)
+	}
+
+	decoder := yaml.NewDecoder(reader)
 	documents := []yaml.Node{}
 	for {
 		var docNode yaml.Node
@@ -57,10 +67,14 @@ func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
 		}
 	}
 
+	encodedContent := b.Bytes()
 	if f.Config.IncludeDocumentStart {
-		return withDocumentStart(b.Bytes()), nil
+		encodedContent = withDocumentStart(b.Bytes())
 	}
-	return b.Bytes(), nil
+	if f.Config.LineEndings == yamlfmt.LineBreakStyleCRLF {
+		return hotfix.WriteCRLFBytes(encodedContent), nil
+	}
+	return encodedContent, nil
 }
 
 func withDocumentStart(document []byte) []byte {

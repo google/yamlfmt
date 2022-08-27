@@ -18,6 +18,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/formatters/basic"
 )
 
@@ -81,5 +82,19 @@ func TestWithDocumentStart(t *testing.T) {
 	}
 	if strings.Index(string(s), "---\n") != 0 {
 		t.Fatalf("expected document start to be included, result was: %s", string(s))
+	}
+}
+
+func TestCRLFLineEnding(t *testing.T) {
+	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
+	f.Config.LineEndings = yamlfmt.LineBreakStyleCRLF
+
+	yaml := "# comment\r\na:\r\n"
+	result, err := f.Format([]byte(yaml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	if string(yaml) != string(result) {
+		t.Fatalf("didn't write CRLF properly in result: %v", result)
 	}
 }
