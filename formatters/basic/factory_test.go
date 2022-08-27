@@ -17,6 +17,7 @@ package basic_test
 import (
 	"testing"
 
+	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/formatters/basic"
 )
 
@@ -34,6 +35,7 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 			expectedConfig: basic.Config{
 				Indent:               4,
 				IncludeDocumentStart: false,
+				LineEnding:           yamlfmt.LineBreakStyleLF,
 			},
 		},
 		{
@@ -44,6 +46,31 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 			expectedConfig: basic.Config{
 				Indent:               2,
 				IncludeDocumentStart: true,
+				LineEnding:           yamlfmt.LineBreakStyleLF,
+			},
+		},
+		{
+			name: "only line_ending style specified",
+			configMap: map[string]interface{}{
+				"line_ending": "crlf",
+			},
+			expectedConfig: basic.Config{
+				Indent:               2,
+				IncludeDocumentStart: false,
+				LineEnding:           yamlfmt.LineBreakStyleCRLF,
+			},
+		},
+		{
+			name: "all specified",
+			configMap: map[string]interface{}{
+				"indent":                 4,
+				"line_ending":            "crlf",
+				"include_document_start": true,
+			},
+			expectedConfig: basic.Config{
+				Indent:               4,
+				IncludeDocumentStart: true,
+				LineEnding:           yamlfmt.LineBreakStyleCRLF,
 			},
 		},
 	}

@@ -60,3 +60,8 @@ func (r *Registry) GetDefaultFactory() (Factory, error) {
 	}
 	return factory, nil
 }
+
+const (
+	LineBreakStyleLF   = "lf"
+	LineBreakStyleCRLF = "crlf"
+)

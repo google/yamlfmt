@@ -14,13 +14,25 @@
 
 package basic
 
+import (
+	"runtime"
+
+	"github.com/google/yamlfmt"
+)
+
 type Config struct {
-	Indent               int  `mapstructure:"indent"`
-	IncludeDocumentStart bool `mapstructure:"include_document_start"`
+	Indent               int    `mapstructure:"indent"`
+	IncludeDocumentStart bool   `mapstructure:"include_document_start"`
+	LineEnding           string `mapstructure:"line_ending"`
 }
 
 func DefaultConfig() *Config {
+	lineBreakStyle := yamlfmt.LineBreakStyleLF
+	if runtime.GOOS == "windows" {
+		lineBreakStyle = yamlfmt.LineBreakStyleCRLF
+	}
 	return &Config{
-		Indent: 2,
+		Indent:     2,
+		LineEnding: lineBreakStyle,
 	}
 }
