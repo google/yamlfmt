@@ -15,8 +15,6 @@
 package basic
 
 import (
-	"fmt"
-
 	"github.com/google/yamlfmt"
 	"github.com/mitchellh/mapstructure"
 )
@@ -37,6 +35,5 @@ func (f *BasicFormatterFactory) NewWithConfig(configData map[string]interface{})
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(config.LineEnding)
 	return &BasicFormatter{Config: config}, nil
 }
