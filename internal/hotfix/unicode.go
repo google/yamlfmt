@@ -50,6 +50,10 @@ func (p *unicodeParser) write() {
 	p.out = append(p.out, p.peek())
 }
 
+func (p *unicodeParser) writeArbitrary(b []byte) {
+	p.out = append(p.out, b...)
+}
+
 func (p *unicodeParser) next() error {
 	p.pos++
 	if p.pos == len(p.buf) {
@@ -103,7 +107,7 @@ func (p *unicodeParser) parseUTF8CodePoint() error {
 	if err != nil {
 		return err
 	}
-	p.out = append(p.out, utf8Bytes...)
+	p.writeArbitrary(utf8Bytes)
 
 	// Continue to the next byte for convenience to the caller.
 	err = p.next()
