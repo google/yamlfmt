@@ -1,3 +1,5 @@
+github.com/RageCage64/go-utf8-codepoint-converter v0.1.0 h1:6GreQRSQApXW1sgeFXMBLDdxSC6DCzu4lKBS/LEyrSA=
+github.com/RageCage64/go-utf8-codepoint-converter v0.1.0/go.mod h1:asNWDxR7n0QIQyZNYTlpNk6Dg7GkUnxtCXho987uen8=
 github.com/bmatcuk/doublestar/v4 v4.2.0 h1:Qu+u9wR3Vd89LnlLMHvnZ5coJMWKQamqdz9/p5GNthA=
 github.com/bmatcuk/doublestar/v4 v4.2.0/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/google/go-cmp v0.5.8 h1:e6P7q2lk1O+qJJb4BtCQXlK8vWEO8V1ZeuEdJNOqZyg=

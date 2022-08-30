@@ -23,6 +23,7 @@ import (
 type Config struct {
 	Indent               int    `mapstructure:"indent"`
 	IncludeDocumentStart bool   `mapstructure:"include_document_start"`
+	EmojiSupport         bool   `mapstructure:"emoji_support"`
 	LineEnding           string `mapstructure:"line_ending"`
 }
 
