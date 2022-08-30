@@ -98,3 +98,18 @@ func TestCRLFLineEnding(t *testing.T) {
 		t.Fatalf("didn't write CRLF properly in result: %v", result)
 	}
 }
+
+func TestEmojiSupport(t *testing.T) {
+	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
+	f.Config.EmojiSupport = true
+
+	yaml := "a: 😊"
+	result, err := f.Format([]byte(yaml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	resultStr := string(result)
+	if !strings.Contains(resultStr, "😊") {
+		t.Fatalf("expected string to contain 😊, got: %s", resultStr)
+	}
+}

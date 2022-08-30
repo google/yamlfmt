@@ -71,8 +71,11 @@ func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
 	if f.Config.IncludeDocumentStart {
 		encodedContent = withDocumentStart(b.Bytes())
 	}
+	if f.Config.EmojiSupport {
+		encodedContent = hotfix.ParseUnicodePoints(encodedContent)
+	}
 	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-		return hotfix.WriteCRLFBytes(encodedContent), nil
+		encodedContent = hotfix.WriteCRLFBytes(encodedContent)
 	}
 	return encodedContent, nil
 }
