@@ -35,5 +35,10 @@ func (f *BasicFormatterFactory) NewWithConfig(configData map[string]interface{})
 	if err != nil {
 		return nil, err
 	}
-	return &BasicFormatter{Config: config}, nil
+	formatter := &BasicFormatter{
+		Config:   config,
+		Features: []yamlfmt.Feature{},
+	}
+	formatter.ConfigureFeaturesFromConfig()
+	return formatter, nil
 }

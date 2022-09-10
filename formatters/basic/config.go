@@ -25,6 +25,7 @@ type Config struct {
 	IncludeDocumentStart bool   `mapstructure:"include_document_start"`
 	EmojiSupport         bool   `mapstructure:"emoji_support"`
 	LineEnding           string `mapstructure:"line_ending"`
+	RetainLineBreaks     bool   `mapstructure:"retain_line_breaks"`
 }
 
 func DefaultConfig() *Config {

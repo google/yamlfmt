@@ -22,8 +22,14 @@ import (
 	"github.com/google/yamlfmt/formatters/basic"
 )
 
+func newFormatter(config *basic.Config) *basic.BasicFormatter {
+	formatter := &basic.BasicFormatter{Config: config}
+	formatter.ConfigureFeaturesFromConfig()
+	return formatter
+}
+
 func TestFormatterRetainsComments(t *testing.T) {
-	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
+	f := newFormatter(basic.DefaultConfig())
 
 	yaml := `x: "y" # foo comment`
 
@@ -72,8 +78,9 @@ a:
 }
 
 func TestWithDocumentStart(t *testing.T) {
-	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
-	f.Config.IncludeDocumentStart = true
+	config := basic.DefaultConfig()
+	config.IncludeDocumentStart = true
+	f := newFormatter(config)
 
 	yaml := "a:"
 	s, err := f.Format([]byte(yaml))
@@ -86,8 +93,9 @@ func TestWithDocumentStart(t *testing.T) {
 }
 
 func TestCRLFLineEnding(t *testing.T) {
-	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
-	f.Config.LineEnding = yamlfmt.LineBreakStyleCRLF
+	config := basic.DefaultConfig()
+	config.LineEnding = yamlfmt.LineBreakStyleCRLF
+	f := newFormatter(config)
 
 	yaml := "# comment\r\na:\r\n"
 	result, err := f.Format([]byte(yaml))
@@ -100,8 +108,9 @@ func TestCRLFLineEnding(t *testing.T) {
 }
 
 func TestEmojiSupport(t *testing.T) {
-	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
-	f.Config.EmojiSupport = true
+	config := basic.DefaultConfig()
+	config.EmojiSupport = true
+	f := newFormatter(config)
 
 	yaml := "a: 😊"
 	result, err := f.Format([]byte(yaml))
@@ -166,7 +175,9 @@ shell: |
 `,
 		},
 	}
-	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
+	config := basic.DefaultConfig()
+	config.RetainLineBreaks = true
+	f := newFormatter(config)
 	for _, c := range testCases {
 		t.Run(c.desc, func(t *testing.T) {
 			got, err := f.Format([]byte(c.input))
@@ -174,7 +185,7 @@ shell: |
 				t.Fatalf("expected formatting to pass, returned error: %v", err)
 			}
 			if string(got) != c.expect {
-				t.Fatalf("didn't retain line breaks result: %v, expect %s", string(got), c.expect)
+				t.Fatalf("didn't retain line breaks\nresult: %v\nexpect %s", string(got), c.expect)
 			}
 		})
 	}

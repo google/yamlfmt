@@ -65,3 +65,44 @@ const (
 	LineBreakStyleLF   = "lf"
 	LineBreakStyleCRLF = "crlf"
 )
+
+type FeatureFunc func([]byte) ([]byte, error)
+
+type Feature struct {
+	Name         string
+	BeforeAction FeatureFunc
+	AfterAction  FeatureFunc
+}
+
+type FeatureList []Feature
+
+type FeatureApplyMode string
+
+var (
+	FeatureApplyBefore FeatureApplyMode = "before"
+	FeatureApplyAfter  FeatureApplyMode = "after"
+)
+
+func (fl FeatureList) ApplyFeatures(input []byte, mode FeatureApplyMode) ([]byte, error) {
+	// Declare err here so the result variable doesn't get shadowed in the loop
+	var err error
+	result := make([]byte, len(input))
+	copy(result, input)
+	for _, feature := range fl {
+		if mode == FeatureApplyBefore {
+			if feature.BeforeAction != nil {
+				result, err = feature.BeforeAction(result)
+			}
+		} else {
+			if feature.AfterAction != nil {
+				result, err = feature.AfterAction(result)
+			}
+		}
+
+		// TODO: use the yamlfmt.Feature error wrap function I'll make
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
+}
