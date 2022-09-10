@@ -1,16 +1,32 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package hotfix
 
-func StripCRBytes(crlfContent []byte) []byte {
+// yamlfmt.FeatureFunc
+func StripCRBytes(crlfContent []byte) ([]byte, error) {
 	onlyLf := []byte{}
 	for _, b := range crlfContent {
 		if b != '\r' {
 			onlyLf = append(onlyLf, b)
 		}
 	}
-	return onlyLf
+	return onlyLf, nil
 }
 
-func WriteCRLFBytes(lfContent []byte) []byte {
+// yamlfmt.FeatureFunc
+func WriteCRLFBytes(lfContent []byte) ([]byte, error) {
 	crlfContent := []byte{}
 	for _, b := range lfContent {
 		if b == '\n' {
@@ -18,5 +34,5 @@ func WriteCRLFBytes(lfContent []byte) []byte {
 		}
 		crlfContent = append(crlfContent, b)
 	}
-	return crlfContent
+	return crlfContent, nil
 }

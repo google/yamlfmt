@@ -10,3 +10,4 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `include_document_start` | bool           | false   | Include `---` at document start |
 | `line_ending`            | `lf` or `crlf` | `crlf` on Windows, `lf` otherwise | Parse and write the file with "lf" or "crlf" line endings |
 | `emoji_support`          | bool           | false   | Support encoding utf-8 emojis |
+| `retain_line_breaks`     | bool           | false   | Retain line breaks in formatted yaml |
