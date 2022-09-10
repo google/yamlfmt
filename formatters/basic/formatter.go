@@ -20,6 +20,7 @@ import (
 	"io"
 
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/hotfix"
 	"gopkg.in/yaml.v3"
 )
 
@@ -41,39 +42,20 @@ func (f *BasicFormatter) ConfigureFeaturesFromConfig() {
 		f.Features = append(f.Features, featCRLFSupport)
 	}
 	if f.Config.RetainLineBreaks {
-		f.Features = append(f.Features, makeFeatRetainLineBreak(f.Config))
+		linebreakStr := "\n"
+		if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
+			linebreakStr = "\r\n"
+		}
+		featLineBreak := hotfix.MakeFeatureRetainLineBreak(linebreakStr, f.Config.Indent)
+		f.Features = append(f.Features, featLineBreak)
 	}
 }
+
+// yamlfmt.Formatter interface
 
 func (f *BasicFormatter) Type() string {
 	return BasicFormatterType
 }
-
-// func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
-// 	var reader *bytes.Reader
-// 	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-// 		crStrippedContent, _ := hotfix.StripCRBytes(yamlContent)
-// 		reader = bytes.NewReader(crStrippedContent)
-// 	} else {
-// 		reader = bytes.NewReader(yamlContent)
-// 	}
-
-// 	encodedContent, err := retainLineBreaks(reader, f.format)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	if f.Config.IncludeDocumentStart {
-// 		encodedContent = withDocumentStart(encodedContent)
-// 	}
-// 	if f.Config.EmojiSupport {
-// 		encodedContent, _ = hotfix.ParseUnicodePoints(encodedContent)
-// 	}
-// 	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-// 		encodedContent, _ = hotfix.WriteCRLFBytes(encodedContent)
-// 	}
-// 	return encodedContent, nil
-// }
 
 func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	// Run all featurres with BeforeActions

@@ -38,7 +38,15 @@ func (p *paddinger) adjust(size int) {
 	}
 }
 
-func ReplaceLineBreakFeature(newlineStr string, indentSize int) yamlfmt.FeatureFunc {
+func MakeFeatureRetainLineBreak(linebreakStr string, indent int) yamlfmt.Feature {
+	return yamlfmt.Feature{
+		Name:         "Retain Line Breaks",
+		BeforeAction: replaceLineBreakFeature(linebreakStr, indent),
+		AfterAction:  restoreLineBreakFeature(linebreakStr),
+	}
+}
+
+func replaceLineBreakFeature(newlineStr string, indentSize int) yamlfmt.FeatureFunc {
 	return func(content []byte) ([]byte, error) {
 		var buf bytes.Buffer
 		reader := bytes.NewReader(content)
@@ -60,7 +68,7 @@ func ReplaceLineBreakFeature(newlineStr string, indentSize int) yamlfmt.FeatureF
 	}
 }
 
-func RestoreLineBreakFeature(newlineStr string) yamlfmt.FeatureFunc {
+func restoreLineBreakFeature(newlineStr string) yamlfmt.FeatureFunc {
 	return func(content []byte) ([]byte, error) {
 		var buf bytes.Buffer
 		reader := bytes.NewReader(content)
