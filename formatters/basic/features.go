@@ -37,3 +37,25 @@ var (
 		AfterAction:  hotfix.WriteCRLFBytes,
 	}
 )
+
+func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
+	features := []yamlfmt.Feature{}
+	if config.EmojiSupport {
+		features = append(features, featEmojiSupport)
+	}
+	if config.IncludeDocumentStart {
+		features = append(features, featIncludeDocumentStart)
+	}
+	if config.LineEnding == yamlfmt.LineBreakStyleCRLF {
+		features = append(features, featCRLFSupport)
+	}
+	if config.RetainLineBreaks {
+		linebreakStr := "\n"
+		if config.LineEnding == yamlfmt.LineBreakStyleCRLF {
+			linebreakStr = "\r\n"
+		}
+		featLineBreak := hotfix.MakeFeatureRetainLineBreak(linebreakStr, config.Indent)
+		features = append(features, featLineBreak)
+	}
+	return features
+}

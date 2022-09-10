@@ -23,9 +23,10 @@ import (
 )
 
 func newFormatter(config *basic.Config) *basic.BasicFormatter {
-	formatter := &basic.BasicFormatter{Config: config}
-	formatter.ConfigureFeaturesFromConfig()
-	return formatter
+	return &basic.BasicFormatter{
+		Config:   config,
+		Features: basic.ConfigureFeaturesFromConfig(config),
+	}
 }
 
 func TestFormatterRetainsComments(t *testing.T) {

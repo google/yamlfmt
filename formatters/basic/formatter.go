@@ -20,7 +20,6 @@ import (
 	"io"
 
 	"github.com/google/yamlfmt"
-	"github.com/google/yamlfmt/internal/hotfix"
 	"gopkg.in/yaml.v3"
 )
 
@@ -29,26 +28,6 @@ const BasicFormatterType string = "basic"
 type BasicFormatter struct {
 	Config   *Config
 	Features yamlfmt.FeatureList
-}
-
-func (f *BasicFormatter) ConfigureFeaturesFromConfig() {
-	if f.Config.EmojiSupport {
-		f.Features = append(f.Features, featEmojiSupport)
-	}
-	if f.Config.IncludeDocumentStart {
-		f.Features = append(f.Features, featIncludeDocumentStart)
-	}
-	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-		f.Features = append(f.Features, featCRLFSupport)
-	}
-	if f.Config.RetainLineBreaks {
-		linebreakStr := "\n"
-		if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-			linebreakStr = "\r\n"
-		}
-		featLineBreak := hotfix.MakeFeatureRetainLineBreak(linebreakStr, f.Config.Indent)
-		f.Features = append(f.Features, featLineBreak)
-	}
 }
 
 // yamlfmt.Formatter interface
