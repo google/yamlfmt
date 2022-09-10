@@ -113,3 +113,69 @@ func TestEmojiSupport(t *testing.T) {
 		t.Fatalf("expected string to contain 😊, got: %s", resultStr)
 	}
 }
+
+func TestRetainLineBreaks(t *testing.T) {
+	testCases := []struct {
+		desc   string
+		input  string
+		expect string
+	}{
+		{
+			desc: "basic",
+			input: `a:  1
+
+b: 2`,
+			expect: `a: 1
+
+b: 2
+`,
+		},
+		{
+			desc: "multi-doc",
+			input: `a:  1
+
+# tail comment
+---
+b: 2`,
+			expect: `a: 1
+
+# tail comment
+---
+b: 2
+`,
+		},
+		{
+			desc: "literal string",
+			input: `a:  1
+
+shell: |
+  #!/usr/bin/env bash
+
+  # hello, world
+    # bye
+  echo "hello, world"
+`,
+			expect: `a: 1
+
+shell: |
+  #!/usr/bin/env bash
+
+  # hello, world
+    # bye
+  echo "hello, world"
+`,
+		},
+	}
+	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
+	for _, c := range testCases {
+		t.Run(c.desc, func(t *testing.T) {
+			got, err := f.Format([]byte(c.input))
+			if err != nil {
+				t.Fatalf("expected formatting to pass, returned error: %v", err)
+			}
+			if string(got) != c.expect {
+				t.Fatalf("didn't retain line breaks result: %v, expect %s", string(got), c.expect)
+			}
+		})
+	}
+}

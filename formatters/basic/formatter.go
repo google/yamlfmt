@@ -43,7 +43,25 @@ func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
 		reader = bytes.NewReader(yamlContent)
 	}
 
-	decoder := yaml.NewDecoder(reader)
+	encodedContent, err := retainLineBreaks(reader, f.format)
+	if err != nil {
+		return nil, err
+	}
+
+	if f.Config.IncludeDocumentStart {
+		encodedContent = withDocumentStart(encodedContent)
+	}
+	if f.Config.EmojiSupport {
+		encodedContent = hotfix.ParseUnicodePoints(encodedContent)
+	}
+	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
+		encodedContent = hotfix.WriteCRLFBytes(encodedContent)
+	}
+	return encodedContent, nil
+}
+
+func (f *BasicFormatter) format(in io.Reader) (io.Reader, error) {
+	decoder := yaml.NewDecoder(in)
 	documents := []yaml.Node{}
 	for {
 		var docNode yaml.Node
@@ -66,18 +84,7 @@ func (f *BasicFormatter) Format(yamlContent []byte) ([]byte, error) {
 			return nil, err
 		}
 	}
-
-	encodedContent := b.Bytes()
-	if f.Config.IncludeDocumentStart {
-		encodedContent = withDocumentStart(b.Bytes())
-	}
-	if f.Config.EmojiSupport {
-		encodedContent = hotfix.ParseUnicodePoints(encodedContent)
-	}
-	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-		encodedContent = hotfix.WriteCRLFBytes(encodedContent)
-	}
-	return encodedContent, nil
+	return &b, nil
 }
 
 func withDocumentStart(document []byte) []byte {
