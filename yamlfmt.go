@@ -14,7 +14,9 @@
 
 package yamlfmt
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Formatter interface {
 	Type() string
@@ -83,6 +85,24 @@ var (
 	FeatureApplyAfter  FeatureApplyMode = "after"
 )
 
+type FeatureApplyError struct {
+	err         error
+	featureName string
+	mode        FeatureApplyMode
+}
+
+func (e *FeatureApplyError) Error() string {
+	action := "Before"
+	if e.mode == FeatureApplyAfter {
+		action = "After"
+	}
+	return fmt.Sprintf("Feature %s %sAction failed with error: %v", e.featureName, action, e.err)
+}
+
+func (e *FeatureApplyError) Unwrap() error {
+	return e.err
+}
+
 func (fl FeatureList) ApplyFeatures(input []byte, mode FeatureApplyMode) ([]byte, error) {
 	// Declare err here so the result variable doesn't get shadowed in the loop
 	var err error
@@ -99,9 +119,12 @@ func (fl FeatureList) ApplyFeatures(input []byte, mode FeatureApplyMode) ([]byte
 			}
 		}
 
-		// TODO: use the yamlfmt.Feature error wrap function I'll make
 		if err != nil {
-			return nil, err
+			return nil, &FeatureApplyError{
+				err:         err,
+				featureName: feature.Name,
+				mode:        mode,
+			}
 		}
 	}
 	return result, nil

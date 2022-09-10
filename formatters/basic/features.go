@@ -37,15 +37,3 @@ var (
 		AfterAction:  hotfix.WriteCRLFBytes,
 	}
 )
-
-func makeFeatRetainLineBreak(config *Config) yamlfmt.Feature {
-	linebreakStr := "\n"
-	if config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-		linebreakStr = "\r\n"
-	}
-	return yamlfmt.Feature{
-		Name:         "Retain Line Breaks",
-		BeforeAction: hotfix.ReplaceLineBreakFeature(linebreakStr, config.Indent),
-		AfterAction:  hotfix.RestoreLineBreakFeature(linebreakStr),
-	}
-}
