@@ -31,22 +31,26 @@ type paddinger struct {
 	strings.Builder
 }
 
-func (p *paddinger) adjust(size int) {
+func (p *paddinger) adjust(txt string) {
+	var indentSize int
+	for i := 0; i < len(txt) && txt[i] == ' '; i++ { // yaml only allows space to indent.
+		indentSize++
+	}
 	// Grows if the given size is larger than us and always return the max padding.
-	for diff := size - p.Len(); diff > 0; diff-- {
+	for diff := indentSize - p.Len(); diff > 0; diff-- {
 		p.WriteByte(' ')
 	}
 }
 
-func MakeFeatureRetainLineBreak(linebreakStr string, indent int) yamlfmt.Feature {
+func MakeFeatureRetainLineBreak(linebreakStr string) yamlfmt.Feature {
 	return yamlfmt.Feature{
 		Name:         "Retain Line Breaks",
-		BeforeAction: replaceLineBreakFeature(linebreakStr, indent),
+		BeforeAction: replaceLineBreakFeature(linebreakStr),
 		AfterAction:  restoreLineBreakFeature(linebreakStr),
 	}
 }
 
-func replaceLineBreakFeature(newlineStr string, indentSize int) yamlfmt.FeatureFunc {
+func replaceLineBreakFeature(newlineStr string) yamlfmt.FeatureFunc {
 	return func(content []byte) ([]byte, error) {
 		var buf bytes.Buffer
 		reader := bytes.NewReader(content)
@@ -54,7 +58,7 @@ func replaceLineBreakFeature(newlineStr string, indentSize int) yamlfmt.FeatureF
 		var padding paddinger
 		for scanner.Scan() {
 			txt := scanner.Text()
-			padding.adjust(indentSize)
+			padding.adjust(txt)
 			if strings.TrimSpace(txt) == "" { // line break or empty space line.
 				buf.WriteString(padding.String()) // prepend some padding incase literal multiline strings.
 				buf.WriteString(lineBreakPlaceholder)
@@ -62,7 +66,7 @@ func replaceLineBreakFeature(newlineStr string, indentSize int) yamlfmt.FeatureF
 				continue
 			}
 			buf.WriteString(txt)
-			buf.WriteByte('\n')
+			buf.WriteString(newlineStr)
 		}
 		return buf.Bytes(), scanner.Err()
 	}
