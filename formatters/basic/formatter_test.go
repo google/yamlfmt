@@ -175,6 +175,26 @@ shell: |
   echo "hello, world"
 `,
 		},
+		{
+			desc: "multi level nested literal string",
+			input: `a:  1
+x:
+  y:
+    shell: |
+      #!/usr/bin/env bash
+
+        # bye
+      echo "hello, world"`,
+			expect: `a: 1
+x:
+  y:
+    shell: |
+      #!/usr/bin/env bash
+
+        # bye
+      echo "hello, world"
+`,
+		},
 	}
 	config := basic.DefaultConfig()
 	config.RetainLineBreaks = true
