@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/RageCage64/multilinediff"
 	"github.com/google/yamlfmt"
-	"github.com/google/yamlfmt/internal/diff"
 	"github.com/google/yamlfmt/internal/paths"
 )
 
@@ -91,7 +91,7 @@ func (e *Engine) LintFile(path string) error {
 	if err != nil {
 		return err
 	}
-	diffContent := diff.MultilineStringDiff(string(yamlBytes), string(formatted))
+	diffContent := multilinediff.MultilineDiff(string(yamlBytes), string(formatted), "\n")
 	if diffContent != "" {
 		return fmt.Errorf(diffContent)
 	}
@@ -130,6 +130,6 @@ func (e *Engine) DryRunFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	diffContent := diff.MultilineStringDiff(string(yamlBytes), string(formatted))
+	diffContent := multilinediff.MultilineDiff(string(yamlBytes), string(formatted), "\n")
 	return diffContent, nil
 }
