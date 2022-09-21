@@ -45,6 +45,14 @@ exclude:
   - excluded/**/*.yaml
 ```
 
+### Line Ending
+
+The default line ending is `lf` (Unix style, Mac/Linux). The line ending can be changed to `crlf` (Windows style) with the `line_ending` setting:
+```yaml
+line_ending: crlf
+```
+This setting will be sent to any formatter as a config field called `line_ending`. If a `line_ending` is specified in the formatter, this will overwrite it. New formatters are free to ignore this setting if they don't need it, but any formatter provided by this repo will handle it accordingly.
+
 ### Formatter
 
 In your `.yamlfmt` file you can also specify configuration for the formatter if that formatter supports it. To change the indentation level of the basic formatter for example:

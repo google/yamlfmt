@@ -2,6 +2,8 @@ github.com/RageCage64/go-utf8-codepoint-converter v0.1.0 h1:6GreQRSQApXW1sgeFXMB
 github.com/RageCage64/go-utf8-codepoint-converter v0.1.0/go.mod h1:asNWDxR7n0QIQyZNYTlpNk6Dg7GkUnxtCXho987uen8=
 github.com/RageCage64/multilinediff v0.1.0 h1:P9Iht5Vj4SHSmTJhQPJnySzTlX/cpL99kN3RJxejipQ=
 github.com/RageCage64/multilinediff v0.1.0/go.mod h1:pKr+KLgP0gvRzA+yv0/IUaYQuBYN1ucWysvsL58aMP0=
+github.com/RageCage64/multilinediff v0.2.0 h1:yNSpSF5NXIrmo6bRIgO4Q0g7SXqFD4j/WEcBE+BdCFY=
+github.com/RageCage64/multilinediff v0.2.0/go.mod h1:pKr+KLgP0gvRzA+yv0/IUaYQuBYN1ucWysvsL58aMP0=
 github.com/bmatcuk/doublestar/v4 v4.2.0 h1:Qu+u9wR3Vd89LnlLMHvnZ5coJMWKQamqdz9/p5GNthA=
 github.com/bmatcuk/doublestar/v4 v4.2.0/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=

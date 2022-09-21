@@ -78,7 +78,7 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 	factory := basic.BasicFormatterFactory{}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			formatter, err := factory.NewWithConfig(tc.configMap)
+			formatter, err := factory.NewFormatter(tc.configMap)
 			if err != nil {
 				t.Fatalf("expected factory to create config, got error: %v", err)
 			}

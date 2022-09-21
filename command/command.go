@@ -40,9 +40,10 @@ type formatterConfig struct {
 }
 
 type commandConfig struct {
-	Include         []string         `mapstructure:"include"`
-	Exclude         []string         `mapstructure:"exclude"`
-	FormatterConfig *formatterConfig `mapstructure:"formatter,omitempty"`
+	Include         []string               `mapstructure:"include"`
+	Exclude         []string               `mapstructure:"exclude"`
+	LineEnding      yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
+	FormatterConfig *formatterConfig       `mapstructure:"formatter,omitempty"`
 }
 
 func RunCommand(
@@ -65,7 +66,10 @@ func RunCommand(
 		if err != nil {
 			return err
 		}
-		formatter = factory.NewDefault()
+		formatter, err = factory.NewFormatter(nil)
+		if err != nil {
+			return err
+		}
 	} else {
 		var (
 			factory yamlfmt.Factory
@@ -80,20 +84,22 @@ func RunCommand(
 			return err
 		}
 
-		if len(config.FormatterConfig.FormatterSettings) > 0 {
-			formatter, err = factory.NewWithConfig(config.FormatterConfig.FormatterSettings)
-			if err != nil {
-				return err
-			}
-		} else {
-			formatter = factory.NewDefault()
+		config.FormatterConfig.FormatterSettings["line_ending"] = config.LineEnding
+		formatter, err = factory.NewFormatter(config.FormatterConfig.FormatterSettings)
+		if err != nil {
+			return err
 		}
 	}
 
+	lineSepChar, err := config.LineEnding.Separator()
+	if err != nil {
+		return err
+	}
 	engine := &engine.Engine{
-		Include:   config.Include,
-		Exclude:   config.Exclude,
-		Formatter: formatter,
+		Include:          config.Include,
+		Exclude:          config.Exclude,
+		LineSepCharacter: lineSepChar,
+		Formatter:        formatter,
 	}
 
 	switch operation {
