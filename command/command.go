@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/engine"
@@ -58,6 +59,12 @@ func RunCommand(
 	}
 	if len(config.Include) == 0 {
 		config.Include = []string{"**/*.{yaml,yml}"}
+	}
+	if config.LineEnding == "" {
+		config.LineEnding = yamlfmt.LineBreakStyleLF
+		if runtime.GOOS == "windows" {
+			config.LineEnding = yamlfmt.LineBreakStyleCRLF
+		}
 	}
 
 	var formatter yamlfmt.Formatter
