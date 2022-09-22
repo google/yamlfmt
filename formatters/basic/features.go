@@ -50,11 +50,11 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 		features = append(features, featCRLFSupport)
 	}
 	if config.RetainLineBreaks {
-		linebreakStr := "\n"
-		if config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-			linebreakStr = "\r\n"
+		lineSep, err := config.LineEnding.Separator()
+		if err != nil {
+			lineSep = "\n"
 		}
-		featLineBreak := hotfix.MakeFeatureRetainLineBreak(linebreakStr)
+		featLineBreak := hotfix.MakeFeatureRetainLineBreak(lineSep)
 		features = append(features, featLineBreak)
 	}
 	return features

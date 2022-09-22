@@ -24,9 +24,10 @@ import (
 )
 
 type Engine struct {
-	Include   []string
-	Exclude   []string
-	Formatter yamlfmt.Formatter
+	Include          []string
+	Exclude          []string
+	LineSepCharacter string
+	Formatter        yamlfmt.Formatter
 }
 
 func (e *Engine) FormatAllFiles() error {
@@ -91,9 +92,9 @@ func (e *Engine) LintFile(path string) error {
 	if err != nil {
 		return err
 	}
-	diffContent := multilinediff.MultilineDiff(string(yamlBytes), string(formatted), "\n")
-	if diffContent != "" {
-		return fmt.Errorf(diffContent)
+	diff, diffCount := multilinediff.Diff(string(yamlBytes), string(formatted), e.LineSepCharacter)
+	if diffCount > 0 {
+		return fmt.Errorf(diff)
 	}
 	return nil
 }
@@ -107,10 +108,10 @@ func (e *Engine) DryRunAllFiles() (string, error) {
 	formatErrors := NewFormatFileErrors()
 	dryRunDiffs := NewDryRunDiffs()
 	for _, path := range paths {
-		diff, err := e.DryRunFile(path)
+		diff, diffCount, err := e.DryRunFile(path)
 		if err != nil {
 			formatErrors.Add(path, err)
-		} else if diff != "" {
+		} else if diffCount > 0 {
 			dryRunDiffs.Add(path, diff)
 		}
 	}
@@ -121,15 +122,15 @@ func (e *Engine) DryRunAllFiles() (string, error) {
 	return dryRunDiffs.CombineOutput(), nil
 }
 
-func (e *Engine) DryRunFile(path string) (string, error) {
+func (e *Engine) DryRunFile(path string) (string, int, error) {
 	yamlBytes, err := os.ReadFile(path)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	formatted, err := e.Formatter.Format(yamlBytes)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	diffContent := multilinediff.MultilineDiff(string(yamlBytes), string(formatted), "\n")
-	return diffContent, nil
+	diff, diffCount := multilinediff.Diff(string(yamlBytes), string(formatted), e.LineSepCharacter)
+	return diff, diffCount, nil
 }

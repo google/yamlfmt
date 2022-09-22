@@ -24,7 +24,7 @@ import (
 // yamlfmt.FeatureFunc
 func ParseUnicodePoints(content []byte) ([]byte, error) {
 	if len(content) == 0 {
-		return []byte{}, errors.New("no content")
+		return []byte{}, nil
 	}
 
 	p := unicodeParser{
