@@ -18,7 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/google/yamlfmt/command"
 )
@@ -59,7 +59,7 @@ func getConfigPath() (string, error) {
 		configPath = defaultConfigName
 	}
 
-	if path.IsAbs(configPath) {
+	if filepath.IsAbs(configPath) {
 		return configPath, nil
 	}
 
@@ -67,7 +67,7 @@ func getConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return path.Join(wd, configPath), nil
+	return filepath.Join(wd, configPath), nil
 }
 
 func configureHelp() {
