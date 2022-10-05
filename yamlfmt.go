@@ -16,6 +16,8 @@ package yamlfmt
 
 import (
 	"fmt"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Formatter interface {
@@ -88,10 +90,12 @@ func (s LineBreakStyle) Separator() (string, error) {
 }
 
 type FeatureFunc func([]byte) ([]byte, error)
+type YAMLFeatureFunc func(yaml.Node) error
 
 type Feature struct {
 	Name         string
 	BeforeAction FeatureFunc
+	DuringAction YAMLFeatureFunc
 	AfterAction  FeatureFunc
 }
 
@@ -101,6 +105,7 @@ type FeatureApplyMode string
 
 var (
 	FeatureApplyBefore FeatureApplyMode = "before"
+	FeatureApplyDuring FeatureApplyMode = "during"
 	FeatureApplyAfter  FeatureApplyMode = "after"
 )
 
@@ -111,8 +116,13 @@ type FeatureApplyError struct {
 }
 
 func (e *FeatureApplyError) Error() string {
-	action := "Before"
-	if e.mode == FeatureApplyAfter {
+	var action string
+	switch e.mode {
+	case FeatureApplyBefore:
+		action = "Before"
+	case FeatureApplyDuring:
+		action = "During"
+	case FeatureApplyAfter:
 		action = "After"
 	}
 	return fmt.Sprintf("Feature %s %sAction failed with error: %v", e.featureName, action, e.err)
@@ -147,4 +157,19 @@ func (fl FeatureList) ApplyFeatures(input []byte, mode FeatureApplyMode) ([]byte
 		}
 	}
 	return result, nil
+}
+
+func (fl FeatureList) ApplyYAMLFeatures(d yaml.Node) error {
+	for _, feature := range fl {
+		if feature.DuringAction != nil {
+			if err := feature.DuringAction(d); err != nil {
+				return &FeatureApplyError{
+					err:         err,
+					featureName: feature.Name,
+					mode:        FeatureApplyDuring,
+				}
+			}
+		}
+	}
+	return nil
 }

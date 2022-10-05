@@ -59,6 +59,13 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 		documents = append(documents, docNode)
 	}
 
+	// Run all features with DuringActions.
+	for _, d := range documents {
+		if err := f.Features.ApplyYAMLFeatures(d); err != nil {
+			return nil, err
+		}
+	}
+
 	var b bytes.Buffer
 	e := yaml.NewEncoder(&b)
 	e.SetIndent(f.Config.Indent)

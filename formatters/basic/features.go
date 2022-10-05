@@ -16,6 +16,7 @@ package basic
 
 import (
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/anchors"
 	"github.com/google/yamlfmt/internal/hotfix"
 )
 
@@ -36,6 +37,10 @@ var (
 		BeforeAction: hotfix.StripCRBytes,
 		AfterAction:  hotfix.WriteCRLFBytes,
 	}
+	featDisallowAliases = yamlfmt.Feature{
+		Name:         "Disallow Anchors",
+		DuringAction: anchors.Check,
+	}
 )
 
 func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
@@ -48,6 +53,9 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 	}
 	if config.LineEnding == yamlfmt.LineBreakStyleCRLF {
 		features = append(features, featCRLFSupport)
+	}
+	if config.DisallowAnchors {
+		features = append(features, featDisallowAliases)
 	}
 	if config.RetainLineBreaks {
 		lineSep, err := config.LineEnding.Separator()
