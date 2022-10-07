@@ -1,4 +1,9 @@
+# Sometimes use these for testing
 .yamlfmt
+tmp
+
+# Goreleaser build folder
 dist/
 
+# vscode settings
 .vscode

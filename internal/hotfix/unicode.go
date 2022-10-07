@@ -34,7 +34,7 @@ func ParseUnicodePoints(content []byte) ([]byte, error) {
 
 	var err error
 	for err != errEndOfBuffer {
-		if p.peek() == '\\' {
+		if p.peek() == '\\' && p.peekAhead(1) == 'U' {
 			err = p.parseUTF8CodePoint()
 			continue
 		}
@@ -49,7 +49,7 @@ func ParseUnicodePoints(content []byte) ([]byte, error) {
 type unicodeParser struct {
 	buf []byte
 	out []byte
-	pos int
+	pos uint
 }
 
 var (
@@ -59,6 +59,10 @@ var (
 
 func (p *unicodeParser) peek() byte {
 	return p.buf[p.pos]
+}
+
+func (p *unicodeParser) peekAhead(n uint) byte {
+	return p.buf[p.pos+n]
 }
 
 func (p *unicodeParser) write() {
@@ -71,7 +75,7 @@ func (p *unicodeParser) writeArbitrary(b []byte) {
 
 func (p *unicodeParser) next() error {
 	p.pos++
-	if p.pos == len(p.buf) {
+	if p.pos == uint(len(p.buf)) {
 		return errEndOfBuffer
 	}
 	return nil

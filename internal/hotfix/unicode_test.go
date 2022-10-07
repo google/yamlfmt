@@ -37,6 +37,11 @@ func TestParseEmoji(t *testing.T) {
 			yamlStr:     "a: 😼 👑\n",
 			expectedStr: "a: \"😼 👑\"\n",
 		},
+		{
+			name:        "retains backslashes",
+			yamlStr:     "a: \\look at my backslash\n",
+			expectedStr: "a: \\look at my backslash\n",
+		},
 	}
 
 	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
