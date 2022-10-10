@@ -31,19 +31,6 @@ type BasicFormatter struct {
 	YAMLFeatures YAMLFeatureList
 }
 
-type YAMLFeatureList []YAMLFeatureFunc
-
-func (fl YAMLFeatureList) ApplyFeatures(node yaml.Node) error {
-	for _, f := range fl {
-		if err := f(node); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-type YAMLFeatureFunc func(yaml.Node) error
-
 // yamlfmt.Formatter interface
 
 func (f *BasicFormatter) Type() string {
@@ -73,7 +60,7 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 		documents = append(documents, docNode)
 	}
 
-	// Run all features with DuringActions.
+	// Run all YAML features.
 	for _, d := range documents {
 		if err := f.YAMLFeatures.ApplyFeatures(d); err != nil {
 			return nil, err
@@ -98,3 +85,16 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 
 	return resultYaml, nil
 }
+
+type YAMLFeatureList []YAMLFeatureFunc
+
+func (fl YAMLFeatureList) ApplyFeatures(node yaml.Node) error {
+	for _, f := range fl {
+		if err := f(node); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type YAMLFeatureFunc func(yaml.Node) error

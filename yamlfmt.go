@@ -101,7 +101,6 @@ type FeatureApplyMode string
 
 var (
 	FeatureApplyBefore FeatureApplyMode = "before"
-	FeatureApplyDuring FeatureApplyMode = "during"
 	FeatureApplyAfter  FeatureApplyMode = "after"
 )
 
@@ -116,8 +115,6 @@ func (e *FeatureApplyError) Error() string {
 	switch e.mode {
 	case FeatureApplyBefore:
 		action = "Before"
-	case FeatureApplyDuring:
-		action = "During"
 	case FeatureApplyAfter:
 		action = "After"
 	}
