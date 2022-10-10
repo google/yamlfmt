@@ -26,9 +26,23 @@ import (
 const BasicFormatterType string = "basic"
 
 type BasicFormatter struct {
-	Config   *Config
-	Features yamlfmt.FeatureList
+	Config       *Config
+	Features     yamlfmt.FeatureList
+	YAMLFeatures YAMLFeatureList
 }
+
+type YAMLFeatureList []YAMLFeatureFunc
+
+func (fl YAMLFeatureList) ApplyFeatures(node yaml.Node) error {
+	for _, f := range fl {
+		if err := f(node); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type YAMLFeatureFunc func(yaml.Node) error
 
 // yamlfmt.Formatter interface
 
@@ -61,7 +75,7 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 
 	// Run all features with DuringActions.
 	for _, d := range documents {
-		if err := f.Features.ApplyYAMLFeatures(d); err != nil {
+		if err := f.YAMLFeatures.ApplyFeatures(d); err != nil {
 			return nil, err
 		}
 	}

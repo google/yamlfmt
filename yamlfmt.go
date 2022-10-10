@@ -16,8 +16,6 @@ package yamlfmt
 
 import (
 	"fmt"
-
-	"gopkg.in/yaml.v3"
 )
 
 type Formatter interface {
@@ -90,12 +88,10 @@ func (s LineBreakStyle) Separator() (string, error) {
 }
 
 type FeatureFunc func([]byte) ([]byte, error)
-type YAMLFeatureFunc func(yaml.Node) error
 
 type Feature struct {
 	Name         string
 	BeforeAction FeatureFunc
-	DuringAction YAMLFeatureFunc
 	AfterAction  FeatureFunc
 }
 
@@ -157,19 +153,4 @@ func (fl FeatureList) ApplyFeatures(input []byte, mode FeatureApplyMode) ([]byte
 		}
 	}
 	return result, nil
-}
-
-func (fl FeatureList) ApplyYAMLFeatures(d yaml.Node) error {
-	for _, feature := range fl {
-		if feature.DuringAction != nil {
-			if err := feature.DuringAction(d); err != nil {
-				return &FeatureApplyError{
-					err:         err,
-					featureName: feature.Name,
-					mode:        FeatureApplyDuring,
-				}
-			}
-		}
-	}
-	return nil
 }

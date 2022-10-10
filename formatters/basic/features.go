@@ -37,10 +37,6 @@ var (
 		BeforeAction: hotfix.StripCRBytes,
 		AfterAction:  hotfix.WriteCRLFBytes,
 	}
-	featDisallowAliases = yamlfmt.Feature{
-		Name:         "Disallow Anchors",
-		DuringAction: anchors.Check,
-	}
 )
 
 func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
@@ -54,9 +50,6 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 	if config.LineEnding == yamlfmt.LineBreakStyleCRLF {
 		features = append(features, featCRLFSupport)
 	}
-	if config.DisallowAnchors {
-		features = append(features, featDisallowAliases)
-	}
 	if config.RetainLineBreaks {
 		lineSep, err := config.LineEnding.Separator()
 		if err != nil {
@@ -64,6 +57,14 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 		}
 		featLineBreak := hotfix.MakeFeatureRetainLineBreak(lineSep)
 		features = append(features, featLineBreak)
+	}
+	return features
+}
+
+func ConfigureYAMLFeaturesFromConfig(config *Config) YAMLFeatureList {
+	var features YAMLFeatureList
+	if config.DisallowAnchors {
+		features = append(features, anchors.Check)
 	}
 	return features
 }
