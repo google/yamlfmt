@@ -28,7 +28,6 @@ type Engine struct {
 	Exclude          []string
 	LineSepCharacter string
 	Formatter        yamlfmt.Formatter
-	DisallowAnchors  bool
 }
 
 func (e *Engine) FormatAllFiles() error {
