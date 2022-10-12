@@ -111,8 +111,11 @@ type FeatureApplyError struct {
 }
 
 func (e *FeatureApplyError) Error() string {
-	action := "Before"
-	if e.mode == FeatureApplyAfter {
+	var action string
+	switch e.mode {
+	case FeatureApplyBefore:
+		action = "Before"
+	case FeatureApplyAfter:
 		action = "After"
 	}
 	return fmt.Sprintf("Feature %s %sAction failed with error: %v", e.featureName, action, e.err)

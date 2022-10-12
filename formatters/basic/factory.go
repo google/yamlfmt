@@ -38,7 +38,8 @@ func (f *BasicFormatterFactory) NewFormatter(configData map[string]interface{}) 
 
 func newFormatter(config *Config) yamlfmt.Formatter {
 	return &BasicFormatter{
-		Config:   config,
-		Features: ConfigureFeaturesFromConfig(config),
+		Config:       config,
+		Features:     ConfigureFeaturesFromConfig(config),
+		YAMLFeatures: ConfigureYAMLFeaturesFromConfig(config),
 	}
 }

@@ -11,3 +11,4 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `line_ending`            | `lf` or `crlf` | `crlf` on Windows, `lf` otherwise | Parse and write the file with "lf" or "crlf" line endings. This setting will be overwritten by the global `line_ending`. |
 | `emoji_support`          | bool           | false   | Support encoding utf-8 emojis |
 | `retain_line_breaks`     | bool           | false   | Retain line breaks in formatted yaml |
+| `disallow_anchors`       | bool           | false   | If true, reject any YAML anchors or aliases found in the document. |

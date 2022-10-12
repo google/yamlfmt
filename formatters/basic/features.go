@@ -16,6 +16,7 @@ package basic
 
 import (
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/anchors"
 	"github.com/google/yamlfmt/internal/hotfix"
 )
 
@@ -56,6 +57,14 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 		}
 		featLineBreak := hotfix.MakeFeatureRetainLineBreak(lineSep)
 		features = append(features, featLineBreak)
+	}
+	return features
+}
+
+func ConfigureYAMLFeaturesFromConfig(config *Config) YAMLFeatureList {
+	var features YAMLFeatureList
+	if config.DisallowAnchors {
+		features = append(features, anchors.Check)
 	}
 	return features
 }
