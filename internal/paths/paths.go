@@ -15,6 +15,8 @@
 package paths
 
 import (
+	"os"
+
 	"github.com/bmatcuk/doublestar/v4"
 )
 
@@ -50,6 +52,10 @@ func CollectPathsToFormat(include, exclude []string) ([]string, error) {
 	}
 	pathsToFormat := []string{}
 	for path := range pathsToFormatSet {
+		info, err := os.Stat(path)
+		if err != nil || info.IsDir() {
+			continue
+		}
 		pathsToFormat = append(pathsToFormat, path)
 	}
 	return pathsToFormat, nil
