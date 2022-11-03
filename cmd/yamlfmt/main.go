@@ -20,10 +20,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/formatters/basic"
-	"gopkg.in/yaml.v3"
 )
 
 const defaultConfigName = ".yamlfmt"

@@ -28,27 +28,12 @@ var (
 			return append([]byte(documentStart), content...), nil
 		},
 	}
-	featEmojiSupport = yamlfmt.Feature{
-		Name:        "Emoji Support",
-		AfterAction: hotfix.ParseUnicodePoints,
-	}
-	featCRLFSupport = yamlfmt.Feature{
-		Name:         "CRLF Support",
-		BeforeAction: hotfix.StripCRBytes,
-		AfterAction:  hotfix.WriteCRLFBytes,
-	}
 )
 
 func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 	features := []yamlfmt.Feature{}
-	if config.EmojiSupport {
-		features = append(features, featEmojiSupport)
-	}
 	if config.IncludeDocumentStart {
 		features = append(features, featIncludeDocumentStart)
-	}
-	if config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-		features = append(features, featCRLFSupport)
 	}
 	if config.RetainLineBreaks {
 		lineSep, err := config.LineEnding.Separator()

@@ -110,7 +110,6 @@ func TestCRLFLineEnding(t *testing.T) {
 
 func TestEmojiSupport(t *testing.T) {
 	config := basic.DefaultConfig()
-	config.EmojiSupport = true
 	f := newFormatter(config)
 
 	yaml := "a: 😊"

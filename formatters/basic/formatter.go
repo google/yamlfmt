@@ -19,8 +19,8 @@ import (
 	"errors"
 	"io"
 
+	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt"
-	"gopkg.in/yaml.v3"
 )
 
 const BasicFormatterType string = "basic"
@@ -70,6 +70,9 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	var b bytes.Buffer
 	e := yaml.NewEncoder(&b)
 	e.SetIndent(f.Config.Indent)
+	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
+		e.SetLineBreakStyle(yaml.LineBreakStyleCRLF)
+	}
 	for _, doc := range documents {
 		err := e.Encode(&doc)
 		if err != nil {

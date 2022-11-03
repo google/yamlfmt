@@ -23,7 +23,6 @@ import (
 type Config struct {
 	Indent               int                    `mapstructure:"indent"`
 	IncludeDocumentStart bool                   `mapstructure:"include_document_start"`
-	EmojiSupport         bool                   `mapstructure:"emoji_support"`
 	LineEnding           yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
 	RetainLineBreaks     bool                   `mapstructure:"retain_line_breaks"`
 	DisallowAnchors      bool                   `mapstructure:"disallow_anchors"`
