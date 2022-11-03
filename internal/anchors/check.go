@@ -18,7 +18,7 @@ import (
 	"errors"
 	"fmt"
 
-	"gopkg.in/yaml.v3"
+	"github.com/braydonk/yaml"
 )
 
 func Check(n yaml.Node) error {

@@ -18,8 +18,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt/internal/anchors"
-	"gopkg.in/yaml.v3"
 )
 
 func TestCheck(t *testing.T) {
