@@ -16,6 +16,7 @@ package paths
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/bmatcuk/doublestar/v4"
 )
@@ -38,7 +39,7 @@ func CollectPathsToFormat(include, exclude []string) ([]string, error) {
 		}
 		excluded := false
 		for _, pattern := range exclude {
-			match, err := doublestar.Match(pattern, path)
+			match, err := doublestar.Match(filepath.Clean(pattern), path)
 			if err != nil {
 				return nil, err
 			}
