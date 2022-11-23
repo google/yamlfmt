@@ -33,7 +33,7 @@ yamlfmt x.yaml y.yaml config/**/*.yaml
 
 ## Configuration
 
-The tool can be configured through a yaml configuration file. The tool looks for the config folder in the following order:
+The tool can be configured through a yaml configuration file. The tool looks for the config file in the following order:
 
 1. Specified in the `--conf` flag (if this is an invalid path or doesn't exist, the tool will fail)
 2. A `.yamlfmt` file in the current working directory
