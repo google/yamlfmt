@@ -33,7 +33,13 @@ yamlfmt x.yaml y.yaml config/**/*.yaml
 
 ## Configuration
 
-The tool can be configured with a `.yamlfmt` configuration file in the working directory. The configuration is specified in yaml.
+The tool can be configured through a yaml configuration file. The tool looks for the config file in the following order:
+
+1. Specified in the `--conf` flag (if this is an invalid path or doesn't exist, the tool will fail)
+2. A `.yamlfmt` file in the current working directory
+3. A `yamlfmt` folder with a `.yamlfmt` file in the system config directory (`$XDG_CONFIG_HOME`, `$HOME/.config`, `%LOCALAPPDATA%`) e.g. `$HOME/.config/yamlfmt/.yamlfmt`
+
+If none of these are found, the tool's default configuration will be used.
 
 ### Include/Exclude
 

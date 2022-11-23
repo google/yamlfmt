@@ -15,18 +15,13 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"log"
-	"os"
 
-	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/formatters/basic"
 )
-
-const defaultConfigName = ".yamlfmt"
 
 func main() {
 	if err := run(); err != nil {
@@ -38,18 +33,16 @@ func run() error {
 	configureHelp()
 	flag.Parse()
 
-	operation := getOperation()
+	operation := getOperationFromFlag()
 
+	configData := map[string]any{}
 	configPath, err := getConfigPath()
 	if err != nil {
 		return err
 	}
-
-	configData, err := readConfig(configPath)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			configData = map[string]interface{}{}
-		} else {
+	if configPath != "" {
+		configData, err = readConfig(configPath)
+		if err != nil {
 			return err
 		}
 	}
@@ -59,22 +52,6 @@ func run() error {
 	}
 
 	return command.RunCommand(operation, getFullRegistry(), configData)
-}
-
-func readConfig(path string) (map[string]interface{}, error) {
-	if _, err := os.Stat(path); err != nil {
-		return nil, err
-	}
-	yamlBytes, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	var configData map[string]interface{}
-	err = yaml.Unmarshal(yamlBytes, &configData)
-	if err != nil {
-		return nil, err
-	}
-	return configData, nil
 }
 
 func getFullRegistry() *yamlfmt.Registry {
