@@ -17,8 +17,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/google/yamlfmt/command"
 )
@@ -32,7 +30,25 @@ operation without performing it.`)
 	flagConf *string = flag.String("conf", "", "Read yamlfmt config from this path")
 )
 
-func getOperation() command.Operation {
+func configureHelp() {
+	flag.Usage = func() {
+		fmt.Println(`yamlfmt is a simple command line tool for formatting yaml files.
+
+	Arguments:
+
+	Glob paths to yaml files
+			Send any number of paths to yaml files specified in doublestar glob format (see: https://github.com/bmatcuk/doublestar). 
+			Any flags must be specified before the paths.
+
+	- or /dev/stdin
+			Passing in a single - or /dev/stdin will read the yaml from stdin and output the formatted result to stdout
+		
+	Flags:`)
+		flag.PrintDefaults()
+	}
+}
+
+func getOperationFromFlag() command.Operation {
 	if *flagIn || isStdinArg() {
 		return command.OperationStdin
 	}
@@ -51,41 +67,4 @@ func isStdinArg() bool {
 	}
 	arg := flag.Args()[0]
 	return arg == "-" || arg == "/dev/stdin"
-}
-
-func getConfigPath() (string, error) {
-	configPath := *flagConf
-	if configPath == "" {
-		configPath = defaultConfigName
-	}
-
-	if filepath.IsAbs(configPath) {
-		return configPath, nil
-	}
-
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(wd, configPath), nil
-}
-
-func configureHelp() {
-	flag.Usage = printHelpMessage
-}
-
-func printHelpMessage() {
-	fmt.Println(`yamlfmt is a simple command line tool for formatting yaml files.
-
-Arguments:
-
-  Glob paths to yaml files
-        Send any number of paths to yaml files specified in doublestar glob format (see: https://github.com/bmatcuk/doublestar). 
-        Any flags must be specified before the paths.
-
-  - or /dev/stdin
-        Passing in a single - or /dev/stdin will read the yaml from stdin and output the formatted result to stdout
-	
-Flags:`)
-	flag.PrintDefaults()
 }
