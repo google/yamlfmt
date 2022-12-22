@@ -10,5 +10,3 @@ require (
 )
 
 require github.com/google/go-cmp v0.5.9 // indirect
-
-replace github.com/braydonk/yaml => ../yaml
