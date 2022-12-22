@@ -14,6 +14,6 @@ func (e BasicFormatterError) Unwrap() error {
 	return e.err
 }
 
-func wrapBasicFormatterError(err error) error {
-	return BasicFormatterError{err: err}
-}
+// func wrapBasicFormatterError(err error) error {
+// 	return BasicFormatterError{err: err}
+// }

@@ -70,6 +70,7 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	var b bytes.Buffer
 	e := yaml.NewEncoder(&b)
 	e.SetIndent(f.Config.Indent)
+	e.SetWidth(f.Config.LineLength)
 	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
 		e.SetLineBreakStyle(yaml.LineBreakStyleCRLF)
 	}
