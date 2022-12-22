@@ -24,6 +24,7 @@ type Config struct {
 	Indent               int                    `mapstructure:"indent"`
 	IncludeDocumentStart bool                   `mapstructure:"include_document_start"`
 	LineEnding           yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
+	LineLength           int                    `mapstructure:"max_line_length"`
 	RetainLineBreaks     bool                   `mapstructure:"retain_line_breaks"`
 	DisallowAnchors      bool                   `mapstructure:"disallow_anchors"`
 }
