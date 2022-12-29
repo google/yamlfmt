@@ -19,11 +19,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/engine"
-	"github.com/mitchellh/mapstructure"
 )
 
 type Operation int
@@ -40,36 +38,25 @@ type formatterConfig struct {
 	FormatterSettings map[string]interface{} `mapstructure:",remain"`
 }
 
-type commandConfig struct {
+type Config struct {
+	Extensions      []string               `mapstructure:"extensions"`
 	Include         []string               `mapstructure:"include"`
 	Exclude         []string               `mapstructure:"exclude"`
+	Doublestar      bool                   `mapstructure:"doublestar"`
 	LineEnding      yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
 	FormatterConfig *formatterConfig       `mapstructure:"formatter,omitempty"`
 }
 
-func RunCommand(
-	operation Operation,
-	registry *yamlfmt.Registry,
-	configData map[string]interface{},
-) error {
-	var config commandConfig
-	err := mapstructure.Decode(configData, &config)
-	if err != nil {
-		return err
-	}
-	if len(config.Include) == 0 {
-		config.Include = []string{"**/*.{yaml,yml}"}
-	}
-	if config.LineEnding == "" {
-		config.LineEnding = yamlfmt.LineBreakStyleLF
-		if runtime.GOOS == "windows" {
-			config.LineEnding = yamlfmt.LineBreakStyleCRLF
-		}
-	}
+type Command struct {
+	Operation Operation
+	Registry  *yamlfmt.Registry
+	Config    *Config
+}
 
+func (c *Command) Run() error {
 	var formatter yamlfmt.Formatter
-	if config.FormatterConfig == nil {
-		factory, err := registry.GetDefaultFactory()
+	if c.Config.FormatterConfig == nil {
+		factory, err := c.Registry.GetDefaultFactory()
 		if err != nil {
 			return err
 		}
@@ -82,34 +69,33 @@ func RunCommand(
 			factory yamlfmt.Factory
 			err     error
 		)
-		if config.FormatterConfig.Type == "" {
-			factory, err = registry.GetDefaultFactory()
+		if c.Config.FormatterConfig.Type == "" {
+			factory, err = c.Registry.GetDefaultFactory()
 		} else {
-			factory, err = registry.GetFactory(config.FormatterConfig.Type)
+			factory, err = c.Registry.GetFactory(c.Config.FormatterConfig.Type)
 		}
 		if err != nil {
 			return err
 		}
 
-		config.FormatterConfig.FormatterSettings["line_ending"] = config.LineEnding
-		formatter, err = factory.NewFormatter(config.FormatterConfig.FormatterSettings)
+		c.Config.FormatterConfig.FormatterSettings["line_ending"] = c.Config.LineEnding
+		formatter, err = factory.NewFormatter(c.Config.FormatterConfig.FormatterSettings)
 		if err != nil {
 			return err
 		}
 	}
 
-	lineSepChar, err := config.LineEnding.Separator()
+	lineSepChar, err := c.Config.LineEnding.Separator()
 	if err != nil {
 		return err
 	}
 	engine := &engine.Engine{
-		Include:          config.Include,
-		Exclude:          config.Exclude,
 		LineSepCharacter: lineSepChar,
 		Formatter:        formatter,
+		PathCollector:    c.makePathCollector(),
 	}
 
-	switch operation {
+	switch c.Operation {
 	case OperationFormat:
 		err := engine.FormatAllFiles()
 		if err != nil {
@@ -139,6 +125,20 @@ func RunCommand(
 	}
 
 	return nil
+}
+
+func (c *Command) makePathCollector() yamlfmt.PathCollector {
+	if c.Config.Doublestar {
+		return &yamlfmt.DoublestarCollector{
+			Include: c.Config.Include,
+			Exclude: c.Config.Exclude,
+		}
+	}
+	return &yamlfmt.FilepathCollector{
+		Include:    c.Config.Include,
+		Exclude:    c.Config.Exclude,
+		Extensions: c.Config.Extensions,
+	}
 }
 
 func readFromStdin() ([]byte, error) {

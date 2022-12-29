@@ -20,18 +20,16 @@ import (
 
 	"github.com/RageCage64/multilinediff"
 	"github.com/google/yamlfmt"
-	"github.com/google/yamlfmt/internal/paths"
 )
 
 type Engine struct {
-	Include          []string
-	Exclude          []string
 	LineSepCharacter string
 	Formatter        yamlfmt.Formatter
+	PathCollector    yamlfmt.PathCollector
 }
 
 func (e *Engine) FormatAllFiles() error {
-	paths, err := paths.CollectPathsToFormat(e.Include, e.Exclude)
+	paths, err := e.PathCollector.CollectPaths()
 	if err != nil {
 		return err
 	}
@@ -64,7 +62,7 @@ func (e *Engine) FormatFile(path string) error {
 }
 
 func (e *Engine) LintAllFiles() error {
-	paths, err := paths.CollectPathsToFormat(e.Include, e.Exclude)
+	paths, err := e.PathCollector.CollectPaths()
 	if err != nil {
 		return err
 	}
@@ -100,7 +98,7 @@ func (e *Engine) LintFile(path string) error {
 }
 
 func (e *Engine) DryRunAllFiles() (string, error) {
-	paths, err := paths.CollectPathsToFormat(e.Include, e.Exclude)
+	paths, err := e.PathCollector.CollectPaths()
 	if err != nil {
 		return "", err
 	}

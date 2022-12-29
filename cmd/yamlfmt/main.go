@@ -33,7 +33,10 @@ func run() error {
 	configureHelp()
 	flag.Parse()
 
-	operation := getOperationFromFlag()
+	c := &command.Command{
+		Operation: getOperationFromFlag(),
+		Registry:  getFullRegistry(),
+	}
 
 	configData := map[string]any{}
 	configPath, err := getConfigPath()
@@ -47,11 +50,13 @@ func run() error {
 		}
 	}
 
-	if len(flag.Args()) > 0 {
-		configData["include"] = flag.Args()
+	commandConfig, err := makeCommandConfigFromData(configData)
+	if err != nil {
+		return err
 	}
+	c.Config = commandConfig
 
-	return command.RunCommand(operation, getFullRegistry(), configData)
+	return c.Run()
 }
 
 func getFullRegistry() *yamlfmt.Registry {
