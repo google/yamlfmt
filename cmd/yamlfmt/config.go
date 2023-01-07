@@ -2,12 +2,16 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
 
 	"github.com/braydonk/yaml"
+	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/command"
+	"github.com/mitchellh/mapstructure"
 )
 
 const (
@@ -166,4 +170,40 @@ func validatePath(path string) error {
 		}
 	}
 	return nil
+}
+
+func makeCommandConfigFromData(configData map[string]any) (*command.Config, error) {
+	var config *command.Config
+	err := mapstructure.Decode(configData, &config)
+	if err != nil {
+		return nil, err
+	}
+
+	// Default to OS line endings
+	if config.LineEnding == "" {
+		config.LineEnding = yamlfmt.LineBreakStyleLF
+		if runtime.GOOS == "windows" {
+			config.LineEnding = yamlfmt.LineBreakStyleCRLF
+		}
+	}
+
+	// Default to yaml and yml extensions
+	if len(config.Extensions) == 0 {
+		config.Extensions = []string{"yaml", "yml"}
+	}
+
+	// Default to flag if not set in config
+	if !config.Doublestar {
+		config.Doublestar = useDoublestar()
+	}
+
+	// Overwrite config if includes are provided through args
+	if len(flag.Args()) > 0 {
+		for _, x := range flag.Args() {
+			fmt.Println(x)
+		}
+		config.Include = flag.Args()
+	}
+
+	return config, nil
 }
