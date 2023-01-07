@@ -18,22 +18,49 @@ To download the `yamlfmt` command, you can download the desired binary from rele
 ```
 go install github.com/google/yamlfmt/cmd/yamlfmt@latest
 ```
+NOTE: Recommended setup if this is your first time installing Go would be in [this DigitalOcean blog post](https://www.digitalocean.com/community/tutorials/how-to-build-and-install-go-programs).
+
+You can also simply download the binary you want from releases. The binary is self-sufficient with no dependencies, and can simply be put somewhere on your PATH and run with the command `yamlfmt`.
 
 ## Usage
 
-By default, the tool will recursively find all files that match the glob path `**/*.{yaml,yml}` extension and attempt to format them with the [basic formatter](formatters/basic). To run the tool with all default settings, simply run the command with no arguments:
+To run the tool with all default settings, simply run the command with a path argument:
 ```bash
-yamlfmt
+yamlfmt x.yaml y.yaml <...>
 ```
-You can also run the command with paths to each individual file, or with glob paths:
+You can specify as many paths as you want. You can also specify a directory which will be searched recursively for any files with the extension `.yaml` or `.yml`.
 ```bash
-yamlfmt x.yaml y.yaml config/**/*.yaml
+yamlfmt .
 ```
-(NOTE: Glob paths are implemented using the [doublestar](https://github.com/bmatcuk/doublestar) package, which is far more flexible than Go's glob implementation. See the doublestar docs for more details.)
 
-## Configuration
+You can also use an alternate mode that will search paths with doublestar globs by supplying the `-dstar` flag. 
+```bash
+yamlfmt -dstar **/*.{yaml,yml}
+```
+See the [doublestar](https://github.com/bmatcuk/doublestar) package for more information on this format.
 
-The tool can be configured through a yaml configuration file. The tool looks for the config file in the following order:
+## Flags
+
+The CLI supports the following flags/arguments:
+
+* Format (default, no flags)
+	- Format and write the matched files
+* Dry run (`-dry` flag)
+	- Format the matched files and output the diff to `stdout`
+* Lint (`-lint` flag)
+	- Format the matched files and output the diff to `stdout`, exits with status 1 if there are any differences
+* Stdin (just `-` or `/dev/stdin` argument, or `-in` flag)
+	- Format the yaml data from `stdin` and output the result to `stdout`
+* Custom config path (`-conf` flag)
+	- If you would like to use a config not stored at `.yamlfmt` in the working directory, you can pass a relative or absolute path to a separate configuration file
+* Doublestar path collection (`-dstar` flag)
+	- If you would like to use 
+
+(NOTE: If providing paths as command line arguments, the flags must be specified before any paths)
+
+# Configuration File
+
+The `yamlfmt` command can be configured through a yaml configuration file. The tool looks for the config file in the following order:
 
 1. Specified in the `--conf` flag (if this is an invalid path or doesn't exist, the tool will fail)
 2. A `.yamlfmt` file in the current working directory
@@ -69,20 +96,4 @@ formatter:
 ```
 If the type is not specified, the default formatter will be used. In the tool included in this repo, the default is the [basic formatter](formatters/basic).
 
-## Flags
-
-The CLI supports the following flags/arguments:
-
-* Format (default, no flags)
-	- Format and write the matched files
-* Dry run (`-dry` flag)
-	- Format the matched files and output the diff to `stdout`
-* Lint (`-lint` flag)
-	- Format the matched files and output the diff to `stdout`, exits with status 1 if there are any differences
-* Stdin (just `-` or `/dev/stdin` argument, or `-in` flag)
-	- Format the yaml data from `stdin` and output the result to `stdout`
-* Custom config path (`-conf` flag)
-	- If you would like to use a config not stored at `.yamlfmt` in the working directory, you can pass a relative or absolute path to a separate configuration file
-
-
-(NOTE: If providing paths as command line arguments, the flags must be specified before any paths)
+For in-depth configuration documentation see the [config docs](docs/config.md).
