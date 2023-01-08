@@ -68,12 +68,7 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	}
 
 	var b bytes.Buffer
-	e := yaml.NewEncoder(&b)
-	e.SetIndent(f.Config.Indent)
-	e.SetWidth(f.Config.LineLength)
-	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
-		e.SetLineBreakStyle(yaml.LineBreakStyleCRLF)
-	}
+	e := f.getNewEncoder(&b)
 	for _, doc := range documents {
 		err := e.Encode(&doc)
 		if err != nil {
@@ -88,6 +83,19 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	}
 
 	return resultYaml, nil
+}
+
+func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
+	e := yaml.NewEncoder(buf)
+	e.SetIndent(f.Config.Indent)
+	e.SetWidth(f.Config.LineLength)
+	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
+		e.SetLineBreakStyle(yaml.LineBreakStyleCRLF)
+	}
+	if f.Config.IncludeDocumentStart {
+		e.SetExplicitDocumentStart()
+	}
+	return e
 }
 
 type YAMLFeatureList []YAMLFeatureFunc
