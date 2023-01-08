@@ -100,11 +100,11 @@ For in-depth configuration documentation see the [config docs](docs/config.md).
 
 # pre-commit
 
-`yamlfmt` can be used as a hook for the popular [pre-commit](https://pre-commit.com/) tool. To include a `yamlfmt` hook in your `pre-commit` config, add the following to the `repos` block in your `.pre-commit-config.yaml`:
+Starting in v0.7.1, `yamlfmt` can be used as a hook for the popular [pre-commit](https://pre-commit.com/) tool. To include a `yamlfmt` hook in your `pre-commit` config, add the following to the `repos` block in your `.pre-commit-config.yaml`:
 
 ```yaml
 - repo: https://github.com/google/yamlfmt
-  rev: v0.8.0
+  rev: v0.7.1
   hooks:
     - id: yamlfmt
 ```
