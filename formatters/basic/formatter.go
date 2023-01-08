@@ -46,7 +46,7 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 
 	// Format the yaml content
 	reader := bytes.NewReader(yamlContent)
-	decoder := yaml.NewDecoder(reader)
+	decoder := f.getNewDecoder(reader)
 	documents := []yaml.Node{}
 	for {
 		var docNode yaml.Node
@@ -85,6 +85,14 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	return resultYaml, nil
 }
 
+func (f *BasicFormatter) getNewDecoder(reader io.Reader) *yaml.Decoder {
+	d := yaml.NewDecoder(reader)
+	if f.Config.ScanFoldedAsLiteral {
+		d.SetScanBlockScalarAsLiteral(true)
+	}
+	return d
+}
+
 func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 	e := yaml.NewEncoder(buf)
 	e.SetIndent(f.Config.Indent)
@@ -94,6 +102,9 @@ func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 	}
 	if f.Config.IncludeDocumentStart {
 		e.SetExplicitDocumentStart()
+	}
+	if f.Config.ScanFoldedAsLiteral {
+		e.SetAssumeBlockAsLiteral(true)
 	}
 	return e
 }

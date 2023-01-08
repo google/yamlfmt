@@ -27,6 +27,7 @@ type Config struct {
 	LineLength           int                    `mapstructure:"max_line_length"`
 	RetainLineBreaks     bool                   `mapstructure:"retain_line_breaks"`
 	DisallowAnchors      bool                   `mapstructure:"disallow_anchors"`
+	ScanFoldedAsLiteral  bool                   `mapstructure:"scan_folded_as_literal"`
 }
 
 func DefaultConfig() *Config {
