@@ -20,21 +20,8 @@ import (
 	"github.com/google/yamlfmt/internal/hotfix"
 )
 
-var (
-	featIncludeDocumentStart = yamlfmt.Feature{
-		Name: "Include Document Start",
-		AfterAction: func(content []byte) ([]byte, error) {
-			documentStart := "---\n"
-			return append([]byte(documentStart), content...), nil
-		},
-	}
-)
-
 func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 	features := []yamlfmt.Feature{}
-	if config.IncludeDocumentStart {
-		features = append(features, featIncludeDocumentStart)
-	}
 	if config.RetainLineBreaks {
 		lineSep, err := config.LineEnding.Separator()
 		if err != nil {

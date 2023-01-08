@@ -210,3 +210,24 @@ x:
 		})
 	}
 }
+
+func TestScanFoldedAsLiteral(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.ScanFoldedAsLiteral = true
+	f := newFormatter(config)
+
+	yml := `a: >
+  multiline
+  folded
+  scalar`
+	lines := len(strings.Split(yml, "\n"))
+	result, err := f.Format([]byte(yml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	resultStr := string(result)
+	resultLines := len(strings.Split(resultStr, "\n"))
+	if resultLines == lines {
+		t.Fatalf("expected string to be %d lines, was %d", lines, resultLines)
+	}
+}
