@@ -199,9 +199,6 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 
 	// Overwrite config if includes are provided through args
 	if len(flag.Args()) > 0 {
-		for _, x := range flag.Args() {
-			fmt.Println(x)
-		}
 		config.Include = flag.Args()
 	}
 
