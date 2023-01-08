@@ -53,6 +53,7 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `retain_line_breaks`     | bool           | false   | Retain line breaks in formatted yaml |
 | `disallow_anchors`       | bool           | false   | If true, reject any YAML anchors or aliases found in the document. |
 | `max_line_length`        | int            | -1      | Set the maximum line length (see notes below) |
+| `scan_folded_as_literal` | bool           | false   | Option that will preserve newlines in folded block scalars (blocks that start with `>`). |
 
 ## Note on `max_line_length`
 
