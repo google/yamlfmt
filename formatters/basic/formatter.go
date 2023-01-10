@@ -96,7 +96,9 @@ func (f *BasicFormatter) getNewDecoder(reader io.Reader) *yaml.Decoder {
 func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 	e := yaml.NewEncoder(buf)
 	e.SetIndent(f.Config.Indent)
-	e.SetWidth(f.Config.LineLength)
+	if f.Config.LineLength > 0 {
+		e.SetWidth(f.Config.LineLength)
+	}
 	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
 		e.SetLineBreakStyle(yaml.LineBreakStyleCRLF)
 	}
