@@ -18,117 +18,90 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/RageCage64/multilinediff"
 	"github.com/google/yamlfmt"
 )
 
-type Engine struct {
+// Engine that will process each file one by one consecutively.
+type ConsecutiveEngine struct {
 	LineSepCharacter string
 	Formatter        yamlfmt.Formatter
-	PathCollector    yamlfmt.PathCollector
+	Quiet            bool
 }
 
-func (e *Engine) FormatAllFiles() error {
-	paths, err := e.PathCollector.CollectPaths()
-	if err != nil {
-		return err
+func (e *ConsecutiveEngine) FormatContent(content []byte) ([]byte, error) {
+	return e.Formatter.Format(content)
+}
+
+func (e *ConsecutiveEngine) Format(paths []string) error {
+	formatDiffs, formatErrs := e.formatAll(paths)
+	if len(formatErrs) > 0 {
+		return formatErrs
+	}
+	return formatDiffs.ApplyAll()
+}
+
+func (e *ConsecutiveEngine) Lint(paths []string) (string, error) {
+	formatDiffs, formatErrs := e.formatAll(paths)
+	if len(formatErrs) > 0 {
+		return "", formatErrs
+	}
+	if formatDiffs.ChangedCount() == 0 {
+		return "", nil
 	}
 
-	formatErrors := NewFormatFileErrors()
+	if e.Quiet {
+		return fmt.Sprintf(
+			"The following files had formatting differences:\n%s",
+			formatDiffs.StrOutputQuiet(),
+		), nil
+	}
+	return fmt.Sprintf(
+		"The following formatting differences were found:\n%s",
+		formatDiffs.StrOutput(),
+	), nil
+}
+
+func (e *ConsecutiveEngine) DryRun(paths []string) (string, error) {
+	formatDiffs, formatErrs := e.formatAll(paths)
+	if len(formatErrs) > 0 {
+		return "", formatErrs
+	}
+
+	if e.Quiet {
+		return formatDiffs.StrOutputQuiet(), nil
+	}
+	return formatDiffs.StrOutput(), nil
+}
+
+func (e *ConsecutiveEngine) formatAll(paths []string) (FileDiffs, FormatErrors) {
+	formatDiffs := FileDiffs{}
+	formatErrs := FormatErrors{}
 	for _, path := range paths {
-		err := e.FormatFile(path)
+		fileDiff, err := e.formatFileContent(path)
 		if err != nil {
-			formatErrors.Add(path, err)
+			formatErrs = append(formatErrs, wrapFormatError(path, err))
+			continue
 		}
+		formatDiffs = append(formatDiffs, fileDiff)
 	}
-
-	if formatErrors.Count() > 0 {
-		return formatErrors
-	}
-	return nil
+	return formatDiffs, formatErrs
 }
 
-func (e *Engine) FormatFile(path string) error {
-	yamlBytes, err := os.ReadFile(path)
+func (e *ConsecutiveEngine) formatFileContent(path string) (*FileDiff, error) {
+	content, err := os.ReadFile(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	formatted, err := e.Formatter.Format(yamlBytes)
+	formatted, err := e.FormatContent(content)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = os.WriteFile(path, formatted, 0644)
-	return err
-}
-
-func (e *Engine) LintAllFiles() error {
-	paths, err := e.PathCollector.CollectPaths()
-	if err != nil {
-		return err
-	}
-
-	lintErrors := NewLintFileErrors()
-	for _, path := range paths {
-		err := e.LintFile(path)
-		if err != nil {
-			lintErrors.Add(path, err)
-		}
-	}
-
-	if lintErrors.Count() > 0 {
-		return lintErrors
-	}
-	return nil
-}
-
-func (e *Engine) LintFile(path string) error {
-	yamlBytes, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	formatted, err := e.Formatter.Format(yamlBytes)
-	if err != nil {
-		return err
-	}
-	diff, diffCount := multilinediff.Diff(string(yamlBytes), string(formatted), e.LineSepCharacter)
-	if diffCount > 0 {
-		return fmt.Errorf(diff)
-	}
-	return nil
-}
-
-func (e *Engine) DryRunAllFiles() (string, error) {
-	paths, err := e.PathCollector.CollectPaths()
-	if err != nil {
-		return "", err
-	}
-
-	formatErrors := NewFormatFileErrors()
-	dryRunDiffs := NewDryRunDiffs()
-	for _, path := range paths {
-		diff, diffCount, err := e.DryRunFile(path)
-		if err != nil {
-			formatErrors.Add(path, err)
-		} else if diffCount > 0 {
-			dryRunDiffs.Add(path, diff)
-		}
-	}
-
-	if formatErrors.Count() > 0 {
-		return "", formatErrors
-	}
-	return dryRunDiffs.CombineOutput(), nil
-}
-
-func (e *Engine) DryRunFile(path string) (string, int, error) {
-	yamlBytes, err := os.ReadFile(path)
-	if err != nil {
-		return "", 0, err
-	}
-	formatted, err := e.Formatter.Format(yamlBytes)
-	if err != nil {
-		return "", 0, err
-	}
-	diff, diffCount := multilinediff.Diff(string(yamlBytes), string(formatted), e.LineSepCharacter)
-	return diff, diffCount, nil
+	return &FileDiff{
+		Path: path,
+		Diff: &FormatDiff{
+			Original:  string(content),
+			Formatted: string(formatted),
+			LineSep:   e.LineSepCharacter,
+		},
+	}, nil
 }

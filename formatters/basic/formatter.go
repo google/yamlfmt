@@ -110,16 +110,3 @@ func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 	}
 	return e
 }
-
-type YAMLFeatureList []YAMLFeatureFunc
-
-func (fl YAMLFeatureList) ApplyFeatures(node yaml.Node) error {
-	for _, f := range fl {
-		if err := f(node); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-type YAMLFeatureFunc func(yaml.Node) error

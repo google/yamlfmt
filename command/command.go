@@ -16,6 +16,7 @@ package command
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -51,6 +52,7 @@ type Command struct {
 	Operation Operation
 	Registry  *yamlfmt.Registry
 	Config    *Config
+	Quiet     bool
 }
 
 func (c *Command) Run() error {
@@ -89,25 +91,38 @@ func (c *Command) Run() error {
 	if err != nil {
 		return err
 	}
-	engine := &engine.Engine{
+
+	eng := &engine.ConsecutiveEngine{
 		LineSepCharacter: lineSepChar,
 		Formatter:        formatter,
-		PathCollector:    c.makePathCollector(),
+		Quiet:            c.Quiet,
+	}
+
+	paths, err := c.collectPaths()
+	if err != nil {
+		return err
 	}
 
 	switch c.Operation {
 	case OperationFormat:
-		err := engine.FormatAllFiles()
+		err := eng.Format(paths)
 		if err != nil {
 			return err
 		}
 	case OperationLint:
-		err := engine.LintAllFiles()
+		out, err := eng.Lint(paths)
 		if err != nil {
 			return err
 		}
+
+		if out != "" {
+			// This will be picked up log.Fatal in main() and
+			// cause an exit code of 1, which is a critical
+			// component of the lint functionality.
+			return errors.New(out)
+		}
 	case OperationDry:
-		out, err := engine.DryRunAllFiles()
+		out, err := eng.DryRun(paths)
 		if err != nil {
 			return err
 		}
@@ -117,7 +132,7 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-		out, err := engine.Formatter.Format(stdinYaml)
+		out, err := eng.FormatContent(stdinYaml)
 		if err != nil {
 			return err
 		}
@@ -125,6 +140,11 @@ func (c *Command) Run() error {
 	}
 
 	return nil
+}
+
+func (c *Command) collectPaths() ([]string, error) {
+	collector := c.makePathCollector()
+	return collector.CollectPaths()
 }
 
 func (c *Command) makePathCollector() yamlfmt.PathCollector {
