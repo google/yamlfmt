@@ -49,6 +49,8 @@ The CLI supports the following flags/arguments:
 	- Format the matched files and output the diff to `stdout`
 * Lint (`-lint` flag)
 	- Format the matched files and output the diff to `stdout`, exits with status 1 if there are any differences
+* Quiet mode (`-quiet` flag)
+  - Affects `-lint` and `-dry` so they only output the filepaths with differences rather than the full diff contents
 * Stdin (just `-` or `/dev/stdin` argument, or `-in` flag)
 	- Format the yaml data from `stdin` and output the result to `stdout`
 * Custom config path (`-conf` flag)
@@ -60,15 +62,9 @@ The CLI supports the following flags/arguments:
 
 # Configuration File
 
-The `yamlfmt` command can be configured through a yaml configuration file. The tool looks for the config file in the following order:
+The `yamlfmt` command can be configured through a yaml file called `.yamlfmt`.
 
-1. Specified in the `--conf` flag (if this is an invalid path or doesn't exist, the tool will fail)
-2. A `.yamlfmt` file in the current working directory
-3. A `yamlfmt` folder with a `.yamlfmt` file in the system config directory (`$XDG_CONFIG_HOME`, `$HOME/.config`, `%LOCALAPPDATA%`) e.g. `$HOME/.config/yamlfmt/.yamlfmt`
-
-If none of these are found, the tool's default configuration will be used.
-
-### Include/Exclude
+## Include/Exclude
 
 If you would like to have a consistent configuration for include and exclude paths, you can also use a configuration file. The tool will attempt to read a configuration file named `.yamlfmt` in the directory the tool is run on. In it, you can configure paths to include and exclude, for example:
 ```yaml
@@ -78,7 +74,7 @@ exclude:
   - excluded/**/*.yaml
 ```
 
-### Line Ending
+## Line Ending
 
 The default line ending is `lf` (Unix style, Mac/Linux). The line ending can be changed to `crlf` (Windows style) with the `line_ending` setting:
 ```yaml
@@ -86,7 +82,7 @@ line_ending: crlf
 ```
 This setting will be sent to any formatter as a config field called `line_ending`. If a `line_ending` is specified in the formatter, this will overwrite it. New formatters are free to ignore this setting if they don't need it, but any formatter provided by this repo will handle it accordingly.
 
-### Formatter
+## Formatter
 
 In your `.yamlfmt` file you can also specify configuration for the formatter if that formatter supports it. To change the indentation level of the basic formatter for example:
 ```yaml

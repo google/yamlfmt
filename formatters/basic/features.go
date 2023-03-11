@@ -15,8 +15,9 @@
 package basic
 
 import (
+	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt"
-	"github.com/google/yamlfmt/internal/anchors"
+	"github.com/google/yamlfmt/formatters/basic/anchors"
 	"github.com/google/yamlfmt/internal/hotfix"
 )
 
@@ -31,6 +32,20 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 		features = append(features, featLineBreak)
 	}
 	return features
+}
+
+// These features will directly use the `yaml.Node` type and
+// as such are specific to this formatter.
+type YAMLFeatureFunc func(yaml.Node) error
+type YAMLFeatureList []YAMLFeatureFunc
+
+func (fl YAMLFeatureList) ApplyFeatures(node yaml.Node) error {
+	for _, f := range fl {
+		if err := f(node); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func ConfigureYAMLFeaturesFromConfig(config *Config) YAMLFeatureList {

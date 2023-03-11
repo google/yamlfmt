@@ -29,6 +29,7 @@ operation without performing it.`)
 	flagIn         *bool   = flag.Bool("in", false, "Format yaml read from stdin and output to stdout")
 	flagConf       *string = flag.String("conf", "", "Read yamlfmt config from this path")
 	flagDoublestar *bool   = flag.Bool("dstar", false, "Use doublestar globs for include and exclude")
+	flagQuiet      *bool   = flag.Bool("quiet", false, "Print minimal output to stdout")
 )
 
 func configureHelp() {
