@@ -66,10 +66,14 @@ func (e *ConsecutiveEngine) DryRun(paths []string) (*yamlfmt.EngineOutput, error
 		return nil, formatErrs
 	}
 
-	return &yamlfmt.EngineOutput{
+	output := &yamlfmt.EngineOutput{
 		Files: formatDiffs,
 		Quiet: e.Quiet,
-	}, nil
+	}
+	if len(formatDiffs) > 0 && e.Quiet {
+		output.Message = "The following files will have formatting changes:"
+	}
+	return output, nil
 }
 
 func (e *ConsecutiveEngine) formatAll(paths []string) (yamlfmt.FileDiffs, FormatErrors) {

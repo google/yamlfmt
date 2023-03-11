@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 
 	"github.com/google/yamlfmt"
@@ -115,7 +116,7 @@ func (c *Command) Run() error {
 			return err
 		}
 		if out != nil {
-			// This will be picked up log.Fatal in main() and
+			// This will be picked up by log.Fatal in main() and
 			// cause an exit code of 1, which is a critical
 			// component of the lint functionality.
 			return errors.New(out.String())
@@ -125,7 +126,7 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-		fmt.Println(out)
+		log.Print(out)
 	case OperationStdin:
 		stdinYaml, err := readFromStdin()
 		if err != nil {

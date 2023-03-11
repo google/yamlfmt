@@ -27,7 +27,7 @@ func (eo *EngineOutput) String() string {
 		msg += fmt.Sprintf("%s\n\n", eo.Message)
 	}
 	if eo.Quiet {
-		msg += fmt.Sprintf("%s\n", eo.Files.StrOutputQuiet())
+		msg += eo.Files.StrOutputQuiet()
 	} else {
 		msg += fmt.Sprintf("%s\n", eo.Files.StrOutput())
 	}
@@ -59,7 +59,7 @@ func (fd *FileDiff) StrOutput() string {
 }
 
 func (fd *FileDiff) StrOutputQuiet() string {
-	return fd.Path
+	return fd.Path + "\n"
 }
 
 func (fd *FileDiff) Apply() error {
