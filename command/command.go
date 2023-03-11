@@ -114,12 +114,11 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-
-		if out != "" {
+		if out != nil {
 			// This will be picked up log.Fatal in main() and
 			// cause an exit code of 1, which is a critical
 			// component of the lint functionality.
-			return errors.New(out)
+			return errors.New(out.String())
 		}
 	case OperationDry:
 		out, err := eng.DryRun(paths)

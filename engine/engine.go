@@ -15,7 +15,6 @@
 package engine
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/google/yamlfmt"
@@ -40,41 +39,41 @@ func (e *ConsecutiveEngine) Format(paths []string) error {
 	return formatDiffs.ApplyAll()
 }
 
-func (e *ConsecutiveEngine) Lint(paths []string) (string, error) {
+func (e *ConsecutiveEngine) Lint(paths []string) (*yamlfmt.EngineOutput, error) {
 	formatDiffs, formatErrs := e.formatAll(paths)
 	if len(formatErrs) > 0 {
-		return "", formatErrs
+		return nil, formatErrs
 	}
 	if formatDiffs.ChangedCount() == 0 {
-		return "", nil
+		return nil, nil
 	}
 
+	message := "The following formatting differences were found:"
 	if e.Quiet {
-		return fmt.Sprintf(
-			"The following files had formatting differences:\n%s",
-			formatDiffs.StrOutputQuiet(),
-		), nil
+		message = "The following files had formatting differences:"
 	}
-	return fmt.Sprintf(
-		"The following formatting differences were found:\n%s",
-		formatDiffs.StrOutput(),
-	), nil
+
+	return &yamlfmt.EngineOutput{
+		Message: message,
+		Files:   formatDiffs,
+		Quiet:   e.Quiet,
+	}, nil
 }
 
-func (e *ConsecutiveEngine) DryRun(paths []string) (string, error) {
+func (e *ConsecutiveEngine) DryRun(paths []string) (*yamlfmt.EngineOutput, error) {
 	formatDiffs, formatErrs := e.formatAll(paths)
 	if len(formatErrs) > 0 {
-		return "", formatErrs
+		return nil, formatErrs
 	}
 
-	if e.Quiet {
-		return formatDiffs.StrOutputQuiet(), nil
-	}
-	return formatDiffs.StrOutput(), nil
+	return &yamlfmt.EngineOutput{
+		Files: formatDiffs,
+		Quiet: e.Quiet,
+	}, nil
 }
 
-func (e *ConsecutiveEngine) formatAll(paths []string) (FileDiffs, FormatErrors) {
-	formatDiffs := FileDiffs{}
+func (e *ConsecutiveEngine) formatAll(paths []string) (yamlfmt.FileDiffs, FormatErrors) {
+	formatDiffs := yamlfmt.FileDiffs{}
 	formatErrs := FormatErrors{}
 	for _, path := range paths {
 		fileDiff, err := e.formatFileContent(path)
@@ -87,7 +86,7 @@ func (e *ConsecutiveEngine) formatAll(paths []string) (FileDiffs, FormatErrors) 
 	return formatDiffs, formatErrs
 }
 
-func (e *ConsecutiveEngine) formatFileContent(path string) (*FileDiff, error) {
+func (e *ConsecutiveEngine) formatFileContent(path string) (*yamlfmt.FileDiff, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -96,9 +95,9 @@ func (e *ConsecutiveEngine) formatFileContent(path string) (*FileDiff, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &FileDiff{
+	return &yamlfmt.FileDiff{
 		Path: path,
-		Diff: &FormatDiff{
+		Diff: &yamlfmt.FormatDiff{
 			Original:  string(content),
 			Formatted: string(formatted),
 			LineSep:   e.LineSepCharacter,
