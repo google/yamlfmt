@@ -1,14 +1,25 @@
+# Configuration With .yamlfmt
 
-# Command
+## Config File Discovery
+
+The config file is discovered in the following priority order:
+
+1. Specified in the `--conf` flag (if this is an invalid path or doesn't exist, the tool will fail)
+2. A `.yamlfmt` file in the current working directory
+3. A `yamlfmt` folder with a `.yamlfmt` file in the system config directory (`$XDG_CONFIG_HOME`, `$HOME/.config`, `%LOCALAPPDATA%`) e.g. `$HOME/.config/yamlfmt/.yamlfmt`
+
+If none of these are found, the tool's default configuration will be used.
+
+## Command
 
 The command package defines the main command engine that `cmd/yamlfmt` uses. It uses the top level configuration that any run of the yamlfmt command will use.
 
-## Configuration
+### Configuration
 
 | Key                      | Type           | Default | Description |
 |:-------------------------|:---------------|:--------|:------------|
 | `line_ending`            | `lf` or `crlf` | `crlf` on Windows, `lf` otherwise | Parse and write the file with "lf" or "crlf" line endings. This global setting will override any formatter `line_ending` options. |
-| `doublestar`             | bool           | false   | Use [doublestar](https://github.com/bmatcuk/doublestar) for include and exclude paths. (This was the default before 0.8.0) |
+| `doublestar`             | bool           | false   | Use [doublestar](https://github.com/bmatcuk/doublestar) for include and exclude paths. (This was the default before 0.7.0) |
 | `include`                | []string       | []      | The paths for the command to include for formatting. See [Specifying Paths](#specifying-paths) for more details. |
 | `exclude`                | []string       | []      | The paths for the command to exclude from formatting. See [Specifying Paths](#specifying-paths) for more details. |
 | `extensions`             | []string       | []      | The extensions to use for standard mode path collection. See [Specifying Paths](#specifying-paths) for more details. |
@@ -24,7 +35,7 @@ In standard path mode, the you can specify a file or directory path directly. If
 
 In Doublestar mode, paths are specified using the format explained in the [doublestar](https://github.com/bmatcuk/doublestar) package. It is almost identical to bash and git's style of glob pattern specification.
 
-# Formatter
+## Formatter
 
 Formatter settings are specified by giving a formatter type in the `type` field, and specifying the rest of the formatter settings in the same block. For example, to get a default `basic` formatter, use the following configuration:
 ```yaml
@@ -39,11 +50,11 @@ formatter:
 ```
 Currently, there is only a `basic` formatter, however there is full support for making your own formatter in a fork or the potential for a new formatter to exist in the future.
 
-# Basic Formatter
+## Basic Formatter
 
 The basic formatter is a barebones formatter that simply takes the data provided, serializes it with a fork of [gopkg.in/yaml.v3](https://www.github.com/braydonk/yaml) and encodes it again. This provides a consistent output format that is very opinionated with some minor tweak options.
 
-## Configuration
+### Configuration
 
 | Key                      | Type           | Default | Description |
 |:-------------------------|:---------------|:--------|:------------|
@@ -55,6 +66,6 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `max_line_length`        | int            | 0      | Set the maximum line length (see notes below). if not set, defaults to 0 which means no limit. |
 | `scan_folded_as_literal` | bool           | false   | Option that will preserve newlines in folded block scalars (blocks that start with `>`). |
 
-## Note on `max_line_length`
+### Note on `max_line_length`
 
 It's not perfect; it uses the `best_width` setting from the yaml library. If there's a very long token that extends too far for the line width, it won't split it up properly. I will keep trying to make this work better, but decided to get a version of the feature in that works for a lot of scenarios even if not all of them.
