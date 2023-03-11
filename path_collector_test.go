@@ -2,39 +2,18 @@ package yamlfmt_test
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
 
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/tempfile"
 )
-
-type dummyPath struct {
-	basePath string
-	filename string
-	isDir    bool
-}
-
-func (p *dummyPath) Create() error {
-	file := p.fullPath()
-	var err error
-	if p.isDir {
-		err = os.Mkdir(file, os.ModePerm)
-	} else {
-		err = os.WriteFile(file, []byte{}, os.ModePerm)
-	}
-	return err
-}
-
-func (p *dummyPath) fullPath() string {
-	return filepath.Join(p.basePath, p.filename)
-}
 
 func TestCollectPaths(t *testing.T) {
 	testCases := []struct {
 		name            string
-		files           []dummyPath
+		files           []tempfile.Path
 		includePatterns []string
 		excludePatterns []string
 		extensions      []string
@@ -42,10 +21,10 @@ func TestCollectPaths(t *testing.T) {
 	}{
 		{
 			name: "finds direct paths",
-			files: []dummyPath{
-				{filename: "x.yaml"},
-				{filename: "y.yaml"},
-				{filename: "z.yml"},
+			files: []tempfile.Path{
+				{FileName: "x.yaml"},
+				{FileName: "y.yaml"},
+				{FileName: "z.yml"},
 			},
 			includePatterns: []string{
 				"x.yaml",
@@ -60,11 +39,11 @@ func TestCollectPaths(t *testing.T) {
 		},
 		{
 			name: "finds all in directory one layer",
-			files: []dummyPath{
-				{filename: "a", isDir: true},
-				{filename: "a/x.yaml"},
-				{filename: "a/y.yaml"},
-				{filename: "a/z.yml"},
+			files: []tempfile.Path{
+				{FileName: "a", IsDir: true},
+				{FileName: "a/x.yaml"},
+				{FileName: "a/y.yaml"},
+				{FileName: "a/z.yml"},
 			},
 			includePatterns: []string{
 				"a",
@@ -81,11 +60,11 @@ func TestCollectPaths(t *testing.T) {
 		},
 		{
 			name: "finds direct path to subdirectory",
-			files: []dummyPath{
-				{filename: "a", isDir: true},
-				{filename: "a/x.yaml"},
-				{filename: "a/y.yaml"},
-				{filename: "a/z.yml"},
+			files: []tempfile.Path{
+				{FileName: "a", IsDir: true},
+				{FileName: "a/x.yaml"},
+				{FileName: "a/y.yaml"},
+				{FileName: "a/z.yml"},
 			},
 			includePatterns: []string{
 				"a/x.yaml",
@@ -98,15 +77,15 @@ func TestCollectPaths(t *testing.T) {
 		},
 		{
 			name: "finds all in layered directories",
-			files: []dummyPath{
-				{filename: "a", isDir: true},
-				{filename: "a/b", isDir: true},
-				{filename: "x.yml"},
-				{filename: "y.yml"},
-				{filename: "z.yaml"},
-				{filename: "a/x.yaml"},
-				{filename: "a/b/x.yaml"},
-				{filename: "a/b/y.yml"},
+			files: []tempfile.Path{
+				{FileName: "a", IsDir: true},
+				{FileName: "a/b", IsDir: true},
+				{FileName: "x.yml"},
+				{FileName: "y.yml"},
+				{FileName: "z.yaml"},
+				{FileName: "a/x.yaml"},
+				{FileName: "a/b/x.yaml"},
+				{FileName: "a/b/y.yml"},
 			},
 			includePatterns: []string{
 				"", // with the test this functionally means the whole temp dir
@@ -126,15 +105,15 @@ func TestCollectPaths(t *testing.T) {
 		},
 		{
 			name: "exclude files",
-			files: []dummyPath{
-				{filename: "a", isDir: true},
-				{filename: "a/b", isDir: true},
-				{filename: "x.yml"},
-				{filename: "y.yml"},
-				{filename: "z.yaml"},
-				{filename: "a/x.yaml"},
-				{filename: "a/b/x.yaml"},
-				{filename: "a/b/y.yml"},
+			files: []tempfile.Path{
+				{FileName: "a", IsDir: true},
+				{FileName: "a/b", IsDir: true},
+				{FileName: "x.yml"},
+				{FileName: "y.yml"},
+				{FileName: "z.yaml"},
+				{FileName: "a/x.yaml"},
+				{FileName: "a/b/x.yaml"},
+				{FileName: "a/b/y.yml"},
 			},
 			includePatterns: []string{
 				"", // with the test this functionally means the whole temp dir
@@ -156,15 +135,15 @@ func TestCollectPaths(t *testing.T) {
 		},
 		{
 			name: "exclude directory",
-			files: []dummyPath{
-				{filename: "a", isDir: true},
-				{filename: "a/b", isDir: true},
-				{filename: "x.yml"},
-				{filename: "y.yml"},
-				{filename: "z.yaml"},
-				{filename: "a/x.yaml"},
-				{filename: "a/b/x.yaml"},
-				{filename: "a/b/y.yml"},
+			files: []tempfile.Path{
+				{FileName: "a", IsDir: true},
+				{FileName: "a/b", IsDir: true},
+				{FileName: "x.yml"},
+				{FileName: "y.yml"},
+				{FileName: "z.yaml"},
+				{FileName: "a/x.yaml"},
+				{FileName: "a/b/x.yaml"},
+				{FileName: "a/b/y.yml"},
 			},
 			includePatterns: []string{
 				"", // with the test this functionally means the whole temp dir
@@ -192,9 +171,9 @@ func TestCollectPaths(t *testing.T) {
 			tempPath := t.TempDir()
 
 			for _, file := range tc.files {
-				file.basePath = tempPath
+				file.BasePath = tempPath
 				if err := file.Create(); err != nil {
-					t.Fatalf("Failed to create file %s: %v", file.basePath, err)
+					t.Fatalf("Failed to create file %s: %v", file.BasePath, err)
 				}
 			}
 
@@ -231,17 +210,17 @@ func TestDoublestarCollectPaths(t *testing.T) {
 	t.Skip()
 	testCases := []struct {
 		name            string
-		files           []dummyPath
+		files           []tempfile.Path
 		includePatterns []string
 		excludePatterns []string
 		expectedFiles   map[string]struct{}
 	}{
 		{
 			name: "no excludes",
-			files: []dummyPath{
-				{filename: "x.yaml"},
-				{filename: "y.yaml"},
-				{filename: "z.yaml"},
+			files: []tempfile.Path{
+				{FileName: "x.yaml"},
+				{FileName: "y.yaml"},
+				{FileName: "z.yaml"},
 			},
 			expectedFiles: map[string]struct{}{
 				"x.yaml": {},
@@ -251,9 +230,9 @@ func TestDoublestarCollectPaths(t *testing.T) {
 		},
 		{
 			name: "does not include directories",
-			files: []dummyPath{
-				{filename: "x.yaml"},
-				{filename: "y", isDir: true},
+			files: []tempfile.Path{
+				{FileName: "x.yaml"},
+				{FileName: "y", IsDir: true},
 			},
 			expectedFiles: map[string]struct{}{
 				"x.yaml": {},
@@ -261,9 +240,9 @@ func TestDoublestarCollectPaths(t *testing.T) {
 		},
 		{
 			name: "only include what is asked",
-			files: []dummyPath{
-				{filename: "x.yaml"},
-				{filename: "y.yaml"},
+			files: []tempfile.Path{
+				{FileName: "x.yaml"},
+				{FileName: "y.yaml"},
 			},
 			includePatterns: []string{
 				"y.yaml",
@@ -274,9 +253,9 @@ func TestDoublestarCollectPaths(t *testing.T) {
 		},
 		{
 			name: "exclude what is asked",
-			files: []dummyPath{
-				{filename: "x.yaml"},
-				{filename: "y.yaml"},
+			files: []tempfile.Path{
+				{FileName: "x.yaml"},
+				{FileName: "y.yaml"},
 			},
 			excludePatterns: []string{
 				"y.yaml",
@@ -294,7 +273,7 @@ func TestDoublestarCollectPaths(t *testing.T) {
 			tempPath := t.TempDir()
 
 			for _, file := range tc.files {
-				file.basePath = tempPath
+				file.BasePath = tempPath
 				if err := file.Create(); err != nil {
 					t.Fatalf("Failed to create file")
 				}
