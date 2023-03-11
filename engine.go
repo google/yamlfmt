@@ -66,7 +66,16 @@ func (fd *FileDiff) Apply() error {
 	return os.WriteFile(fd.Path, []byte(fd.Diff.Formatted), 0644)
 }
 
-type FileDiffs []*FileDiff
+type FileDiffs map[string]*FileDiff
+
+func (fds FileDiffs) Add(diff *FileDiff) error {
+	if _, ok := fds[diff.Path]; ok {
+		return fmt.Errorf("a diff for %s already exists", diff.Path)
+	}
+
+	fds[diff.Path] = diff
+	return nil
+}
 
 func (fds FileDiffs) StrOutput() string {
 	result := ""
@@ -90,8 +99,10 @@ func (fds FileDiffs) StrOutputQuiet() string {
 
 func (fds FileDiffs) ApplyAll() error {
 	applyErrs := make([]error, len(fds))
-	for i, diff := range fds {
+	i := 0
+	for _, diff := range fds {
 		applyErrs[i] = diff.Apply()
+		i++
 	}
 	return errors.Join(applyErrs...)
 }

@@ -81,7 +81,7 @@ func (e *ConsecutiveEngine) formatAll(paths []string) (yamlfmt.FileDiffs, Format
 			formatErrs = append(formatErrs, wrapFormatError(path, err))
 			continue
 		}
-		formatDiffs = append(formatDiffs, fileDiff)
+		formatDiffs.Add(fileDiff)
 	}
 	return formatDiffs, formatErrs
 }
