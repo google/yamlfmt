@@ -96,17 +96,18 @@ func (f *BasicFormatter) getNewDecoder(reader io.Reader) *yaml.Decoder {
 func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 	e := yaml.NewEncoder(buf)
 	e.SetIndent(f.Config.Indent)
+
 	if f.Config.LineLength > 0 {
 		e.SetWidth(f.Config.LineLength)
 	}
+
 	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
 		e.SetLineBreakStyle(yaml.LineBreakStyleCRLF)
 	}
-	if f.Config.IncludeDocumentStart {
-		e.SetExplicitDocumentStart()
-	}
-	if f.Config.ScanFoldedAsLiteral {
-		e.SetAssumeBlockAsLiteral(true)
-	}
+
+	e.SetExplicitDocumentStart(f.Config.IncludeDocumentStart)
+	e.SetAssumeBlockAsLiteral(f.Config.ScanFoldedAsLiteral)
+	e.SetIndentlessBlockSequence(f.Config.IndentlessArrays)
+
 	return e
 }
