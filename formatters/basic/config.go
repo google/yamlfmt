@@ -28,6 +28,7 @@ type Config struct {
 	RetainLineBreaks     bool                   `mapstructure:"retain_line_breaks"`
 	DisallowAnchors      bool                   `mapstructure:"disallow_anchors"`
 	ScanFoldedAsLiteral  bool                   `mapstructure:"scan_folded_as_literal"`
+	IndentlessArrays     bool                   `mapstructure:"indentless_arrays"`
 }
 
 func DefaultConfig() *Config {
