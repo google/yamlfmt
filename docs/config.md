@@ -65,7 +65,7 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `disallow_anchors`       | bool           | false   | If true, reject any YAML anchors or aliases found in the document. |
 | `max_line_length`        | int            | 0       | Set the maximum line length (see notes below). if not set, defaults to 0 which means no limit. |
 | `scan_folded_as_literal` | bool           | false   | Option that will preserve newlines in folded block scalars (blocks that start with `>`). |
-| `indentless_array`       | bool           | false   | Render `-` array items (block sequence items) without an increased indent. |
+| `indentless_arrays`      | bool           | false   | Render `-` array items (block sequence items) without an increased indent. |
 
 ### Note on `max_line_length`
 
