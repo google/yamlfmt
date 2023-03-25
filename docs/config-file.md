@@ -20,20 +20,10 @@ The command package defines the main command engine that `cmd/yamlfmt` uses. It 
 |:-------------------------|:---------------|:--------|:------------|
 | `line_ending`            | `lf` or `crlf` | `crlf` on Windows, `lf` otherwise | Parse and write the file with "lf" or "crlf" line endings. This global setting will override any formatter `line_ending` options. |
 | `doublestar`             | bool           | false   | Use [doublestar](https://github.com/bmatcuk/doublestar) for include and exclude paths. (This was the default before 0.7.0) |
-| `include`                | []string       | []      | The paths for the command to include for formatting. See [Specifying Paths](#specifying-paths) for more details. |
-| `exclude`                | []string       | []      | The paths for the command to exclude from formatting. See [Specifying Paths](#specifying-paths) for more details. |
-| `extensions`             | []string       | []      | The extensions to use for standard mode path collection. See [Specifying Paths](#specifying-paths) for more details. |
+| `include`                | []string       | []      | The paths for the command to include for formatting. See [Specifying Paths][] for more details. |
+| `exclude`                | []string       | []      | The paths for the command to exclude from formatting. See [Specifying Paths][] for more details. |
+| `extensions`             | []string       | []      | The extensions to use for standard mode path collection. See [Specifying Paths][] for more details. |
 | `formatter`              | map[string]any | default basic formatter | Formatter settings. See [Formatter](#formatter) for more details. |
-
-## Specifying paths
-
-### Standard
-
-In standard path mode, the you can specify a file or directory path directly. If specifying a file, it will simply include the file. If specifying a directory, it will include every file with the correct extension (as specified in `extensions`).
-
-### Doublestar
-
-In Doublestar mode, paths are specified using the format explained in the [doublestar](https://github.com/bmatcuk/doublestar) package. It is almost identical to bash and git's style of glob pattern specification.
 
 ## Formatter
 
@@ -70,3 +60,5 @@ The basic formatter is a barebones formatter that simply takes the data provided
 ### Note on `max_line_length`
 
 It's not perfect; it uses the `best_width` setting from the yaml library. If there's a very long token that extends too far for the line width, it won't split it up properly. I will keep trying to make this work better, but decided to get a version of the feature in that works for a lot of scenarios even if not all of them.
+
+[Specifying Paths]: ./paths.md

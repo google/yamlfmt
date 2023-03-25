@@ -17,6 +17,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/google/yamlfmt/command"
 )
@@ -30,7 +31,32 @@ operation without performing it.`)
 	flagConf       *string = flag.String("conf", "", "Read yamlfmt config from this path")
 	flagDoublestar *bool   = flag.Bool("dstar", false, "Use doublestar globs for include and exclude")
 	flagQuiet      *bool   = flag.Bool("quiet", false, "Print minimal output to stdout")
+	flagExclude            = arrayFlag{}
+	flagFormatter          = arrayFlag{}
+	flagExtensions         = arrayFlag{}
 )
+
+func bindArrayFlags() {
+	flag.Var(&flagExclude, "exclude", "Paths to exclude in the chosen format (standard or doublestar)")
+	flag.Var(&flagFormatter, "formatter", "Config value overrides to pass to the formatter")
+	flag.Var(&flagExtensions, "extensions", "File extensions to use for standard path collection")
+}
+
+type arrayFlag []string
+
+// Implements flag.Value
+func (a *arrayFlag) String() string {
+	return strings.Join(*a, " ")
+}
+
+func (a *arrayFlag) Set(value string) error {
+	values := []string{value}
+	if strings.Contains(value, ",") {
+		values = strings.Split(value, ",")
+	}
+	*a = append(*a, values...)
+	return nil
+}
 
 func configureHelp() {
 	flag.Usage = func() {
