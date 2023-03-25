@@ -74,7 +74,7 @@ These flags will configure the underlying behaviour of the command.
 The string array flags can be a bit confusing. See the [String Array Flags](#string-array-flags) section for more information.
 
 | Name             | Flag          | Type     | Example                                                   | Description |
-|:-----------------|:--------------|:---------|::---------------------------------------------------------|:------------|
+|:-----------------|:--------------|:---------|:----------------------------------------------------------|:------------|
 | Config File Path | `-conf`       | string   | `yamlfmt -conf ./config/.yamlfmt`                         | Specify a path to read a [configuration file](./config-file.md) from. |
 | Doublstar        | `-dstar`      | boolean  | `yamlfmt -dstar "**/*.yaml"`                              | Enable [Doublstar](./paths.md#doublestar) path collection mode. |
 | Exclude          | `-exclude`    | []string | `yamlfmt -exclude ./not/,these_paths.yaml`                | Patterns to exclude from path collection. These add to exclude patterns specified in the [config file](./config-file.md) |
