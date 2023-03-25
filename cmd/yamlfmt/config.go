@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
+	"strings"
 
 	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt"
@@ -179,6 +181,20 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 		return nil, err
 	}
 
+	// Parse overrides for formatter configuration
+	if len(flagFormatter) > 0 {
+		overrides, err := parseFormatterConfigFlag(flagFormatter)
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range overrides {
+			if k == "type" {
+				config.FormatterConfig.Type = v.(string)
+			}
+			config.FormatterConfig.FormatterSettings[k] = v
+		}
+	}
+
 	// Default to OS line endings
 	if config.LineEnding == "" {
 		config.LineEnding = yamlfmt.LineBreakStyleLF
@@ -202,5 +218,46 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 		config.Include = flag.Args()
 	}
 
+	// Append any additional data from array flags
+	config.Exclude = append(config.Exclude, flagExclude...)
+	config.Extensions = append(config.Extensions, flagExtensions...)
+
 	return config, nil
+}
+
+func parseFormatterConfigFlag(flagValues []string) (map[string]any, error) {
+	formatterValues := map[string]any{}
+	flagErrors := []error{}
+
+	// Expected format: fieldname=value
+	for _, configField := range flagValues {
+		if strings.Count(configField, "=") != 1 {
+			flagErrors = append(
+				flagErrors,
+				fmt.Errorf("badly formatted config field: %s", configField),
+			)
+			continue
+		}
+
+		kv := strings.Split(configField, "=")
+
+		// Try to parse as integer
+		vInt, err := strconv.ParseInt(kv[1], 10, 64)
+		if err == nil {
+			formatterValues[kv[0]] = vInt
+			continue
+		}
+
+		// Try to parse as boolean
+		vBool, err := strconv.ParseBool(kv[1])
+		if err == nil {
+			formatterValues[kv[0]] = vBool
+			continue
+		}
+
+		// Fall through to parsing as string
+		formatterValues[kv[0]] = kv[1]
+	}
+
+	return formatterValues, errors.Join(flagErrors...)
 }

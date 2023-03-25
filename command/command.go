@@ -35,9 +35,9 @@ const (
 	OperationStdin
 )
 
-type formatterConfig struct {
-	Type              string                 `mapstructure:"type"`
-	FormatterSettings map[string]interface{} `mapstructure:",remain"`
+type FormatterConfig struct {
+	Type              string         `mapstructure:"type"`
+	FormatterSettings map[string]any `mapstructure:",remain"`
 }
 
 type Config struct {
@@ -46,7 +46,7 @@ type Config struct {
 	Exclude         []string               `mapstructure:"exclude"`
 	Doublestar      bool                   `mapstructure:"doublestar"`
 	LineEnding      yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
-	FormatterConfig *formatterConfig       `mapstructure:"formatter,omitempty"`
+	FormatterConfig *FormatterConfig       `mapstructure:"formatter,omitempty"`
 }
 
 type Command struct {

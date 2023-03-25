@@ -30,6 +30,7 @@ func main() {
 }
 
 func run() error {
+	bindArrayFlags()
 	configureHelp()
 	flag.Parse()
 
