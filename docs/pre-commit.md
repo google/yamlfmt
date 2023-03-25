@@ -4,7 +4,7 @@ Starting in v0.7.1, `yamlfmt` can be used as a hook for the popular [pre-commit]
 
 ```yaml
 - repo: https://github.com/google/yamlfmt
-  rev: v0.7.1
+  rev: v0.8
   hooks:
     - id: yamlfmt
 ```
