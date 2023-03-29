@@ -40,6 +40,11 @@ type FormatterConfig struct {
 	FormatterSettings map[string]any `mapstructure:",remain"`
 }
 
+// NewFormatterConfig returns an empty formatter config with all fields initialized.
+func NewFormatterConfig() FormatterConfig {
+	return FormatterConfig{FormatterSettings: make(map[string]any)}
+}
+
 type Config struct {
 	Extensions      []string               `mapstructure:"extensions"`
 	Include         []string               `mapstructure:"include"`
@@ -47,6 +52,12 @@ type Config struct {
 	Doublestar      bool                   `mapstructure:"doublestar"`
 	LineEnding      yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
 	FormatterConfig *FormatterConfig       `mapstructure:"formatter,omitempty"`
+}
+
+// NewConfig returns an empty config with all fields initialized.
+func NewConfig() Config {
+	formatterConfig := NewFormatterConfig()
+	return Config{FormatterConfig: &formatterConfig}
 }
 
 type Command struct {

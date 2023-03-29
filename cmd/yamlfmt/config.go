@@ -175,7 +175,7 @@ func validatePath(path string) error {
 }
 
 func makeCommandConfigFromData(configData map[string]any) (*command.Config, error) {
-	var config *command.Config
+	config := command.NewConfig()
 	err := mapstructure.Decode(configData, &config)
 	if err != nil {
 		return nil, err
@@ -222,7 +222,7 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 	config.Exclude = append(config.Exclude, flagExclude...)
 	config.Extensions = append(config.Extensions, flagExtensions...)
 
-	return config, nil
+	return &config, nil
 }
 
 func parseFormatterConfigFlag(flagValues []string) (map[string]any, error) {
