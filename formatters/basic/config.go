@@ -29,6 +29,7 @@ type Config struct {
 	DisallowAnchors      bool                   `mapstructure:"disallow_anchors"`
 	ScanFoldedAsLiteral  bool                   `mapstructure:"scan_folded_as_literal"`
 	IndentlessArrays     bool                   `mapstructure:"indentless_arrays"`
+	DropMergeTag         bool                   `mapstructure:"drop_merge_tag"`
 }
 
 func DefaultConfig() *Config {

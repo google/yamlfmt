@@ -108,6 +108,7 @@ func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 	e.SetExplicitDocumentStart(f.Config.IncludeDocumentStart)
 	e.SetAssumeBlockAsLiteral(f.Config.ScanFoldedAsLiteral)
 	e.SetIndentlessBlockSequence(f.Config.IndentlessArrays)
+	e.SetDropMergeTag(f.Config.DropMergeTag)
 
 	return e
 }

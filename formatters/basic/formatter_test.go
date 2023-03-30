@@ -231,3 +231,41 @@ func TestScanFoldedAsLiteral(t *testing.T) {
 		t.Fatalf("expected string to be %d lines, was %d", lines, resultLines)
 	}
 }
+
+func TestIndentlessArrays(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.IndentlessArrays = true
+	f := newFormatter(config)
+
+	yml := `a:
+- 1
+- 2
+`
+	result, err := f.Format([]byte(yml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	resultStr := string(result)
+	if resultStr != yml {
+		t.Fatalf("expected:\n%s\ngot:\n%s", yml, resultStr)
+	}
+}
+
+func TestDropMergeTag(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.DropMergeTag = true
+	f := newFormatter(config)
+
+	yml := `a: &a
+b:
+  <<: *a`
+
+	result, err := f.Format([]byte(yml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	resultStr := string(result)
+	if strings.Contains(resultStr, "!!merge") {
+		t.Fatalf("expected formatted result to drop merge tag, was found:\n%s", resultStr)
+	}
+}
