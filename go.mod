@@ -1,6 +1,6 @@
 module github.com/google/yamlfmt
 
-go 1.20
+go 1.18
 
 require (
 	github.com/RageCage64/multilinediff v0.2.0
