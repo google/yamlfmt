@@ -13,6 +13,7 @@ import (
 	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
+	"github.com/google/yamlfmt/internal/collections"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -227,7 +228,7 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 
 func parseFormatterConfigFlag(flagValues []string) (map[string]any, error) {
 	formatterValues := map[string]any{}
-	flagErrors := []error{}
+	flagErrors := collections.Errors{}
 
 	// Expected format: fieldname=value
 	for _, configField := range flagValues {
@@ -259,5 +260,5 @@ func parseFormatterConfigFlag(flagValues []string) (map[string]any, error) {
 		formatterValues[kv[0]] = kv[1]
 	}
 
-	return formatterValues, errors.Join(flagErrors...)
+	return formatterValues, flagErrors.Combine()
 }

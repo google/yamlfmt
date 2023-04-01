@@ -1,11 +1,11 @@
 package yamlfmt
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
 	"github.com/RageCage64/multilinediff"
+	"github.com/google/yamlfmt/internal/collections"
 )
 
 type Engine interface {
@@ -98,13 +98,13 @@ func (fds FileDiffs) StrOutputQuiet() string {
 }
 
 func (fds FileDiffs) ApplyAll() error {
-	applyErrs := make([]error, len(fds))
+	applyErrs := make(collections.Errors, len(fds))
 	i := 0
 	for _, diff := range fds {
 		applyErrs[i] = diff.Apply()
 		i++
 	}
-	return errors.Join(applyErrs...)
+	return applyErrs.Combine()
 }
 
 func (fds FileDiffs) ChangedCount() int {
