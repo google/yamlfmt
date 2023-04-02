@@ -68,10 +68,11 @@ func TestReadMetadata(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			md, err := yamlfmt.ReadMetadata([]byte(tc.content))
+			md, err := yamlfmt.ReadMetadata([]byte(tc.content), "test.yaml")
 			if !md.Equals(tc.expected) {
 				t.Fatalf("Mismatched metadata:\nexpected: %v\ngot: %v", tc.expected, md)
 			}
+			t.Logf("got error: %v", err)
 			tc.errCheck(t, err)
 		})
 	}

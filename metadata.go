@@ -29,11 +29,32 @@ type Metadata struct {
 }
 
 var (
-	ErrMalformedMetadata    = errors.New("metadata: malformed metadata string")
-	ErrUnrecognizedMetadata = errors.New("metadata: unrecognized metadata type")
+	ErrMalformedMetadata    = errors.New("metadata: malformed string")
+	ErrUnrecognizedMetadata = errors.New("metadata: unrecognized type")
 )
 
-func ReadMetadata(content []byte) (collections.Set[Metadata], collections.Errors) {
+type MetadataError struct {
+	err     error
+	path    string
+	lineNum int
+	lineStr string
+}
+
+func (e *MetadataError) Error() string {
+	return fmt.Sprintf(
+		"%v: %s:%d:%s",
+		e.err,
+		e.path,
+		e.lineNum,
+		e.lineStr,
+	)
+}
+
+func (e *MetadataError) Unwrap() error {
+	return e.err
+}
+
+func ReadMetadata(content []byte, path string) (collections.Set[Metadata], collections.Errors) {
 	metadata := collections.Set[Metadata]{}
 	mdErrs := collections.Errors{}
 	// This could be `\r\n` but it won't affect the outcome of this operation.
@@ -44,15 +65,25 @@ func ReadMetadata(content []byte) (collections.Set[Metadata], collections.Errors
 			continue
 		}
 		mdStr := scanMetadata(line, mdidIndex)
-		mdComponents := strings.Split(line, ":")
+		mdComponents := strings.Split(mdStr, ":")
 		if len(mdComponents) != 2 {
-			mdErrs = append(mdErrs, fmt.Errorf("%w: %s", ErrMalformedMetadata, mdStr))
+			mdErrs = append(mdErrs, &MetadataError{
+				path:    path,
+				lineNum: i + 1,
+				err:     ErrMalformedMetadata,
+				lineStr: line,
+			})
 			continue
 		}
 		if IsMetadataType(mdComponents[1]) {
 			metadata.Add(Metadata{LineNum: i + 1, Type: MetadataType(mdComponents[1])})
 		} else {
-			mdErrs = append(mdErrs, fmt.Errorf("%w: %s", ErrUnrecognizedMetadata, mdComponents[1]))
+			mdErrs = append(mdErrs, &MetadataError{
+				path:    path,
+				lineNum: i + 1,
+				err:     ErrUnrecognizedMetadata,
+				lineStr: line,
+			})
 		}
 	}
 	return metadata, mdErrs

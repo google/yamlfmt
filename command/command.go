@@ -117,7 +117,8 @@ func (c *Command) Run() error {
 	}
 	paths, err := c.analyzePaths(collectedPaths)
 	if err != nil {
-		return err
+		log.Printf("path analysis found the following errors:\n%v", err)
+		log.Println("Continuing...")
 	}
 
 	switch c.Operation {

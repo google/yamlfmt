@@ -42,7 +42,7 @@ func (a BasicContentAnalyzer) ExcludePathsByContent(paths []string) ([]string, [
 		}
 
 		// Search metadata for ignore
-		metadata, mdErrs := ReadMetadata(content)
+		metadata, mdErrs := ReadMetadata(content, path)
 		if len(mdErrs) != 0 {
 			pathErrs = append(pathErrs, mdErrs...)
 		}
