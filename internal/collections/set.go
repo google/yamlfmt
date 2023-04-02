@@ -23,6 +23,25 @@ func (s Set[T]) ToSlice() []T {
 	return sl
 }
 
+func (s Set[T]) Clone() Set[T] {
+	newSet := Set[T]{}
+	for el := range s {
+		newSet.Add(el)
+	}
+	return newSet
+}
+
+func (s Set[T]) Equals(rhs Set[T]) bool {
+	if len(s) != len(rhs) {
+		return false
+	}
+	rhsClone := rhs.Clone()
+	for el := range s {
+		rhsClone.Remove(el)
+	}
+	return len(rhsClone) == 0
+}
+
 func SliceToSet[T comparable](sl []T) Set[T] {
 	set := Set[T]{}
 	for _, el := range sl {

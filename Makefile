@@ -1,17 +1,23 @@
+.PHONY: build
 build:
 	go build ./cmd/yamlfmt
 
+.PHONY: test
+test:
+	go test ./...
+
+.PHONY: test_v
+test_v:
+	go test -v ./...
+
+.PHONY: install
 install:
 	go install ./cmd/yamlfmt
 
+.PHONY: install_tools
 install_tools:
 	go install github.com/google/addlicense@latest
 
+.PHONY: addlicense
 addlicense:
 	addlicense -c "Google LLC" -l apache .
-
-test_diff:
-	go test -v -mod=mod github.com/google/yamlfmt/internal/diff
-
-test_basic_formatter:
-	go test -v -mod=mod github.com/google/yamlfmt/formatters/basic

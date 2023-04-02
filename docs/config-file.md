@@ -22,6 +22,7 @@ The command package defines the main command engine that `cmd/yamlfmt` uses. It 
 | `doublestar`             | bool           | false   | Use [doublestar](https://github.com/bmatcuk/doublestar) for include and exclude paths. (This was the default before 0.7.0) |
 | `include`                | []string       | []      | The paths for the command to include for formatting. See [Specifying Paths][] for more details. |
 | `exclude`                | []string       | []      | The paths for the command to exclude from formatting. See [Specifying Paths][] for more details. |
+| `regex_exclude`          | []string       | []      | Regex patterns to match file contents for, if the file content matches the regex the file will be excluded. Use [Golang regexes](https://regex101.com/). |
 | `extensions`             | []string       | []      | The extensions to use for standard mode path collection. See [Specifying Paths][] for more details. |
 | `formatter`              | map[string]any | default basic formatter | Formatter settings. See [Formatter](#formatter) for more details. |
 

@@ -49,6 +49,7 @@ type Config struct {
 	Extensions      []string               `mapstructure:"extensions"`
 	Include         []string               `mapstructure:"include"`
 	Exclude         []string               `mapstructure:"exclude"`
+	RegexExclude    []string               `mapstructure:"regex_exclude"`
 	Doublestar      bool                   `mapstructure:"doublestar"`
 	LineEnding      yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
 	FormatterConfig *FormatterConfig       `mapstructure:"formatter,omitempty"`
@@ -110,9 +111,14 @@ func (c *Command) Run() error {
 		Quiet:            c.Quiet,
 	}
 
-	paths, err := c.collectPaths()
+	collectedPaths, err := c.collectPaths()
 	if err != nil {
 		return err
+	}
+	paths, err := c.analyzePaths(collectedPaths)
+	if err != nil {
+		log.Printf("path analysis found the following errors:\n%v", err)
+		log.Println("Continuing...")
 	}
 
 	switch c.Operation {
@@ -137,7 +143,11 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-		log.Print(out)
+		if out.Message == "" {
+			log.Print("No files will be changed.")
+		} else {
+			log.Print(out)
+		}
 	case OperationStdin:
 		stdinYaml, err := readFromStdin()
 		if err != nil {
@@ -158,6 +168,15 @@ func (c *Command) collectPaths() ([]string, error) {
 	return collector.CollectPaths()
 }
 
+func (c *Command) analyzePaths(paths []string) ([]string, error) {
+	analyzer, err := c.makeAnalyzer()
+	if err != nil {
+		return nil, err
+	}
+	includePaths, _, err := analyzer.ExcludePathsByContent(paths)
+	return includePaths, err
+}
+
 func (c *Command) makePathCollector() yamlfmt.PathCollector {
 	if c.Config.Doublestar {
 		return &yamlfmt.DoublestarCollector{
@@ -170,6 +189,10 @@ func (c *Command) makePathCollector() yamlfmt.PathCollector {
 		Exclude:    c.Config.Exclude,
 		Extensions: c.Config.Extensions,
 	}
+}
+
+func (c *Command) makeAnalyzer() (yamlfmt.ContentAnalyzer, error) {
+	return yamlfmt.NewBasicContentAnalyzer(c.Config.RegexExclude)
 }
 
 func readFromStdin() ([]byte, error) {
