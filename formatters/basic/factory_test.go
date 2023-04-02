@@ -36,6 +36,7 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 				Indent:               4,
 				IncludeDocumentStart: false,
 				LineEnding:           yamlfmt.LineBreakStyleLF,
+				PadLineComments:      1,
 			},
 		},
 		{
@@ -47,6 +48,7 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 				Indent:               2,
 				IncludeDocumentStart: true,
 				LineEnding:           yamlfmt.LineBreakStyleLF,
+				PadLineComments:      1,
 			},
 		},
 		{
@@ -58,6 +60,19 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 				Indent:               2,
 				IncludeDocumentStart: false,
 				LineEnding:           yamlfmt.LineBreakStyleCRLF,
+				PadLineComments:      1,
+			},
+		},
+		{
+			name: "only pad_line_comments specified",
+			configMap: map[string]interface{}{
+				"pad_line_comments": 2,
+			},
+			expectedConfig: basic.Config{
+				Indent:               2,
+				IncludeDocumentStart: false,
+				LineEnding:           yamlfmt.LineBreakStyleLF,
+				PadLineComments:      2,
 			},
 		},
 		{
@@ -66,11 +81,13 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 				"indent":                 4,
 				"line_ending":            "crlf",
 				"include_document_start": true,
+				"pad_line_comments":      2,
 			},
 			expectedConfig: basic.Config{
 				Indent:               4,
 				IncludeDocumentStart: true,
 				LineEnding:           yamlfmt.LineBreakStyleCRLF,
+				PadLineComments:      2,
 			},
 		},
 	}

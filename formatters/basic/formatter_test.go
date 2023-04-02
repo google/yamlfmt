@@ -269,3 +269,21 @@ b:
 		t.Fatalf("expected formatted result to drop merge tag, was found:\n%s", resultStr)
 	}
 }
+
+func TestPadLineComments(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.PadLineComments = 2
+	f := newFormatter(config)
+
+	yml := "a: 1 # line comment"
+	expectedStr := "a: 1  # line comment"
+
+	result, err := f.Format([]byte(yml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	resultStr := strings.TrimSuffix(string(result), "\n")
+	if resultStr != expectedStr {
+		t.Fatalf("expected: '%s', got: '%s'", expectedStr, resultStr)
+	}
+}
