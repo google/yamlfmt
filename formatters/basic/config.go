@@ -30,6 +30,7 @@ type Config struct {
 	ScanFoldedAsLiteral  bool                   `mapstructure:"scan_folded_as_literal"`
 	IndentlessArrays     bool                   `mapstructure:"indentless_arrays"`
 	DropMergeTag         bool                   `mapstructure:"drop_merge_tag"`
+	PadLineComments      int                    `mapstructure:"pad_line_comments"`
 }
 
 func DefaultConfig() *Config {
@@ -38,7 +39,8 @@ func DefaultConfig() *Config {
 		lineBreakStyle = yamlfmt.LineBreakStyleCRLF
 	}
 	return &Config{
-		Indent:     2,
-		LineEnding: lineBreakStyle,
+		Indent:          2,
+		LineEnding:      lineBreakStyle,
+		PadLineComments: 1,
 	}
 }

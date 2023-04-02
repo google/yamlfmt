@@ -57,6 +57,7 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `scan_folded_as_literal` | bool           | false   | Option that will preserve newlines in folded block scalars (blocks that start with `>`). |
 | `indentless_arrays`      | bool           | false   | Render `-` array items (block sequence items) without an increased indent. |
 | `drop_merge_tag`         | bool           | false   | Assume that any well formed merge using just a `<<` token will be a merge, and drop the `!!merge` tag from the formatted result. |
+| `pad_line_comments`      | int            | 1       | The number of padding spaces to insert before line comments. |
 
 ### Note on `max_line_length`
 
