@@ -48,4 +48,4 @@ See the [doublestar](https://github.com/bmatcuk/doublestar) package for more inf
 # Configuration File
 
 The `yamlfmt` command can be configured through a yaml file called `.yamlfmt`. This file can live in your working directory, a path specified through a [CLI flag](./docs/command-usage.md#operation-flags), or in the standard global config path on your system (see docs for specifics).
-For in-depth configuration documentation see [Config](docs/config.md).
+For in-depth configuration documentation see [Config](docs/config-file.md).
