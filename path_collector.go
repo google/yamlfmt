@@ -2,7 +2,6 @@ package yamlfmt
 
 import (
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -116,13 +115,7 @@ func (c *DoublestarCollector) CollectPaths() ([]string, error) {
 		}
 		excluded := false
 		for _, pattern := range c.Exclude {
-			absPath, err := filepath.Abs(path)
-			if err != nil {
-				// I wonder how this could ever happen...
-				log.Printf("could not create absolute path for %s: %v", path, err)
-				continue
-			}
-			match, err := doublestar.PathMatch(filepath.Clean(pattern), absPath)
+			match, err := doublestar.PathMatch(filepath.Clean(pattern), path)
 			if err != nil {
 				return nil, err
 			}
