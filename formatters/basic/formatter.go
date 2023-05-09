@@ -38,7 +38,7 @@ func (f *BasicFormatter) Type() string {
 }
 
 func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
-	// Run all featurres with BeforeActions
+	// Run all features with BeforeActions
 	yamlContent, err := f.Features.ApplyFeatures(input, yamlfmt.FeatureApplyBefore)
 	if err != nil {
 		return nil, err
