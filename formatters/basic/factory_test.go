@@ -76,6 +76,18 @@ func TestNewWithConfigRetainsDefaultValues(t *testing.T) {
 			},
 		},
 		{
+			name: "only indentless_arrays specified",
+			configMap: map[string]interface{}{
+				"indentless_arrays": true,
+			},
+			expectedConfig: basic.Config{
+				Indent:           2,
+				LineEnding:       yamlfmt.LineBreakStyleLF,
+				PadLineComments:  1,
+				IndentlessArrays: true,
+			},
+		},
+		{
 			name: "all specified",
 			configMap: map[string]interface{}{
 				"indent":                 4,
