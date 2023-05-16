@@ -39,8 +39,8 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 type YAMLFeatureFunc func(yaml.Node) error
 type YAMLFeatureList []YAMLFeatureFunc
 
-func (fl YAMLFeatureList) ApplyFeatures(node yaml.Node) error {
-	for _, f := range fl {
+func (y YAMLFeatureList) ApplyFeatures(node yaml.Node) error {
+	for _, f := range y {
 		if err := f(node); err != nil {
 			return err
 		}
