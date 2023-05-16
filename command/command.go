@@ -51,6 +51,7 @@ type Config struct {
 	Exclude         []string               `mapstructure:"exclude"`
 	RegexExclude    []string               `mapstructure:"regex_exclude"`
 	Doublestar      bool                   `mapstructure:"doublestar"`
+	ContinueOnError bool                   `mapstructure:"continue_on_error"`
 	LineEnding      yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
 	FormatterConfig *FormatterConfig       `mapstructure:"formatter,omitempty"`
 }
@@ -109,6 +110,7 @@ func (c *Command) Run() error {
 		LineSepCharacter: lineSepChar,
 		Formatter:        formatter,
 		Quiet:            c.Quiet,
+		ContinueOnError:  c.Config.ContinueOnError,
 	}
 
 	collectedPaths, err := c.collectPaths()

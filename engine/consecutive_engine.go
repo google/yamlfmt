@@ -15,6 +15,7 @@
 package engine
 
 import (
+	"log"
 	"os"
 
 	"github.com/google/yamlfmt"
@@ -25,6 +26,7 @@ type ConsecutiveEngine struct {
 	LineSepCharacter string
 	Formatter        yamlfmt.Formatter
 	Quiet            bool
+	ContinueOnError  bool
 }
 
 func (e *ConsecutiveEngine) FormatContent(content []byte) ([]byte, error) {
@@ -34,7 +36,12 @@ func (e *ConsecutiveEngine) FormatContent(content []byte) ([]byte, error) {
 func (e *ConsecutiveEngine) Format(paths []string) error {
 	formatDiffs, formatErrs := e.formatAll(paths)
 	if len(formatErrs) > 0 {
-		return formatErrs
+		if e.ContinueOnError {
+			log.Print(formatErrs)
+			log.Println("Continuing...")
+		} else {
+			return formatErrs
+		}
 	}
 	return formatDiffs.ApplyAll()
 }

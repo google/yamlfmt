@@ -209,9 +209,14 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 		config.Extensions = []string{"yaml", "yml"}
 	}
 
-	// Default to flag if not set in config
+	// Default to doublestar flag if not set in config
 	if !config.Doublestar {
-		config.Doublestar = useDoublestar()
+		config.Doublestar = *flagDoublestar
+	}
+
+	// Default to continue_on_error flag if not set in config
+	if !config.ContinueOnError {
+		config.ContinueOnError = *flagContinueOnError
 	}
 
 	// Overwrite config if includes are provided through args
