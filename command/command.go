@@ -33,6 +33,7 @@ const (
 	OperationLint
 	OperationDry
 	OperationStdin
+	OperationVersion
 )
 
 type FormatterConfig struct {
@@ -69,7 +70,7 @@ type Command struct {
 	Quiet     bool
 }
 
-func (c *Command) Run() error {
+func (c *Command) Run(version string) error {
 	var formatter yamlfmt.Formatter
 	if c.Config.FormatterConfig == nil {
 		factory, err := c.Registry.GetDefaultFactory()
@@ -160,6 +161,8 @@ func (c *Command) Run() error {
 			return err
 		}
 		fmt.Print(string(out))
+	case OperationVersion:
+		fmt.Printf("%s\n", version)
 	}
 
 	return nil

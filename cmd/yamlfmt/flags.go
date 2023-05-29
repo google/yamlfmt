@@ -28,6 +28,7 @@ source yaml and formatted yaml.`)
 	flagDry *bool = flag.Bool("dry", false, `Perform a dry run; show the output of a formatting
 operation without performing it.`)
 	flagIn              *bool   = flag.Bool("in", false, "Format yaml read from stdin and output to stdout")
+	flagVersion         *bool   = flag.Bool("version", false, "Print yamlfmt version")
 	flagConf            *string = flag.String("conf", "", "Read yamlfmt config from this path")
 	flagDoublestar      *bool   = flag.Bool("dstar", false, "Use doublestar globs for include and exclude")
 	flagQuiet           *bool   = flag.Bool("quiet", false, "Print minimal output to stdout")
@@ -86,6 +87,9 @@ func getOperationFromFlag() command.Operation {
 	}
 	if *flagDry {
 		return command.OperationDry
+	}
+	if *flagVersion {
+		return command.OperationVersion
 	}
 	return command.OperationFormat
 }

@@ -23,6 +23,8 @@ import (
 	"github.com/google/yamlfmt/formatters/basic"
 )
 
+var version string = "0.10.0"
+
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(err)
@@ -58,7 +60,7 @@ func run() error {
 	}
 	c.Config = commandConfig
 
-	return c.Run()
+	return c.Run(version)
 }
 
 func getFullRegistry() *yamlfmt.Registry {
