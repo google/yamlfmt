@@ -7,6 +7,7 @@ dist/
 
 # build file with `make build`
 yamlfmt
+yamlfmt.exe
 
 # vscode settings
 .vscode
