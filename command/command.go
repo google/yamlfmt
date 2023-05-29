@@ -69,7 +69,7 @@ type Command struct {
 	Quiet     bool
 }
 
-func (c *Command) Run(version string) error {
+func (c *Command) Run() error {
 	var formatter yamlfmt.Formatter
 	if c.Config.FormatterConfig == nil {
 		factory, err := c.Registry.GetDefaultFactory()

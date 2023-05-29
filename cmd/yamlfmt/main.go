@@ -71,7 +71,7 @@ func run() error {
 	}
 	c.Config = commandConfig
 
-	return c.Run(version)
+	return c.Run()
 }
 
 func getFullRegistry() *yamlfmt.Registry {
