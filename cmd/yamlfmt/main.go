@@ -18,7 +18,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
@@ -39,12 +38,8 @@ func run() error {
 	flag.Parse()
 
 	if *flagVersion {
-		_, err := fmt.Printf("%s\n", version)
-		if err != nil {
-			return err
-		}
-
-		os.Exit(0)
+		fmt.Printf("%s\n", version)
+		return nil
 	}
 
 	c := &command.Command{
