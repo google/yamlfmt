@@ -88,7 +88,7 @@ func TestBasicContentAnalyzer(t *testing.T) {
 				t.Fatalf("expected trimming tempdir from excluded not to have error: %v", err)
 			}
 			if !tc.expectedExcluded.Equals(collections.SliceToSet(excludePathsTrimmed)) {
-				t.Fatalf("expected excludsions:\n%v\ngot:\n%v", tc.expectedExcluded, excludedPaths)
+				t.Fatalf("expected exclusions:\n%v\ngot:\n%v", tc.expectedExcluded, excludedPaths)
 			}
 		})
 	}
