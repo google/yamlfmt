@@ -16,12 +16,15 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/formatters/basic"
 )
+
+var version string = "0.10.0"
 
 func main() {
 	if err := run(); err != nil {
@@ -33,6 +36,11 @@ func run() error {
 	bindArrayFlags()
 	configureHelp()
 	flag.Parse()
+
+	if *flagVersion {
+		fmt.Printf("%s\n", version)
+		return nil
+	}
 
 	c := &command.Command{
 		Operation: getOperationFromFlag(),
