@@ -88,9 +88,6 @@ func getOperationFromFlag() command.Operation {
 	if *flagDry {
 		return command.OperationDry
 	}
-	if *flagVersion {
-		return command.OperationVersion
-	}
 	return command.OperationFormat
 }
 

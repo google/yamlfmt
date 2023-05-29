@@ -16,7 +16,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
@@ -35,6 +37,15 @@ func run() error {
 	bindArrayFlags()
 	configureHelp()
 	flag.Parse()
+
+	if *flagVersion {
+		_, err := fmt.Printf("%s\n", version)
+		if err != nil {
+			return err
+		}
+
+		os.Exit(0)
+	}
 
 	c := &command.Command{
 		Operation: getOperationFromFlag(),

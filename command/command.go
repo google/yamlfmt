@@ -33,7 +33,6 @@ const (
 	OperationLint
 	OperationDry
 	OperationStdin
-	OperationVersion
 )
 
 type FormatterConfig struct {
@@ -161,8 +160,6 @@ func (c *Command) Run(version string) error {
 			return err
 		}
 		fmt.Print(string(out))
-	case OperationVersion:
-		fmt.Printf("%s\n", version)
 	}
 
 	return nil
