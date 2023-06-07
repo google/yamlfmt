@@ -129,7 +129,8 @@ func TestFilepathCollector(t *testing.T) {
 			},
 		},
 		{
-			name: "exclude directory",
+			name:            "exclude directory",
+			changeToTempDir: true,
 			files: []tempfile.Path{
 				{FileName: "x.yml"},
 				{FileName: "y.yml"},
@@ -157,6 +158,25 @@ func TestFilepathCollector(t *testing.T) {
 				"y.yml":    {},
 				"z.yaml":   {},
 				"a/x.yaml": {},
+			},
+		},
+		{
+			name: "don't get files with wrong extension",
+			files: []tempfile.Path{
+				{FileName: "x.yml"},
+				{FileName: "y.yaml"},
+				{FileName: "z.json"},
+			},
+			includePatterns: testPatterns{
+				{pattern: ""}, // with the test this functionally means the whole temp dir
+			},
+			extensions: []string{
+				"yaml",
+				"yml",
+			},
+			expectedFiles: collections.Set[string]{
+				"x.yml":  {},
+				"y.yaml": {},
 			},
 		},
 	}.runAll(t, useFilepathCollector)
@@ -338,7 +358,7 @@ func (tc testCase) run(t *testing.T, makeCollector makeCollectorFunc) {
 		collector := makeCollector(tc, tempPath)
 		paths, err := collector.CollectPaths()
 		if err != nil {
-			t.Fatalf("CollectDoublestarPathsToFormat failed: %v", err)
+			t.Fatalf("Test case failed: %v", err)
 		}
 
 		filesToFormat := collections.Set[string]{}

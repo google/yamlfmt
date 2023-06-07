@@ -52,19 +52,14 @@ func (c *FilepathCollector) CollectPaths() ([]string, error) {
 			continue
 		}
 
-		absExclPath, err := filepath.Abs(exclPath)
-		if err != nil {
-			return nil, err
-		}
-
 		if info.IsDir() {
 			for foundPath := range pathsFoundSet {
-				if strings.HasPrefix(foundPath, absExclPath) {
+				if strings.HasPrefix(foundPath, exclPath) {
 					pathsToFormat.Remove(foundPath)
 				}
 			}
 		} else {
-			pathsToFormat.Remove(absExclPath)
+			pathsToFormat.Remove(exclPath)
 		}
 	}
 
