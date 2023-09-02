@@ -1,4 +1,6 @@
-package integrationtest
+//go:build integration_test
+
+package local
 
 import (
 	"bytes"
@@ -15,18 +17,18 @@ const (
 	stdoutGoldenFile = "stdout.txt"
 )
 
-type tempDirTestCase struct {
+type TestCase struct {
 	Dir     string
 	Command string
 	Update  bool
 }
 
-func (tc tempDirTestCase) Run(t *testing.T) {
+func (tc TestCase) Run(t *testing.T) {
 	// I wanna write on the first indent level lol
 	t.Run(tc.Dir, tc.run)
 }
 
-func (tc tempDirTestCase) run(t *testing.T) {
+func (tc TestCase) run(t *testing.T) {
 	// Replicate the "before" directory in the test temp directory.
 	tempDir := t.TempDir()
 	paths, err := tempfile.ReplicateDirectory(tc.testFolderBeforePath(), tempDir)
@@ -46,21 +48,27 @@ func (tc tempDirTestCase) run(t *testing.T) {
 	assert.NilErr(t, err)
 }
 
-func (tc tempDirTestCase) testFolderBeforePath() string {
+func (tc TestCase) testFolderBeforePath() string {
 	return tc.testdataDirPath() + "/before"
 }
 
-func (tc tempDirTestCase) command(wd string, stdoutBuf *bytes.Buffer) *exec.Cmd {
-	cmdParts := strings.Split(tc.Command, " ")
+func (tc TestCase) command(wd string, stdoutBuf *bytes.Buffer) *exec.Cmd {
+	cmdArgs := []string{}
+	for _, arg := range strings.Split(tc.Command, " ") {
+		// This is to handle potential typos in args with extra spaces.
+		if arg != "" {
+			cmdArgs = append(cmdArgs, arg)
+		}
+	}
 	return &exec.Cmd{
-		Path:   cmdParts[0], // This is just the path to look up the binary
-		Args:   cmdParts,    // Args needs to be an array of everything including the command name
+		Path:   cmdArgs[0], // This is just the path to the command
+		Args:   cmdArgs,    // Args needs to be an array of everything including the command
 		Stdout: stdoutBuf,
 		Dir:    wd,
 	}
 }
 
-func (tc tempDirTestCase) goldenStdout(stdoutResult []byte) error {
+func (tc TestCase) goldenStdout(stdoutResult []byte) error {
 	goldenCtx := tempfile.GoldenCtx{
 		Dir:    tc.testFolderStdoutPath(),
 		Update: tc.Update,
@@ -68,7 +76,7 @@ func (tc tempDirTestCase) goldenStdout(stdoutResult []byte) error {
 	return goldenCtx.CompareGoldenFile(stdoutGoldenFile, stdoutResult)
 }
 
-func (tc tempDirTestCase) goldenAfter(wd string) error {
+func (tc TestCase) goldenAfter(wd string) error {
 	goldenCtx := tempfile.GoldenCtx{
 		Dir:    tc.testFolderAfterPath(),
 		Update: tc.Update,
@@ -76,14 +84,14 @@ func (tc tempDirTestCase) goldenAfter(wd string) error {
 	return goldenCtx.CompareDirectory(wd)
 }
 
-func (tc tempDirTestCase) testFolderAfterPath() string {
+func (tc TestCase) testFolderAfterPath() string {
 	return filepath.Join(tc.testdataDirPath(), "after")
 }
 
-func (tc tempDirTestCase) testFolderStdoutPath() string {
+func (tc TestCase) testFolderStdoutPath() string {
 	return filepath.Join(tc.testdataDirPath(), "stdout")
 }
 
-func (tc tempDirTestCase) testdataDirPath() string {
-	return filepath.Join("testdata/local", tc.Dir)
+func (tc TestCase) testdataDirPath() string {
+	return filepath.Join("testdata/", tc.Dir)
 }

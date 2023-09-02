@@ -42,10 +42,13 @@ func (ps Paths) CreateAll() error {
 
 func ReplicateDirectory(dir string, newBase string) (Paths, error) {
 	paths := Paths{}
-
-	err := filepath.Walk(dir, func(path string, info fs.FileInfo, walkErr error) error {
+	walkAllButCurrentDirectory := func(path string, info fs.FileInfo, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
+		}
+		// Skip the current directory (basically the . directory)
+		if path == dir {
+			return nil
 		}
 		content := []byte{}
 
@@ -64,6 +67,7 @@ func ReplicateDirectory(dir string, newBase string) (Paths, error) {
 			Content:  content,
 		})
 		return nil
-	})
+	}
+	err := filepath.Walk(dir, walkAllButCurrentDirectory)
 	return paths, err
 }
