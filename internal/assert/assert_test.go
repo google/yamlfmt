@@ -153,14 +153,14 @@ func TestSliceEqualFailDiffSize(t *testing.T) {
 
 func TestSliceEqualMismatch(t *testing.T) {
 	testInstance := newTMock()
-	failSizeMsg := "%v and %v"
+	failMismatchMsg := "at index %v: %v and %v"
 	expected := []int{1, 2, 4}
 	got := []int{1, 2, 3}
-	assert.SliceEqualMsg(testInstance, expected, got, failSizeMsg, "something else")
+	assert.SliceEqualMsg(testInstance, expected, got, "something else", failMismatchMsg)
 	if len(testInstance.logs) != 1 {
 		t.Fatalf("Found %d logs. %v", len(testInstance.logs), testInstance.logs)
 	}
-	expectedFailLog := fmt.Sprintf(failSizeMsg, expected[2], got[2])
+	expectedFailLog := fmt.Sprintf(failMismatchMsg, 2, expected[2], got[2])
 	if testInstance.logs[0] != expectedFailLog {
 		t.Fatalf(
 			"Failure log didn't match.\nexpected: %s\ngot: %s",
