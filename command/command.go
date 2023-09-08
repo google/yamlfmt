@@ -145,7 +145,7 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-		if out.Message == "" {
+		if out.Message == "" && out.Files.ChangedCount() == 0 {
 			log.Print("No files will be changed.")
 		} else {
 			log.Print(out)
