@@ -1,6 +1,6 @@
 //go:build integration_test
 
-package local_test
+package command_test
 
 import (
 	"flag"
@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/google/yamlfmt/integrationtest/local"
+	"github.com/google/yamlfmt/integrationtest/command"
 )
 
 var (
@@ -26,7 +26,7 @@ func init() {
 }
 
 func TestPathArg(t *testing.T) {
-	local.TestCase{
+	command.TestCase{
 		Dir:     "path_arg",
 		Command: yamlfmtWithArgs("x.yaml"),
 		Update:  *updateFlag,
@@ -34,7 +34,7 @@ func TestPathArg(t *testing.T) {
 }
 
 func TestIncludeDocumentStart(t *testing.T) {
-	local.TestCase{
+	command.TestCase{
 		Dir:     "include_document_start",
 		Command: yamlfmtWithArgs("-formatter include_document_start=true x.yaml"),
 		Update:  *updateFlag,

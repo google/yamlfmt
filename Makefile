@@ -2,7 +2,7 @@
 
 .PHONY: build
 build:
-	go build ./cmd/yamlfmt
+	go build -o dist/yamlfmt ./cmd/yamlfmt 
 
 .PHONY: test
 test:
@@ -12,21 +12,21 @@ test:
 test_v:
 	go test -v ./...
 
-YAMLFMT_BIN ?= $(shell pwd)/yamlfmt
-.PHONY: export_yamlfmt_bin
-export_yamlfmt_bin: export YAMLFMT_BIN = $(YAMLFMT_BIN)
+YAMLFMT_BIN ?= $(shell pwd)/dist/yamlfmt
+.PHONY: integrationtest
+integrationtest:
+	$(MAKE) build
+	go test -tags=integration_test ./integrationtest/command
 
-.PHONY: integrationtest_local
-integrationtest_local:
-	go test -tags=integration_test ./integrationtest/local -update	
-
-.PHONY: integrationtest_local_v
-integrationtest_local_v:
-	go test -tags=integration_test ./integrationtest/local -update	
+.PHONY: integrationtest_v
+integrationtest_v:
+	$(MAKE) build
+	go test -v -tags=integration_test ./integrationtest/command
 
 .PHONY: integrationtest_local_update
-integrationtest_local_update:
-	YAMLFMT_BIN="$(YAMLFMT_BIN)" go test -tags=integration_test ./integrationtest/local -update	
+integrationtest_update:
+	$(MAKE) build
+	go test -tags=integration_test ./integrationtest/command -update	
 
 .PHONY: install
 install:

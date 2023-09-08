@@ -1,6 +1,6 @@
 //go:build integration_test
 
-package local
+package command
 
 import (
 	"bytes"

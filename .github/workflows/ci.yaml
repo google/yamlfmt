@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ '1.18', '1.19', '1.20' ]
+        go: [ '1.18', '1.19', '1.20', '1.21' ]
     steps:
       - uses: actions/checkout@v3
 
@@ -40,10 +40,13 @@ jobs:
         run: go mod tidy
 
       - name: Test
+        run: go vet
+      
+      - name: Test
         run: go test -v ./...
 
       - name: Test
-        run: go vet
-    
+        run: make integrationtest
+
       - name: goimports
         run: test -z "$(set -o pipefail && goimports -l . | tee goimports.out)" || { cat goimports.out && exit 1; }
