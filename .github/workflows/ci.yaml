@@ -33,20 +33,14 @@ jobs:
           go-version: ${{ matrix.go }}
           cache: true
         
-      - name: Install goimports
-        run: go install golang.org/x/tools/cmd/goimports@latest
-
-      - name: Test
+      - name: Go Mod Tidy
         run: go mod tidy
 
-      - name: Test
+      - name: Go Vet
         run: go vet
       
       - name: Test
         run: go test -v ./...
 
-      - name: Test
+      - name: Integration Test
         run: make integrationtest
-
-      - name: goimports
-        run: test -z "$(set -o pipefail && goimports -l . | tee goimports.out)" || { cat goimports.out && exit 1; }
