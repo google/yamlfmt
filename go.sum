@@ -1,3 +1,5 @@
+github.com/RageCage64/go-assert v0.2.2 h1:wwPA2yibB7XmaQKpw4xk7NfVPdJ1v79GlBvmS8P9ROM=
+github.com/RageCage64/go-assert v0.2.2/go.mod h1:YuWzhAJlE4Z2TW2D4msNx1mNU0wA+6lmAL0lP1l7yd4=
 github.com/RageCage64/multilinediff v0.2.0 h1:yNSpSF5NXIrmo6bRIgO4Q0g7SXqFD4j/WEcBE+BdCFY=
 github.com/RageCage64/multilinediff v0.2.0/go.mod h1:pKr+KLgP0gvRzA+yv0/IUaYQuBYN1ucWysvsL58aMP0=
 github.com/bmatcuk/doublestar/v4 v4.6.0 h1:HTuxyug8GyFbRkrffIpzNCSK4luc0TY3wzXvzIZhEXc=

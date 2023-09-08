@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ '1.18', '1.19', '1.20' ]
+        go: [ '1.18', '1.19', '1.20', '1.21' ]
     steps:
       - uses: actions/checkout@v3
 
@@ -33,17 +33,14 @@ jobs:
           go-version: ${{ matrix.go }}
           cache: true
         
-      - name: Install goimports
-        run: go install golang.org/x/tools/cmd/goimports@latest
-
-      - name: Test
+      - name: Go Mod Tidy
         run: go mod tidy
 
+      - name: Go Vet
+        run: go vet
+      
       - name: Test
         run: go test -v ./...
 
-      - name: Test
-        run: go vet
-    
-      - name: goimports
-        run: test -z "$(set -o pipefail && goimports -l . | tee goimports.out)" || { cat goimports.out && exit 1; }
+      - name: Integration Test
+        run: make integrationtest
