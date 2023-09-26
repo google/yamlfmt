@@ -4,7 +4,7 @@
 
 ## Standard (default)
 
-In standard path mode, the you can specify a file or directory path directly. If specifying a file, it will simply include the file. If specifying a directory, it will include every file with the correct extension (as specified in `extensions`, default is `yml` and `yaml`).
+In standard path mode, you can specify a file or directory path directly. If specifying a file, it will simply include the file. If specifying a directory, it will include every file with the correct extension (as specified in `extensions`, default is `yml` and `yaml`).
 
 ## Doublestar
 
