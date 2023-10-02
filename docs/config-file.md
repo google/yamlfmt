@@ -44,7 +44,7 @@ Currently, there is only a `basic` formatter, however there is full support for 
 
 ## Basic Formatter
 
-The basic formatter is a barebones formatter that simply takes the data provided, serializes it with a fork of [gopkg.in/yaml.v3](https://www.github.com/braydonk/yaml) and encodes it again. This provides a consistent output format that is very opinionated with some minor tweak options.
+The basic formatter is a barebones formatter that simply takes the data provided, serializes it with a fork of [gopkg.in/yaml.v3][1] and encodes it again. This provides a consistent output format that is very opinionated with some minor tweak options.
 
 ### Configuration
 
@@ -63,6 +63,7 @@ The basic formatter is a barebones formatter that simply takes the data provided
 
 ### Note on `max_line_length`
 
-It's not perfect; it uses the `best_width` setting from the yaml library. If there's a very long token that extends too far for the line width, it won't split it up properly. I will keep trying to make this work better, but decided to get a version of the feature in that works for a lot of scenarios even if not all of them.
+It's not perfect; it uses the `best_width` setting from the [gopkg.in/yaml.v3][1] library. If there's a very long token that extends too far for the line width, it won't split it up properly. I will keep trying to make this work better, but decided to get a version of the feature in that works for a lot of scenarios even if not all of them.
 
+[1]: https://www.github.com/braydonk/yaml
 [Specifying Paths]: ./paths.md
