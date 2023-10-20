@@ -1,6 +1,11 @@
 - id: yamlfmt
   name: yamlfmt 
   description: This hook uses github.com/google/yamlfmt to format yaml files. Requires golang >1.18 to be installed.
-  entry: yamlfmt
   language: golang
+  entry: yamlfmt
+  types: [yaml]
+- id: yamlfmt-system
+  name: yamlfmt
+  language: system
+  entry: yamlfmt
   types: [yaml]
