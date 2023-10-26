@@ -12,6 +12,12 @@
 
 This tool is not yet officially supported by Google. It is currenlty maintained solely by @braydonk, and unless something changes primarily in spare time.
 
+## Blog
+
+I'm going to use these links to GitHub Discussions as a blog of sorts, until I can set up something more proper:
+* yamlfmt's recent slow development #149
+* Issues related to the yaml.v3 library #148
+
 ## Installation
 
 To download the `yamlfmt` command, you can download the desired binary from releases or install the module directly:
