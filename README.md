@@ -15,8 +15,8 @@ This tool is not yet officially supported by Google. It is currenlty maintained 
 ## Blog
 
 I'm going to use these links to GitHub Discussions as a blog of sorts, until I can set up something more proper:
-* yamlfmt's recent slow development #149
-* Issues related to the yaml.v3 library #148
+* yamlfmt's recent slow development [#149](https://github.com/google/yamlfmt/discussions/149)
+* Issues related to the yaml.v3 library [#148](https://github.com/google/yamlfmt/discussions/148)
 
 ## Installation
 
