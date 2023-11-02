@@ -10,7 +10,7 @@
 
 ## Maintainers
 
-This tool is not yet officially supported by Google. It is currenlty maintained solely by @braydonk, and unless something changes primarily in spare time.
+This tool is not yet officially supported by Google. It is currently maintained solely by @braydonk, and unless something changes primarily in spare time.
 
 ## Blog
 
@@ -34,7 +34,7 @@ You can also install the command as a [pre-commit](https://pre-commit.com/) hook
 
 ## Basic Usage
 
-See [Command Usage](./docs/command-usage.md) for in depth information and available flags.
+See [Command Usage](./docs/command-usage.md) for in-depth information and available flags.
 
 To run the tool with all default settings, run the command with a path argument:
 ```bash
