@@ -17,10 +17,13 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-const (
-	configFileName string = ".yamlfmt"
-	configHomeDir  string = "yamlfmt"
-)
+var configFileNames = collections.Set[string]{
+	".yamlfmt":     {},
+	"yamlfmt.yml":  {},
+	"yamlfmt.yaml": {},
+}
+
+const configHomeDir string = "yamlfmt"
 
 var (
 	errNoConfFlag       = errors.New("config path not specified in --conf")
@@ -80,17 +83,17 @@ func getConfigPath() (string, error) {
 	}
 
 	// Second priority: in the working directory
-	configPath, err = getConfigPathFromWd()
-	// In this scenario, no error constitutes a failure state,
-	// so we continue to the next fallback.
+	configPath, err = getConfigPathFromDirTree()
+	// In this scenario, no errors are considered a failure state,
+	// so we continue to the next fallback if there are no errors.
 	if err == nil {
 		return configPath, nil
 	}
 
 	// Third priority: in home config directory
 	configPath, err = getConfigPathFromConfigHome()
-	// In this scenario, no error constitutes a failure state,
-	// so we continue to the next fallback.
+	// In this scenario, no errors are considered a failure state,
+	// so we continue to the next fallback if there are no errors.
 	if err == nil {
 		return configPath, nil
 	}
@@ -101,20 +104,49 @@ func getConfigPath() (string, error) {
 }
 
 func getConfigPathFromFlag() (string, error) {
+	// If there is a path specified in the conf flag, that takes precedence
 	configPath := *flagConf
 	if configPath == "" {
 		return configPath, errNoConfFlag
 	}
-	return configPath, validatePath(configPath)
+	// Then we check if we want the global config
+	if *flagGlobalConf {
+		return getConfigPathFromXdgConfigHome()
+	}
+
+	return "", validatePath(configPath)
 }
 
-func getConfigPathFromWd() (string, error) {
+// This function searches up the directory tree until it finds
+// a config file.
+func getConfigPathFromDirTree() (string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
-	configPath := filepath.Join(wd, configFileName)
-	return configPath, validatePath(configPath)
+	absPath, err := filepath.Abs(wd)
+	if err != nil {
+		return "", err
+	}
+	dir := absPath
+	for dir != filepath.Dir(dir) {
+		configPath, err := getConfigPathFromDir(dir)
+		if err == nil {
+			return configPath, nil
+		}
+		dir = filepath.Dir(dir)
+	}
+	return "", errConfPathNotExist
+}
+
+func getConfigPathFromDir(dir string) (string, error) {
+	for filename := range configFileNames {
+		configPath := filepath.Join(dir, filename)
+		if err := validatePath(configPath); err == nil {
+			return configPath, nil
+		}
+	}
+	return "", errConfPathNotExist
 }
 
 func getConfigPathFromConfigHome() (string, error) {
@@ -137,8 +169,8 @@ func getConfigPathFromXdgConfigHome() (string, error) {
 		}
 		configHome = filepath.Join(home, ".config")
 	}
-	homeConfigPath := filepath.Join(configHome, configHomeDir, configFileName)
-	return homeConfigPath, validatePath(homeConfigPath)
+	homeConfigPath := filepath.Join(configHome, configHomeDir)
+	return getConfigPathFromDir(homeConfigPath)
 }
 
 func getConfigPathFromAppDataLocal() (string, error) {
@@ -148,8 +180,8 @@ func getConfigPathFromAppDataLocal() (string, error) {
 		// so this should only happen to sickos with broken setups.
 		return "", errNoConfigHome
 	}
-	homeConfigPath := filepath.Join(configHome, configHomeDir, configFileName)
-	return homeConfigPath, validatePath(homeConfigPath)
+	homeConfigPath := filepath.Join(configHome, configHomeDir)
+	return getConfigPathFromDir(homeConfigPath)
 }
 
 func validatePath(path string) error {

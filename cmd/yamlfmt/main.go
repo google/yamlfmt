@@ -24,7 +24,7 @@ import (
 	"github.com/google/yamlfmt/formatters/basic"
 )
 
-var version string = "0.10.0"
+var version string = "0.11.0"
 
 func main() {
 	if err := run(); err != nil {

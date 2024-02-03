@@ -1,14 +1,21 @@
-# Configuration With .yamlfmt
+# Configuration With .yamlfmt, yamlfmt.yaml, and yamlfmt.yml
 
 ## Config File Discovery
 
-The config file is discovered in the following priority order:
+The config file is a file named `.yamlfmt`, `yamlfmt.yaml`, or `yamlfmt.yml` that contains a valid yamlfmt configuration. The config file is discovered in the following priority order:
 
-1. Specified in the `--conf` flag (if this is an invalid path or doesn't exist, the tool will fail)
-2. A `.yamlfmt` file in the current working directory
-3. A `yamlfmt` folder with a `.yamlfmt` file in the system config directory (`$XDG_CONFIG_HOME`, `$HOME/.config`, `%LOCALAPPDATA%`) e.g. `$HOME/.config/yamlfmt/.yamlfmt`
+1. Specified in the `-conf` flag (if this is an invalid path or doesn't exist, the tool will fail)
+1. A config file in the current working directory
+1. The first config file found up the tree step by step from the current working directory
+1. A `yamlfmt` folder with a config file in the system config directory (`$XDG_CONFIG_HOME`, `$HOME/.config`, `%LOCALAPPDATA%`) e.g. `$HOME/.config/yamlfmt/.yamlfmt`
 
 If none of these are found, the tool's default configuration will be used.
+
+### Config File Discovery Caveats
+
+If the flag `-global_conf` is passed, all other steps will be circumvented and the config file will be discovered from the system config directory. See [the command line flag docs](./command-usage.md#configuration-flags).
+
+In the `-conf` flag, the config file will be named anything. As long as it's valid yaml, yamlfmt will read it as a config file. This can be useful for applying unique configs to different directories in a project. The automatic discovery paths do need to use one of the known names.
 
 ## Command
 
