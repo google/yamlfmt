@@ -82,6 +82,7 @@ The string array flags can be a bit confusing. See the [String Array Flags](#str
 | Exclude          | `-exclude`    | []string | `yamlfmt -exclude ./not/,these_paths.yaml`                | Patterns to exclude from path collection. These add to exclude patterns specified in the [config file](./config-file.md) |
 | Extensions       | `-extensions` | []string | `yamlfmt -extensions yaml,yml`                            | Extensions to use in standard path collection. Has no effect in Doublestar mode. These add to extensions specified in the [config file](./config-file.md)
 | Formatter Config | `-formatter`  | []string | `yamlfmt -formatter indent=2,include_document_start=true` | Provide configuration values for the formatter. See [Formatter Configuration Options](./config-file.md#basic-formatter) for options. Each field is specified as `configkey=value`. |
+| Debug Logging    | `-debug`      | []string | `yamlfmt -debug paths,config`                             | Enable debug logging. See [Debug Logging](#debug-logging) for more information. |
 
 #### String Array Flags
 
@@ -96,3 +97,13 @@ String array flags can be provided in two ways. For example with a flag called `
 * Technically they can be combined but why would you?
     - `-arrFlag a,b -arrFlag c`
     - Result: `arrFlag: [a b c]`
+
+## Debug Logging
+
+Debug logging can be enabled through the `-debug` [array flag](#string-array-flags). The following is the list of supported debug codes:
+* `paths`
+    - Log the details for the path discovery process. Use it to debug your include/exclude patterns.
+* `config`
+    - Log the details for the configuration loading process. Use it to figure out which config file yamlfmt uses and why.
+* `all`
+    - Enable all available debug codes.

@@ -38,12 +38,14 @@ operation without performing it.`)
 	flagExclude                 = arrayFlag{}
 	flagFormatter               = arrayFlag{}
 	flagExtensions              = arrayFlag{}
+	flagDebug                   = arrayFlag{}
 )
 
 func bindArrayFlags() {
 	flag.Var(&flagExclude, "exclude", "Paths to exclude in the chosen format (standard or doublestar)")
 	flag.Var(&flagFormatter, "formatter", "Config value overrides to pass to the formatter")
 	flag.Var(&flagExtensions, "extensions", "File extensions to use for standard path collection")
+	flag.Var(&flagDebug, "debug", "Debug codes to activate for debug logging")
 }
 
 type arrayFlag []string

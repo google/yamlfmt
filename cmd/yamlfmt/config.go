@@ -14,6 +14,7 @@ import (
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/internal/collections"
+	"github.com/google/yamlfmt/internal/logger"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -28,7 +29,7 @@ const configHomeDir string = "yamlfmt"
 var (
 	errNoConfFlag       = errors.New("config path not specified in --conf")
 	errConfPathInvalid  = errors.New("config path specified in --conf was invalid")
-	errConfPathNotExist = errors.New("config path does not exist")
+	errConfPathNotExist = errors.New("no config file found")
 	errConfPathIsDir    = errors.New("config path is dir")
 	errNoConfigHome     = errors.New("missing required env var for config home")
 )
@@ -40,13 +41,13 @@ type configPathError struct {
 
 func (e *configPathError) Error() string {
 	if errors.Is(e.err, errConfPathInvalid) {
-		return fmt.Sprintf("Config path %s was invalid", e.path)
+		return fmt.Sprintf("config path %s was invalid", e.path)
 	}
 	if errors.Is(e.err, errConfPathNotExist) {
-		return fmt.Sprintf("Config path %s does not exist", e.path)
+		return fmt.Sprintf("no config file found in directory %s", filepath.Dir(e.path))
 	}
 	if errors.Is(e.err, errConfPathIsDir) {
-		return fmt.Sprintf("Config path %s is a directory", e.path)
+		return fmt.Sprintf("config path %s is a directory", e.path)
 	}
 	return e.err.Error()
 }
@@ -100,6 +101,7 @@ func getConfigPath() (string, error) {
 
 	// All else fails, no path and no error (signals to
 	// use default config).
+	logger.Debug(logger.DebugCodeConfig, "No config file found, using default config")
 	return "", nil
 }
 
@@ -107,14 +109,16 @@ func getConfigPathFromFlag() (string, error) {
 	// If there is a path specified in the conf flag, that takes precedence
 	configPath := *flagConf
 	if configPath == "" {
+		logger.Debug(logger.DebugCodeConfig, "No config path specified in -conf")
 		return configPath, errNoConfFlag
 	}
 	// Then we check if we want the global config
 	if *flagGlobalConf {
+		logger.Debug(logger.DebugCodeConfig, "Using -global_conf flag")
 		return getConfigPathFromXdgConfigHome()
 	}
-
-	return "", validatePath(configPath)
+	logger.Debug(logger.DebugCodeConfig, "Using config path %s from -conf flag", configPath)
+	return configPath, validatePath(configPath)
 }
 
 // This function searches up the directory tree until it finds
@@ -132,19 +136,10 @@ func getConfigPathFromDirTree() (string, error) {
 	for dir != filepath.Dir(dir) {
 		configPath, err := getConfigPathFromDir(dir)
 		if err == nil {
+			logger.Debug(logger.DebugCodeConfig, "Found config at %s", configPath)
 			return configPath, nil
 		}
 		dir = filepath.Dir(dir)
-	}
-	return "", errConfPathNotExist
-}
-
-func getConfigPathFromDir(dir string) (string, error) {
-	for filename := range configFileNames {
-		configPath := filepath.Join(dir, filename)
-		if err := validatePath(configPath); err == nil {
-			return configPath, nil
-		}
 	}
 	return "", errConfPathNotExist
 }
@@ -182,6 +177,17 @@ func getConfigPathFromAppDataLocal() (string, error) {
 	}
 	homeConfigPath := filepath.Join(configHome, configHomeDir)
 	return getConfigPathFromDir(homeConfigPath)
+}
+
+func getConfigPathFromDir(dir string) (string, error) {
+	for filename := range configFileNames {
+		configPath := filepath.Join(dir, filename)
+		if err := validatePath(configPath); err == nil {
+			return configPath, nil
+		}
+	}
+	logger.Debug(logger.DebugCodeConfig, "No config file found in %s", dir)
+	return "", errConfPathNotExist
 }
 
 func validatePath(path string) error {
