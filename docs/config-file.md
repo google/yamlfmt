@@ -1,4 +1,4 @@
-# Configuration With .yamlfmt, yamlfmt.yaml, and yamlfmt.yml
+# Configuration File
 
 ## Config File Discovery
 
