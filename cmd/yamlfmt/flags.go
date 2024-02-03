@@ -17,6 +17,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/google/yamlfmt/command"
@@ -30,6 +31,7 @@ operation without performing it.`)
 	flagIn              *bool   = flag.Bool("in", false, "Format yaml read from stdin and output to stdout")
 	flagVersion         *bool   = flag.Bool("version", false, "Print yamlfmt version")
 	flagConf            *string = flag.String("conf", "", "Read yamlfmt config from this path")
+	flagGlobalConf      *bool   = flag.Bool("global_conf", false, globalConfFlagMessage())
 	flagDoublestar      *bool   = flag.Bool("dstar", false, "Use doublestar globs for include and exclude")
 	flagQuiet           *bool   = flag.Bool("quiet", false, "Print minimal output to stdout")
 	flagContinueOnError *bool   = flag.Bool("continue_on_error", false, "Continue to format files that didn't fail instead of exiting with code 1.")
@@ -67,12 +69,12 @@ func configureHelp() {
 	Arguments:
 
 	Glob paths to yaml files
-			Send any number of paths to yaml files specified in doublestar glob format (see: https://github.com/bmatcuk/doublestar). 
+			Send any number of paths to yaml files specified in doublestar glob format (see: https://github.com/bmatcuk/doublestar).
 			Any flags must be specified before the paths.
 
 	- or /dev/stdin
 			Passing in a single - or /dev/stdin will read the yaml from stdin and output the formatted result to stdout
-		
+
 	Flags:`)
 		flag.PrintDefaults()
 	}
@@ -97,4 +99,12 @@ func isStdinArg() bool {
 	}
 	arg := flag.Args()[0]
 	return arg == "-" || arg == "/dev/stdin"
+}
+
+func globalConfFlagMessage() string {
+	varName := "XDG_CONFIG_HOME"
+	if runtime.GOOS == "windows" {
+		varName = "LOCALAPPDATA"
+	}
+	return fmt.Sprintf("Use global yamlfmt config from %s", varName)
 }
