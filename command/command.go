@@ -46,14 +46,16 @@ func NewFormatterConfig() FormatterConfig {
 }
 
 type Config struct {
-	Extensions      []string               `mapstructure:"extensions"`
-	Include         []string               `mapstructure:"include"`
-	Exclude         []string               `mapstructure:"exclude"`
-	RegexExclude    []string               `mapstructure:"regex_exclude"`
-	Doublestar      bool                   `mapstructure:"doublestar"`
-	ContinueOnError bool                   `mapstructure:"continue_on_error"`
-	LineEnding      yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
-	FormatterConfig *FormatterConfig       `mapstructure:"formatter,omitempty"`
+	Extensions        []string               `mapstructure:"extensions"`
+	Include           []string               `mapstructure:"include"`
+	Exclude           []string               `mapstructure:"exclude"`
+	RegexExclude      []string               `mapstructure:"regex_exclude"`
+	FormatterConfig   *FormatterConfig       `mapstructure:"formatter,omitempty"`
+	Doublestar        bool                   `mapstructure:"doublestar"`
+	ContinueOnError   bool                   `mapstructure:"continue_on_error"`
+	LineEnding        yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
+	GitignoreExcludes bool                   `mapstructure:"gitignore_excludes"`
+	GitignorePath     string                 `mapstructure:"gitignore_path"`
 }
 
 // NewConfig returns an empty config with all fields initialized.
@@ -117,6 +119,14 @@ func (c *Command) Run() error {
 	if err != nil {
 		return err
 	}
+	if c.Config.GitignoreExcludes {
+		newPaths, err := yamlfmt.ExcludeWithGitignore(c.Config.GitignorePath, collectedPaths)
+		if err != nil {
+			return err
+		}
+		collectedPaths = newPaths
+	}
+
 	paths, err := c.analyzePaths(collectedPaths)
 	if err != nil {
 		log.Printf("path analysis found the following errors:\n%v", err)

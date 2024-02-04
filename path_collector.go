@@ -9,6 +9,7 @@ import (
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/google/yamlfmt/internal/collections"
 	"github.com/google/yamlfmt/internal/logger"
+	ignore "github.com/sabhiram/go-gitignore"
 )
 
 type PathCollector interface {
@@ -73,7 +74,7 @@ func (c *FilepathCollector) CollectPaths() ([]string, error) {
 	}
 
 	pathsToFormatSlice := pathsToFormat.ToSlice()
-	logger.Debug(logger.DebugCodePaths, "paths to format: %s", pathsToFormatSlice)
+	logger.Debug(logger.DebugCodePaths, "paths to format: %s", pathsToFormat)
 	return pathsToFormatSlice, nil
 }
 
@@ -143,6 +144,24 @@ func (c *DoublestarCollector) CollectPaths() ([]string, error) {
 	}
 
 	pathsToFormat := pathsToFormatSet.ToSlice()
+	logger.Debug(logger.DebugCodePaths, "paths to format: %s", pathsToFormat)
+	return pathsToFormat, nil
+}
+
+func ExcludeWithGitignore(gitignorePath string, paths []string) ([]string, error) {
+	logger.Debug(logger.DebugCodePaths, "excluding paths with gitignore: %s", gitignorePath)
+	ignorer, err := ignore.CompileIgnoreFile(gitignorePath)
+	if err != nil {
+		return nil, err
+	}
+	pathsToFormat := []string{}
+	for _, path := range paths {
+		if ok, pattern := ignorer.MatchesPathHow(path); !ok {
+			pathsToFormat = append(pathsToFormat, path)
+		} else {
+			logger.Debug(logger.DebugCodePaths, "pattern %s matches %s, excluding", pattern.Line, path)
+		}
+	}
 	logger.Debug(logger.DebugCodePaths, "paths to format: %s", pathsToFormat)
 	return pathsToFormat, nil
 }

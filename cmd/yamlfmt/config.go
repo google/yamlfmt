@@ -260,6 +260,14 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 		config.ContinueOnError = *flagContinueOnError
 	}
 
+	if !config.GitignoreExcludes {
+		config.GitignoreExcludes = *flagGitignoreExcludes
+	}
+
+	if config.GitignorePath == "" {
+		config.GitignorePath = *flagGitignorePath
+	}
+
 	// Overwrite config if includes are provided through args
 	if len(flag.Args()) > 0 {
 		config.Include = flag.Args()

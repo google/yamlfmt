@@ -23,16 +23,18 @@ The command package defines the main command engine that `cmd/yamlfmt` uses. It 
 
 ### Configuration
 
-| Key                      | Type           | Default | Description |
-|:-------------------------|:---------------|:--------|:------------|
+| Key                      | Type           | Default      | Description |
+|:-------------------------|:---------------|:-------------|:------------|
 | `line_ending`            | `lf` or `crlf` | `crlf` on Windows, `lf` otherwise | Parse and write the file with "lf" or "crlf" line endings. This global setting will override any formatter `line_ending` options. |
-| `doublestar`             | bool           | false   | Use [doublestar](https://github.com/bmatcuk/doublestar) for include and exclude paths. (This was the default before 0.7.0) |
-| `continue_on_error`      | bool           | false   | Continue formatting and don't exit with code 1 when there is an invalid yaml file found. |
-| `include`                | []string       | []      | The paths for the command to include for formatting. See [Specifying Paths][] for more details. |
-| `exclude`                | []string       | []      | The paths for the command to exclude from formatting. See [Specifying Paths][] for more details. |
-| `regex_exclude`          | []string       | []      | Regex patterns to match file contents for, if the file content matches the regex the file will be excluded. Use [Golang regexes](https://regex101.com/). |
-| `extensions`             | []string       | []      | The extensions to use for standard mode path collection. See [Specifying Paths][] for more details. |
-| `formatter`              | map[string]any | default basic formatter | Formatter settings. See [Formatter](#formatter) for more details. |
+| `doublestar`             | bool           | false         | Use [doublestar](https://github.com/bmatcuk/doublestar) for include and exclude paths. (This was the default before 0.7.0) |
+| `continue_on_error`      | bool           | false         | Continue formatting and don't exit with code 1 when there is an invalid yaml file found. |
+| `include`                | []string       | []            | The paths for the command to include for formatting. See [Specifying Paths][] for more details. |
+| `exclude`                | []string       | []            | The paths for the command to exclude from formatting. See [Specifying Paths][] for more details. |
+| `gitignore_excludes`     | bool           | false         | Use gitignore files for exclude paths. This is in addition to the patterns from the `exclude` option. |
+| `gitignore_path`         | string         | `.gitignore`  | The path to the gitignore file to use. |
+| `regex_exclude`          | []string       | []            | Regex patterns to match file contents for, if the file content matches the regex the file will be excluded. Use [Golang regexes](https://regex101.com/). |
+| `extensions`             | []string       | []            | The extensions to use for standard mode path collection. See [Specifying Paths][] for more details. |
+| `formatter`              | map[string]any | `type: basic` | Formatter settings. See [Formatter](#formatter) for more details. |
 
 ## Formatter
 
