@@ -36,6 +36,8 @@ operation without performing it.`)
 	flagDoublestar        *bool   = flag.Bool("dstar", false, "Use doublestar globs for include and exclude")
 	flagQuiet             *bool   = flag.Bool("quiet", false, "Print minimal output to stdout")
 	flagContinueOnError   *bool   = flag.Bool("continue_on_error", false, "Continue to format files that didn't fail instead of exiting with code 1.")
+	flagGitignoreExcludes *bool   = flag.Bool("gitignore_excludes", false, "Use a gitignore file for excludes")
+	flagGitignorePath     *string = flag.String("gitignore_path", ".gitignore", "Path to gitignore file to use")
 	flagExclude                   = arrayFlag{}
 	flagFormatter                 = arrayFlag{}
 	flagExtensions                = arrayFlag{}

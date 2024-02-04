@@ -27,6 +27,10 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
+func yamlfmtWithArgs(args string) string {
+	return fmt.Sprintf("%s -no_global_conf %s", yamlfmtBin, args)
+}
+
 func TestPathArg(t *testing.T) {
 	command.TestCase{
 		Dir:     "path_arg",
@@ -43,6 +47,10 @@ func TestIncludeDocumentStart(t *testing.T) {
 	}.Run(t)
 }
 
-func yamlfmtWithArgs(args string) string {
-	return fmt.Sprintf("%s -no_global_conf %s", yamlfmtBin, args)
+func TestGitignore(t *testing.T) {
+	command.TestCase{
+		Dir:     "gitignore",
+		Command: yamlfmtWithArgs("-gitignore_excludes -gitignore_path .test_gitignore ."),
+		Update:  *updateFlag,
+	}.Run(t)
 }
