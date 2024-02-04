@@ -74,14 +74,16 @@ These flags will configure the underlying behaviour of the command.
 
 The string array flags can be a bit confusing. See the [String Array Flags](#string-array-flags) section for more information.
 
-| Name             | Flag          | Type     | Example                                                   | Description |
-|:-----------------|:--------------|:---------|:----------------------------------------------------------|:------------|
-| Config File Path | `-conf`       | string   | `yamlfmt -conf ./config/.yamlfmt`                         | Specify a path to read a [configuration file](./config-file.md) from. |
-| Global Config    | `-global_conf`| bool     | `yamlfmt -global_conf ./config/.yamlfmt`                  | Force yamlfmt to use the configuration file from the system config directory. |
-| Doublstar        | `-dstar`      | boolean  | `yamlfmt -dstar "**/*.yaml"`                              | Enable [Doublstar](./paths.md#doublestar) path collection mode. |
-| Exclude          | `-exclude`    | []string | `yamlfmt -exclude ./not/,these_paths.yaml`                | Patterns to exclude from path collection. These add to exclude patterns specified in the [config file](./config-file.md) |
-| Extensions       | `-extensions` | []string | `yamlfmt -extensions yaml,yml`                            | Extensions to use in standard path collection. Has no effect in Doublestar mode. These add to extensions specified in the [config file](./config-file.md)
-| Formatter Config | `-formatter`  | []string | `yamlfmt -formatter indent=2,include_document_start=true` | Provide configuration values for the formatter. See [Formatter Configuration Options](./config-file.md#basic-formatter) for options. Each field is specified as `configkey=value`. |
+| Name                  | Flag          | Type     | Example                                                   | Description |
+|:----------------------|:--------------|:---------|:----------------------------------------------------------|:------------|
+| Config File Path      | `-conf`       | string   | `yamlfmt -conf ./config/.yamlfmt`                         | Specify a path to read a [configuration file](./config-file.md) from. |
+| Global Config         | `-global_conf`| bool     | `yamlfmt -global_conf``                                   | Force yamlfmt to use the configuration file from the system config directory. |
+| Disable Global Config | `-global_conf`| bool     | `yamlfmt -no_global_conf`                                 | Disable looking for the configuration file from the system config directory. |
+| Doublstar             | `-dstar`      | boolean  | `yamlfmt -dstar "**/*.yaml"`                              | Enable [Doublstar](./paths.md#doublestar) path collection mode. |
+| Exclude               | `-exclude`    | []string | `yamlfmt -exclude ./not/,these_paths.yaml`                | Patterns to exclude from path collection. These add to exclude patterns specified in the [config file](./config-file.md) |
+| Extensions            | `-extensions` | []string | `yamlfmt -extensions yaml,yml`                            | Extensions to use in standard path collection. Has no effect in Doublestar mode. These add to extensions specified in the [config file](./config-file.md)
+| Formatter Config      | `-formatter`  | []string | `yamlfmt -formatter indent=2,include_document_start=true` | Provide configuration values for the formatter. See [Formatter Configuration Options](./config-file.md#basic-formatter) for options. Each field is specified as `configkey=value`. |
+| Debug Logging         | `-debug`      | []string | `yamlfmt -debug paths,config`                             | Enable debug logging. See [Debug Logging](#debug-logging) for more information. |
 
 #### String Array Flags
 
@@ -96,3 +98,13 @@ String array flags can be provided in two ways. For example with a flag called `
 * Technically they can be combined but why would you?
     - `-arrFlag a,b -arrFlag c`
     - Result: `arrFlag: [a b c]`
+
+## Debug Logging
+
+Debug logging can be enabled through the `-debug` [array flag](#string-array-flags). The following is the list of supported debug codes:
+* `paths`
+    - Log the details for the path discovery process. Use it to debug your include/exclude patterns.
+* `config`
+    - Log the details for the configuration loading process. Use it to figure out which config file yamlfmt uses and why.
+* `all`
+    - Enable all available debug codes.

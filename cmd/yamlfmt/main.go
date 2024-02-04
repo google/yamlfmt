@@ -22,6 +22,7 @@ import (
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/formatters/basic"
+	"github.com/google/yamlfmt/internal/logger"
 )
 
 var version string = "0.11.0"
@@ -40,6 +41,10 @@ func run() error {
 	if *flagVersion {
 		fmt.Printf("%s\n", version)
 		return nil
+	}
+
+	for _, code := range flagDebug {
+		logger.ActivateDebugCode(code)
 	}
 
 	c := &command.Command{

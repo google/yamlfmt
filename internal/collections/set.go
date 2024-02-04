@@ -2,12 +2,18 @@ package collections
 
 type Set[T comparable] map[T]struct{}
 
-func (s Set[T]) Add(el T) {
-	s[el] = struct{}{}
+func (s Set[T]) Add(el ...T) {
+	for _, el := range el {
+		s[el] = struct{}{}
+	}
 }
 
-func (s Set[T]) Remove(el T) {
+func (s Set[T]) Remove(el T) bool {
+	if !s.Contains(el) {
+		return false
+	}
 	delete(s, el)
+	return true
 }
 
 func (s Set[T]) Contains(el T) bool {

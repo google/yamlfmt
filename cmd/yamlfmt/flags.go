@@ -28,22 +28,25 @@ var (
 source yaml and formatted yaml.`)
 	flagDry *bool = flag.Bool("dry", false, `Perform a dry run; show the output of a formatting
 operation without performing it.`)
-	flagIn              *bool   = flag.Bool("in", false, "Format yaml read from stdin and output to stdout")
-	flagVersion         *bool   = flag.Bool("version", false, "Print yamlfmt version")
-	flagConf            *string = flag.String("conf", "", "Read yamlfmt config from this path")
-	flagGlobalConf      *bool   = flag.Bool("global_conf", false, globalConfFlagMessage())
-	flagDoublestar      *bool   = flag.Bool("dstar", false, "Use doublestar globs for include and exclude")
-	flagQuiet           *bool   = flag.Bool("quiet", false, "Print minimal output to stdout")
-	flagContinueOnError *bool   = flag.Bool("continue_on_error", false, "Continue to format files that didn't fail instead of exiting with code 1.")
-	flagExclude                 = arrayFlag{}
-	flagFormatter               = arrayFlag{}
-	flagExtensions              = arrayFlag{}
+	flagIn                *bool   = flag.Bool("in", false, "Format yaml read from stdin and output to stdout")
+	flagVersion           *bool   = flag.Bool("version", false, "Print yamlfmt version")
+	flagConf              *string = flag.String("conf", "", "Read yamlfmt config from this path")
+	flagGlobalConf        *bool   = flag.Bool("global_conf", false, fmt.Sprintf("Use global yamlfmt config from %s", globalConfFlagVar()))
+	flagDisableGlobalConf *bool   = flag.Bool("no_global_conf", false, fmt.Sprintf("Disabled usage of global yamlfmt config from %s", globalConfFlagVar()))
+	flagDoublestar        *bool   = flag.Bool("dstar", false, "Use doublestar globs for include and exclude")
+	flagQuiet             *bool   = flag.Bool("quiet", false, "Print minimal output to stdout")
+	flagContinueOnError   *bool   = flag.Bool("continue_on_error", false, "Continue to format files that didn't fail instead of exiting with code 1.")
+	flagExclude                   = arrayFlag{}
+	flagFormatter                 = arrayFlag{}
+	flagExtensions                = arrayFlag{}
+	flagDebug                     = arrayFlag{}
 )
 
 func bindArrayFlags() {
 	flag.Var(&flagExclude, "exclude", "Paths to exclude in the chosen format (standard or doublestar)")
 	flag.Var(&flagFormatter, "formatter", "Config value overrides to pass to the formatter")
 	flag.Var(&flagExtensions, "extensions", "File extensions to use for standard path collection")
+	flag.Var(&flagDebug, "debug", "Debug codes to activate for debug logging")
 }
 
 type arrayFlag []string
@@ -101,10 +104,9 @@ func isStdinArg() bool {
 	return arg == "-" || arg == "/dev/stdin"
 }
 
-func globalConfFlagMessage() string {
-	varName := "XDG_CONFIG_HOME"
+func globalConfFlagVar() string {
 	if runtime.GOOS == "windows" {
-		varName = "LOCALAPPDATA"
+		return "LOCALAPPDATA"
 	}
-	return fmt.Sprintf("Use global yamlfmt config from %s", varName)
+	return "XDG_CONFIG_HOME"
 }
