@@ -79,7 +79,7 @@ The string array flags can be a bit confusing. See the [String Array Flags](#str
 | Config File Path      | `-conf`               | string   | `yamlfmt -conf ./config/.yamlfmt`                         | Specify a path to read a [configuration file](./config-file.md) from. |
 | Global Config         | `-global_conf`        | bool     | `yamlfmt -global_conf`                                    | Force yamlfmt to use the configuration file from the system config directory. |
 | Disable Global Config | `-no_global_conf`     | bool     | `yamlfmt -no_global_conf`                                 | Disable looking for the configuration file from the system config directory. |
-| Doublestar            | `-dstar`              | bool     | `yamlfmt -dstar "**/*.yaml"`                              | Enable [Doublstar](./paths.md#doublestar) path collection mode. |
+| Doublestar            | `-dstar`              | bool     | `yamlfmt -dstar "**/*.yaml"`                              | Enable [Doublestar](./paths.md#doublestar) path collection mode. |
 | Exclude               | `-exclude`            | []string | `yamlfmt -exclude ./not/,these_paths.yaml`                | Patterns to exclude from path collection. These add to exclude patterns specified in the [config file](./config-file.md) |
 | Gitignore Excludes    | `-gitignore_excludes` | bool     | `yamlfmt -gitignore_excludes`                             | Use a gitignore file to exclude paths. This is in addition to specified exclude patterns. |
 | Gitignore Path        | `-gitignore_path`     | string   | `yamlfmt -gitignore_path .special_gitignore`              | Specify a path to a gitignore file to use. Defaults to `.gitignore` (in working directory). |
