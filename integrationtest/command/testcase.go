@@ -4,6 +4,7 @@ package command
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -18,9 +19,10 @@ const (
 )
 
 type TestCase struct {
-	Dir     string
-	Command string
-	Update  bool
+	Dir        string
+	Command    string
+	Update     bool
+	ShowStdout bool
 }
 
 func (tc TestCase) Run(t *testing.T) {
@@ -69,6 +71,10 @@ func (tc TestCase) command(wd string, stdoutBuf *bytes.Buffer) *exec.Cmd {
 }
 
 func (tc TestCase) goldenStdout(stdoutResult []byte) error {
+	if !tc.ShowStdout {
+		fmt.Printf("Output for test %s:\n%s", tc.Dir, stdoutResult)
+		return nil
+	}
 	goldenCtx := tempfile.GoldenCtx{
 		Dir:    tc.testFolderStdoutPath(),
 		Update: tc.Update,

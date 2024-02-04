@@ -91,12 +91,14 @@ func getConfigPath() (string, error) {
 		return configPath, nil
 	}
 
-	// Third priority: in home config directory
-	configPath, err = getConfigPathFromConfigHome()
-	// In this scenario, no errors are considered a failure state,
-	// so we continue to the next fallback if there are no errors.
-	if err == nil {
-		return configPath, nil
+	if !*flagDisableGlobalConf {
+		// Third priority: in home config directory
+		configPath, err = getConfigPathFromConfigHome()
+		// In this scenario, no errors are considered a failure state,
+		// so we continue to the next fallback if there are no errors.
+		if err == nil {
+			return configPath, nil
+		}
 	}
 
 	// All else fails, no path and no error (signals to
@@ -183,6 +185,7 @@ func getConfigPathFromDir(dir string) (string, error) {
 	for filename := range configFileNames {
 		configPath := filepath.Join(dir, filename)
 		if err := validatePath(configPath); err == nil {
+			logger.Debug(logger.DebugCodeConfig, "Found config at %s", configPath)
 			return configPath, nil
 		}
 	}

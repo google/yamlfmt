@@ -35,7 +35,7 @@ func (g GoldenCtx) CompareGoldenFile(path string, gotContent []byte) error {
 	if gotContent == nil {
 		gotContent = []byte{}
 	}
-	diff := cmp.Diff(expectedContent, gotContent)
+	diff := cmp.Diff(string(expectedContent), string(gotContent))
 	// If there is no diff between the content, nothing to do in either mode.
 	if diff == "" {
 		return nil

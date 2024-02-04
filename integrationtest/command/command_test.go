@@ -13,16 +13,18 @@ import (
 
 var (
 	updateFlag *bool = flag.Bool("update", false, "Whether to update the goldens.")
+	stdoutFlag *bool = flag.Bool("stdout", false, "Show stdout instead of diffing it.")
 	yamlfmtBin string
 )
 
-func init() {
+func TestMain(m *testing.M) {
 	yamlfmtBinVar := os.Getenv("YAMLFMT_BIN")
 	if yamlfmtBinVar == "" {
 		fmt.Println("Must provide a YAMLFMT_BIN environment variable.")
 		os.Exit(1)
 	}
 	yamlfmtBin = yamlfmtBinVar
+	m.Run()
 }
 
 func TestPathArg(t *testing.T) {
@@ -42,5 +44,5 @@ func TestIncludeDocumentStart(t *testing.T) {
 }
 
 func yamlfmtWithArgs(args string) string {
-	return fmt.Sprintf("%s %s", yamlfmtBin, args)
+	return fmt.Sprintf("%s -no_global_conf %s", yamlfmtBin, args)
 }

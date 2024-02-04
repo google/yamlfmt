@@ -2,7 +2,7 @@
 
 .PHONY: build
 build:
-	go build -o dist/yamlfmt ./cmd/yamlfmt 
+	go build -o dist/yamlfmt ./cmd/yamlfmt
 
 .PHONY: test
 test:
@@ -23,10 +23,15 @@ integrationtest_v:
 	$(MAKE) build
 	go test -v -tags=integration_test ./integrationtest/command
 
+.PHONY: integrationtest_stdout
+integrationtest_stdout:
+	$(MAKE) build
+	go test -v -tags=integration_test ./integrationtest/command -stdout
+
 .PHONY: integrationtest_local_update
 integrationtest_update:
 	$(MAKE) build
-	go test -tags=integration_test ./integrationtest/command -update	
+	go test -tags=integration_test ./integrationtest/command -update
 
 .PHONY: install
 install:
