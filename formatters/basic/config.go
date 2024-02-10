@@ -21,16 +21,17 @@ import (
 )
 
 type Config struct {
-	Indent               int                    `mapstructure:"indent"`
-	IncludeDocumentStart bool                   `mapstructure:"include_document_start"`
-	LineEnding           yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
-	LineLength           int                    `mapstructure:"max_line_length"`
-	RetainLineBreaks     bool                   `mapstructure:"retain_line_breaks"`
-	DisallowAnchors      bool                   `mapstructure:"disallow_anchors"`
-	ScanFoldedAsLiteral  bool                   `mapstructure:"scan_folded_as_literal"`
-	IndentlessArrays     bool                   `mapstructure:"indentless_arrays"`
-	DropMergeTag         bool                   `mapstructure:"drop_merge_tag"`
-	PadLineComments      int                    `mapstructure:"pad_line_comments"`
+	Indent                 int                    `mapstructure:"indent"`
+	IncludeDocumentStart   bool                   `mapstructure:"include_document_start"`
+	LineEnding             yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
+	LineLength             int                    `mapstructure:"max_line_length"`
+	RetainLineBreaks       bool                   `mapstructure:"retain_line_breaks"`
+	RetainLineBreaksSingle bool                   `mapstructure:"retain_line_breaks_single"`
+	DisallowAnchors        bool                   `mapstructure:"disallow_anchors"`
+	ScanFoldedAsLiteral    bool                   `mapstructure:"scan_folded_as_literal"`
+	IndentlessArrays       bool                   `mapstructure:"indentless_arrays"`
+	DropMergeTag           bool                   `mapstructure:"drop_merge_tag"`
+	PadLineComments        int                    `mapstructure:"pad_line_comments"`
 }
 
 func DefaultConfig() *Config {
