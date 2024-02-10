@@ -57,13 +57,13 @@ The basic formatter is a barebones formatter that simply takes the data provided
 
 ### Configuration
 
-| Key                      | Type           | Default | Description |
-|:-------------------------|:---------------|:--------|:------------|
-| `indent`                    | int            | 2       | The indentation level in spaces to use for the formatted yaml|
-| `include_document_start`    | bool           | false   | Include `---` at document start |
+| Key                         | Type           | Default | Description |
+|:----------------------------|:---------------|:--------|:------------|
+| `indent`                    | int            | 2       | The indentation level in spaces to use for the formatted yaml. |
+| `include_document_start`    | bool           | false   | Include `---` at document start. |
 | `line_ending`               | `lf` or `crlf` | `crlf` on Windows, `lf` otherwise | Parse and write the file with "lf" or "crlf" line endings. This setting will be overwritten by the global `line_ending`. |
-| `retain_line_breaks`        | bool           | false   | Retain line breaks in formatted yaml |
-| `retain_line_breaks_single` | bool           | false   | (NOTE: Takes precedence over `retain_line_breaks`) Retain line breaks in formatted yaml but only keep a single line in groups of many blank lines. |
+| `retain_line_breaks`        | bool           | false   | Retain line breaks in formatted yaml. |
+| `retain_line_breaks_single` | bool           | false   | (NOTE: Takes precedence over `retain_line_breaks`) Retain line breaks in formatted yaml, but only keep a single line in groups of many blank lines. |
 | `disallow_anchors`          | bool           | false   | If true, reject any YAML anchors or aliases found in the document. |
 | `max_line_length`           | int            | 0       | Set the maximum line length (see notes below). if not set, defaults to 0 which means no limit. |
 | `scan_folded_as_literal`    | bool           | false   | Option that will preserve newlines in folded block scalars (blocks that start with `>`). |
