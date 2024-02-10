@@ -42,31 +42,37 @@ func (p *paddinger) adjust(txt string) {
 	}
 }
 
-func MakeFeatureRetainLineBreak(linebreakStr string) yamlfmt.Feature {
+func MakeFeatureRetainLineBreak(linebreakStr string, chomp bool) yamlfmt.Feature {
 	return yamlfmt.Feature{
 		Name:         "Retain Line Breaks",
-		BeforeAction: replaceLineBreakFeature(linebreakStr),
+		BeforeAction: replaceLineBreakFeature(linebreakStr, chomp),
 		AfterAction:  restoreLineBreakFeature(linebreakStr),
 	}
 }
 
-func replaceLineBreakFeature(newlineStr string) yamlfmt.FeatureFunc {
+func replaceLineBreakFeature(newlineStr string, chomp bool) yamlfmt.FeatureFunc {
 	return func(content []byte) ([]byte, error) {
 		var buf bytes.Buffer
 		reader := bytes.NewReader(content)
 		scanner := bufio.NewScanner(reader)
+		var inLineBreaks bool
 		var padding paddinger
 		for scanner.Scan() {
 			txt := scanner.Text()
 			padding.adjust(txt)
 			if strings.TrimSpace(txt) == "" { // line break or empty space line.
+				if chomp && inLineBreaks {
+					continue
+				}
 				buf.WriteString(padding.String()) // prepend some padding incase literal multiline strings.
 				buf.WriteString(lineBreakPlaceholder)
 				buf.WriteString(newlineStr)
-				continue
+				inLineBreaks = true
+			} else {
+				buf.WriteString(txt)
+				buf.WriteString(newlineStr)
+				inLineBreaks = false
 			}
-			buf.WriteString(txt)
-			buf.WriteString(newlineStr)
 		}
 		return buf.Bytes(), scanner.Err()
 	}

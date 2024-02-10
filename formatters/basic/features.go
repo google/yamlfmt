@@ -23,12 +23,12 @@ import (
 
 func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 	features := []yamlfmt.Feature{}
-	if config.RetainLineBreaks {
+	if config.RetainLineBreaks || config.RetainLineBreaksSingle {
 		lineSep, err := config.LineEnding.Separator()
 		if err != nil {
 			lineSep = "\n"
 		}
-		featLineBreak := hotfix.MakeFeatureRetainLineBreak(lineSep)
+		featLineBreak := hotfix.MakeFeatureRetainLineBreak(lineSep, config.RetainLineBreaksSingle)
 		features = append(features, featLineBreak)
 	}
 	return features

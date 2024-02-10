@@ -125,12 +125,13 @@ func TestEmojiSupport(t *testing.T) {
 
 func TestRetainLineBreaks(t *testing.T) {
 	testCases := []struct {
-		desc   string
+		name   string
 		input  string
 		expect string
+		single bool
 	}{
 		{
-			desc: "basic",
+			name: "basic",
 			input: `a:  1
 
 b: 2`,
@@ -140,7 +141,7 @@ b: 2
 `,
 		},
 		{
-			desc: "multi-doc",
+			name: "multi-doc",
 			input: `a:  1
 
 # tail comment
@@ -154,7 +155,7 @@ b: 2
 `,
 		},
 		{
-			desc: "literal string",
+			name: "literal string",
 			input: `a:  1
 
 shell: |
@@ -175,7 +176,7 @@ shell: |
 `,
 		},
 		{
-			desc: "multi level nested literal string",
+			name: "multi level nested literal string",
 			input: `a:  1
 x:
   y:
@@ -194,18 +195,39 @@ x:
       echo "hello, world"
 `,
 		},
+		{
+			name:   "retain single line break",
+			single: true,
+			input: `a: 1
+
+
+
+
+b: 2
+
+
+c: 3
+`,
+			expect: `a: 1
+
+b: 2
+
+c: 3
+`,
+		},
 	}
-	config := basic.DefaultConfig()
-	config.RetainLineBreaks = true
-	f := newFormatter(config)
-	for _, c := range testCases {
-		t.Run(c.desc, func(t *testing.T) {
-			got, err := f.Format([]byte(c.input))
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := basic.DefaultConfig()
+			config.RetainLineBreaks = true
+			config.RetainLineBreaksSingle = tc.single
+			f := newFormatter(config)
+			got, err := f.Format([]byte(tc.input))
 			if err != nil {
 				t.Fatalf("expected formatting to pass, returned error: %v", err)
 			}
-			if string(got) != c.expect {
-				t.Fatalf("didn't retain line breaks\nresult: %v\nexpect %s", string(got), c.expect)
+			if string(got) != tc.expect {
+				t.Fatalf("didn't retain line breaks\nresult: %v\nexpect %s", string(got), tc.expect)
 			}
 		})
 	}
