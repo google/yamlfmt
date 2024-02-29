@@ -108,19 +108,20 @@ func getConfigPath() (string, error) {
 }
 
 func getConfigPathFromFlag() (string, error) {
-	// If there is a path specified in the conf flag, that takes precedence
-	configPath := *flagConf
-	if configPath == "" {
-		logger.Debug(logger.DebugCodeConfig, "No config path specified in -conf")
-		return configPath, errNoConfFlag
-	}
-	// Then we check if we want the global config
+	// First check if the global configuration was explicitly requested as that takes precedence.
 	if *flagGlobalConf {
 		logger.Debug(logger.DebugCodeConfig, "Using -global_conf flag")
 		return getConfigPathFromXdgConfigHome()
 	}
-	logger.Debug(logger.DebugCodeConfig, "Using config path %s from -conf flag", configPath)
-	return configPath, validatePath(configPath)
+	// If the global config wasn't explicitly requested, check if there was a specific configuration path supplied.
+	configPath := *flagConf
+	if configPath != "" {
+		logger.Debug(logger.DebugCodeConfig, "Using config path %s from -conf flag", configPath)
+		return configPath, validatePath(configPath)
+	}
+	
+	logger.Debug(logger.DebugCodeConfig, "No config path specified in -conf")
+	return configPath, errNoConfFlag
 }
 
 // This function searches up the directory tree until it finds
