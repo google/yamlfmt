@@ -63,6 +63,10 @@ func (fd *FileDiff) StrOutputQuiet() string {
 }
 
 func (fd *FileDiff) Apply() error {
+	// If there is no diff in the format, there is no need to write the file.
+	if !fd.Diff.Changed() {
+		return nil
+	}
 	return os.WriteFile(fd.Path, []byte(fd.Diff.Formatted), 0644)
 }
 
