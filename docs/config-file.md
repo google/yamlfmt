@@ -2,7 +2,16 @@
 
 ## Config File Discovery
 
-The config file is a file named `.yamlfmt`, `yamlfmt.yaml`, or `yamlfmt.yml` that contains a valid yamlfmt configuration. The config file is discovered in the following priority order:
+The config file is a file is a yaml file that contains a valid yamlfmt configuration. yamlfmt will automatically search for files with the following names:
+
+  - `.yamlfmt`
+  - `yamlfmt.yml`
+  - `yamlfmt.yaml`
+  - `.yamlfmt.yaml`
+  - `.yamlfmt.yml`
+
+You can also pass a config file to yamlfmt using the `-conf` flag. When using the `-conf` flag, the config file can be named anything.
+When not using one of the config file flags, it will be automatically discovered in the following priority order:
 
 1. Specified in the `-conf` flag (if this is an invalid path or doesn't exist, the tool will fail)
 1. A config file in the current working directory
@@ -15,7 +24,7 @@ If none of these are found, the tool's default configuration will be used.
 
 If the flag `-global_conf` is passed, all other steps will be circumvented and the config file will be discovered from the system config directory. See [the command line flag docs](./command-usage.md#configuration-flags).
 
-In the `-conf` flag, the config file will be named anything. As long as it's valid yaml, yamlfmt will read it as a config file. This can be useful for applying unique configs to different directories in a project. The automatic discovery paths do need to use one of the known names.
+In the `-conf` flag, the config file can be named anything. As long as it's valid yaml, yamlfmt will read it as a config file. This can be useful for applying unique configs to different directories in a project. The automatic discovery paths do need to use one of the known names.
 
 ## Command
 

@@ -19,9 +19,11 @@ import (
 )
 
 var configFileNames = collections.Set[string]{
-	".yamlfmt":     {},
-	"yamlfmt.yml":  {},
-	"yamlfmt.yaml": {},
+	".yamlfmt":      {},
+	".yamlfmt.yml":  {},
+	".yamlfmt.yaml": {},
+	"yamlfmt.yml":   {},
+	"yamlfmt.yaml":  {},
 }
 
 const configHomeDir string = "yamlfmt"
@@ -119,7 +121,7 @@ func getConfigPathFromFlag() (string, error) {
 		logger.Debug(logger.DebugCodeConfig, "Using config path %s from -conf flag", configPath)
 		return configPath, validatePath(configPath)
 	}
-	
+
 	logger.Debug(logger.DebugCodeConfig, "No config path specified in -conf")
 	return configPath, errNoConfFlag
 }
