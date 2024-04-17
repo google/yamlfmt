@@ -18,6 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
@@ -29,7 +30,8 @@ var version string = "0.11.0"
 
 func main() {
 	if err := run(); err != nil {
-		log.Fatal(err)
+		l := log.New(os.Stderr, "", 0)
+		l.Fatal(err)
 	}
 }
 

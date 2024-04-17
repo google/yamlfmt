@@ -220,7 +220,7 @@ func validatePath(path string) error {
 }
 
 func makeCommandConfigFromData(configData map[string]any) (*command.Config, error) {
-	config := command.NewConfig()
+	config := command.Config{FormatterConfig: command.NewFormatterConfig()}
 	err := mapstructure.Decode(configData, &config)
 	if err != nil {
 		return nil, err
@@ -253,22 +253,22 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 		config.Extensions = []string{"yaml", "yml"}
 	}
 
-	// Default to doublestar flag if not set in config
+	// Apply the general rule that the config takes precedence over
+	// the command line flags.
 	if !config.Doublestar {
 		config.Doublestar = *flagDoublestar
 	}
-
-	// Default to continue_on_error flag if not set in config
 	if !config.ContinueOnError {
 		config.ContinueOnError = *flagContinueOnError
 	}
-
 	if !config.GitignoreExcludes {
 		config.GitignoreExcludes = *flagGitignoreExcludes
 	}
-
 	if config.GitignorePath == "" {
 		config.GitignorePath = *flagGitignorePath
+	}
+	if config.OutputFormat == "" {
+		config.OutputFormat = getOutputFormatFromFlag()
 	}
 
 	// Overwrite config if includes are provided through args

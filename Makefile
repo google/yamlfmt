@@ -16,7 +16,7 @@ YAMLFMT_BIN ?= $(shell pwd)/dist/yamlfmt
 .PHONY: integrationtest
 integrationtest:
 	$(MAKE) build
-	go test -tags=integration_test ./integrationtest/command
+	go test -v -tags=integration_test ./integrationtest/command
 
 .PHONY: integrationtest_v
 integrationtest_v:
@@ -28,10 +28,18 @@ integrationtest_stdout:
 	$(MAKE) build
 	go test -v -tags=integration_test ./integrationtest/command -stdout
 
-.PHONY: integrationtest_local_update
+.PHONY: integrationtest_update
 integrationtest_update:
 	$(MAKE) build
 	go test -tags=integration_test ./integrationtest/command -update
+
+.PHONY: command_test_case
+command_test_case:
+ifndef TESTNAME
+	$(error "TESTNAME undefined")
+endif
+	mkdir -p integrationtest/command/testdata/$(TESTNAME)/before && \
+	mkdir -p integrationtest/command/testdata/$(TESTNAME)/stdout
 
 .PHONY: install
 install:

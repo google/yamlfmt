@@ -15,7 +15,7 @@
 package engine
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/google/yamlfmt"
@@ -27,26 +27,27 @@ type ConsecutiveEngine struct {
 	Formatter        yamlfmt.Formatter
 	Quiet            bool
 	ContinueOnError  bool
+	OutputFormat     EngineOutputFormat
 }
 
 func (e *ConsecutiveEngine) FormatContent(content []byte) ([]byte, error) {
 	return e.Formatter.Format(content)
 }
 
-func (e *ConsecutiveEngine) Format(paths []string) error {
+func (e *ConsecutiveEngine) Format(paths []string) (fmt.Stringer, error) {
 	formatDiffs, formatErrs := e.formatAll(paths)
 	if len(formatErrs) > 0 {
 		if e.ContinueOnError {
-			log.Print(formatErrs)
-			log.Println("Continuing...")
+			fmt.Print(formatErrs)
+			fmt.Println("Continuing...")
 		} else {
-			return formatErrs
+			return nil, formatErrs
 		}
 	}
-	return formatDiffs.ApplyAll()
+	return nil, formatDiffs.ApplyAll()
 }
 
-func (e *ConsecutiveEngine) Lint(paths []string) (*yamlfmt.EngineOutput, error) {
+func (e *ConsecutiveEngine) Lint(paths []string) (fmt.Stringer, error) {
 	formatDiffs, formatErrs := e.formatAll(paths)
 	if len(formatErrs) > 0 {
 		return nil, formatErrs
@@ -54,33 +55,15 @@ func (e *ConsecutiveEngine) Lint(paths []string) (*yamlfmt.EngineOutput, error) 
 	if formatDiffs.ChangedCount() == 0 {
 		return nil, nil
 	}
-
-	message := "The following formatting differences were found:"
-	if e.Quiet {
-		message = "The following files had formatting differences:"
-	}
-
-	return &yamlfmt.EngineOutput{
-		Message: message,
-		Files:   formatDiffs,
-		Quiet:   e.Quiet,
-	}, nil
+	return getEngineOutput(e.OutputFormat, yamlfmt.OperationLint, formatDiffs, e.Quiet)
 }
 
-func (e *ConsecutiveEngine) DryRun(paths []string) (*yamlfmt.EngineOutput, error) {
+func (e *ConsecutiveEngine) DryRun(paths []string) (fmt.Stringer, error) {
 	formatDiffs, formatErrs := e.formatAll(paths)
 	if len(formatErrs) > 0 {
 		return nil, formatErrs
 	}
-
-	output := &yamlfmt.EngineOutput{
-		Files: formatDiffs,
-		Quiet: e.Quiet,
-	}
-	if len(formatDiffs) > 0 && e.Quiet {
-		output.Message = "The following files will have formatting changes:"
-	}
-	return output, nil
+	return getEngineOutput(e.OutputFormat, yamlfmt.OperationDry, formatDiffs, e.Quiet)
 }
 
 func (e *ConsecutiveEngine) formatAll(paths []string) (yamlfmt.FileDiffs, FormatErrors) {

@@ -1,14 +1,12 @@
 //go:build integration_test
 
-package command_test
+package command
 
 import (
 	"flag"
 	"fmt"
 	"os"
 	"testing"
-
-	"github.com/google/yamlfmt/integrationtest/command"
 )
 
 var (
@@ -32,7 +30,7 @@ func yamlfmtWithArgs(args string) string {
 }
 
 func TestPathArg(t *testing.T) {
-	command.TestCase{
+	TestCase{
 		Dir:     "path_arg",
 		Command: yamlfmtWithArgs("x.yaml"),
 		Update:  *updateFlag,
@@ -40,7 +38,7 @@ func TestPathArg(t *testing.T) {
 }
 
 func TestIncludeDocumentStart(t *testing.T) {
-	command.TestCase{
+	TestCase{
 		Dir:     "include_document_start",
 		Command: yamlfmtWithArgs("-formatter include_document_start=true x.yaml"),
 		Update:  *updateFlag,
@@ -48,9 +46,27 @@ func TestIncludeDocumentStart(t *testing.T) {
 }
 
 func TestGitignore(t *testing.T) {
-	command.TestCase{
+	TestCase{
 		Dir:     "gitignore",
 		Command: yamlfmtWithArgs("-gitignore_excludes -gitignore_path .test_gitignore ."),
 		Update:  *updateFlag,
+	}.Run(t)
+}
+
+func TestLint(t *testing.T) {
+	TestCase{
+		Dir:     "lint",
+		Command: yamlfmtWithArgs("-lint ."),
+		Update:  *updateFlag,
+		IsError: true,
+	}.Run(t)
+}
+
+func TestLineOutput(t *testing.T) {
+	TestCase{
+		Dir:     "line_output",
+		Command: yamlfmtWithArgs("-lint -output_format line ."),
+		Update:  *updateFlag,
+		IsError: true,
 	}.Run(t)
 }

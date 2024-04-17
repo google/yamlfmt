@@ -19,20 +19,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/engine"
-)
-
-type Operation int
-
-const (
-	OperationFormat Operation = iota
-	OperationLint
-	OperationDry
-	OperationStdin
 )
 
 type FormatterConfig struct {
@@ -41,31 +31,26 @@ type FormatterConfig struct {
 }
 
 // NewFormatterConfig returns an empty formatter config with all fields initialized.
-func NewFormatterConfig() FormatterConfig {
-	return FormatterConfig{FormatterSettings: make(map[string]any)}
+func NewFormatterConfig() *FormatterConfig {
+	return &FormatterConfig{FormatterSettings: make(map[string]any)}
 }
 
 type Config struct {
-	Extensions        []string               `mapstructure:"extensions"`
-	Include           []string               `mapstructure:"include"`
-	Exclude           []string               `mapstructure:"exclude"`
-	RegexExclude      []string               `mapstructure:"regex_exclude"`
-	FormatterConfig   *FormatterConfig       `mapstructure:"formatter,omitempty"`
-	Doublestar        bool                   `mapstructure:"doublestar"`
-	ContinueOnError   bool                   `mapstructure:"continue_on_error"`
-	LineEnding        yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
-	GitignoreExcludes bool                   `mapstructure:"gitignore_excludes"`
-	GitignorePath     string                 `mapstructure:"gitignore_path"`
-}
-
-// NewConfig returns an empty config with all fields initialized.
-func NewConfig() Config {
-	formatterConfig := NewFormatterConfig()
-	return Config{FormatterConfig: &formatterConfig}
+	Extensions        []string                  `mapstructure:"extensions"`
+	Include           []string                  `mapstructure:"include"`
+	Exclude           []string                  `mapstructure:"exclude"`
+	RegexExclude      []string                  `mapstructure:"regex_exclude"`
+	FormatterConfig   *FormatterConfig          `mapstructure:"formatter,omitempty"`
+	Doublestar        bool                      `mapstructure:"doublestar"`
+	ContinueOnError   bool                      `mapstructure:"continue_on_error"`
+	LineEnding        yamlfmt.LineBreakStyle    `mapstructure:"line_ending"`
+	GitignoreExcludes bool                      `mapstructure:"gitignore_excludes"`
+	GitignorePath     string                    `mapstructure:"gitignore_path"`
+	OutputFormat      engine.EngineOutputFormat `mapstructure:"output_format"`
 }
 
 type Command struct {
-	Operation Operation
+	Operation yamlfmt.Operation
 	Registry  *yamlfmt.Registry
 	Config    *Config
 	Quiet     bool
@@ -113,6 +98,7 @@ func (c *Command) Run() error {
 		Formatter:        formatter,
 		Quiet:            c.Quiet,
 		ContinueOnError:  c.Config.ContinueOnError,
+		OutputFormat:     c.Config.OutputFormat,
 	}
 
 	collectedPaths, err := c.collectPaths()
@@ -129,17 +115,20 @@ func (c *Command) Run() error {
 
 	paths, err := c.analyzePaths(collectedPaths)
 	if err != nil {
-		log.Printf("path analysis found the following errors:\n%v", err)
-		log.Println("Continuing...")
+		fmt.Printf("path analysis found the following errors:\n%v", err)
+		fmt.Println("Continuing...")
 	}
 
 	switch c.Operation {
-	case OperationFormat:
-		err := eng.Format(paths)
+	case yamlfmt.OperationFormat:
+		out, err := eng.Format(paths)
+		if out != nil {
+			fmt.Print(out)
+		}
 		if err != nil {
 			return err
 		}
-	case OperationLint:
+	case yamlfmt.OperationLint:
 		out, err := eng.Lint(paths)
 		if err != nil {
 			return err
@@ -150,17 +139,17 @@ func (c *Command) Run() error {
 			// component of the lint functionality.
 			return errors.New(out.String())
 		}
-	case OperationDry:
+	case yamlfmt.OperationDry:
 		out, err := eng.DryRun(paths)
 		if err != nil {
 			return err
 		}
-		if out.Message == "" && out.Files.ChangedCount() == 0 {
-			log.Print("No files will be changed.")
+		if out != nil {
+			fmt.Print(out)
 		} else {
-			log.Print(out)
+			fmt.Print("No files will be changed.")
 		}
-	case OperationStdin:
+	case yamlfmt.OperationStdin:
 		stdinYaml, err := readFromStdin()
 		if err != nil {
 			return err
@@ -169,7 +158,7 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-		fmt.Print(string(out))
+		fmt.Print(out)
 	}
 
 	return nil
