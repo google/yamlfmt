@@ -70,3 +70,19 @@ func TestLineOutput(t *testing.T) {
 		IsError: true,
 	}.Run(t)
 }
+
+func TestDry(t *testing.T) {
+	TestCase{
+		Dir:     "dry",
+		Command: yamlfmtWithArgs("-dry ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
+
+func TestDryQuiet(t *testing.T) {
+	TestCase{
+		Dir:     "dry_quiet",
+		Command: yamlfmtWithArgs("-dry -quiet ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}

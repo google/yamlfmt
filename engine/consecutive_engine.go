@@ -63,6 +63,9 @@ func (e *ConsecutiveEngine) DryRun(paths []string) (fmt.Stringer, error) {
 	if len(formatErrs) > 0 {
 		return nil, formatErrs
 	}
+	if formatDiffs.ChangedCount() == 0 {
+		return nil, nil
+	}
 	return getEngineOutput(e.OutputFormat, yamlfmt.OperationDry, formatDiffs, e.Quiet)
 }
 
