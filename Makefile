@@ -51,4 +51,8 @@ install_tools:
 
 .PHONY: addlicense
 addlicense:
-	addlicense -c "Google LLC" -l apache .
+	addlicense -ignore "**/testdata/**" -c "Google LLC" -l apache .
+
+.PHONY: addlicense_check
+addlicense_check:
+	addlicense -check -ignore "**/testdata/**" -c "Google LLC" -l apache .

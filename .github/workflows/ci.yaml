@@ -32,13 +32,16 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           cache: true
-        
+
+      - name: Check license headers
+        run: make addlicense_check
+
       - name: Go Mod Tidy
         run: go mod tidy
 
       - name: Go Vet
         run: go vet
-      
+
       - name: Test
         run: go test -v ./...
 
