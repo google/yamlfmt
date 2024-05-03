@@ -18,12 +18,28 @@ on:
   pull_request:
 
 jobs:
-  run-test:
+  run-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+          cache: true
+
+      - name: Install tools
+        run: make install_tools
+
+      - name: Check license headers
+        run: make addlicense_check
+
+  run-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ '1.18', '1.19', '1.20', '1.21' ]
+        go: [ '1.18', '1.19', '1.20', '1.21', '1.22' ]
     steps:
       - uses: actions/checkout@v3
 
@@ -32,12 +48,6 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           cache: true
-
-      - name: Install tools
-        run: make install_tools
-
-      - name: Check license headers
-        run: make addlicense_check
 
       - name: Go Mod Tidy
         run: go mod tidy
