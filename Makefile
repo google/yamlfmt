@@ -52,3 +52,7 @@ install_tools:
 .PHONY: addlicense
 addlicense:
 	addlicense -c "Google LLC" -l apache .
+
+.PHONY: addlicense_check
+addlicense_check:
+	addlicense -check -c "Google LLC" -l apache .
