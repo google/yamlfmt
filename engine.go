@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/RageCage64/multilinediff"
 	"github.com/google/yamlfmt/internal/collections"
+	"github.com/google/yamlfmt/internal/multilinediff"
 )
 
 type Operation int
