@@ -26,7 +26,7 @@ import (
 	"github.com/google/yamlfmt/internal/logger"
 )
 
-var version string = "0.11.0"
+var version string = "0.12.0"
 
 func main() {
 	if err := run(); err != nil {
