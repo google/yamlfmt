@@ -33,6 +33,9 @@ jobs:
           go-version: ${{ matrix.go }}
           cache: true
 
+      - name: Install tools
+        run: make install_tools
+
       - name: Check license headers
         run: make addlicense_check
 
