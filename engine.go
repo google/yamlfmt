@@ -8,30 +8,20 @@ import (
 	"github.com/google/yamlfmt/internal/collections"
 )
 
+type Operation int
+
+const (
+	OperationFormat Operation = iota
+	OperationLint
+	OperationDry
+	OperationStdin
+)
+
 type Engine interface {
 	FormatContent(content []byte) ([]byte, error)
-	Format(paths []string) error
-	Lint(paths []string) (*EngineOutput, error)
-	DryRun(paths []string) (*EngineOutput, error)
-}
-
-type EngineOutput struct {
-	Message string
-	Files   FileDiffs
-	Quiet   bool
-}
-
-func (eo *EngineOutput) String() string {
-	var msg string
-	if eo.Message != "" {
-		msg += fmt.Sprintf("%s\n\n", eo.Message)
-	}
-	if eo.Quiet {
-		msg += eo.Files.StrOutputQuiet()
-	} else {
-		msg += fmt.Sprintf("%s\n", eo.Files.StrOutput())
-	}
-	return msg
+	Format(paths []string) (fmt.Stringer, error)
+	Lint(paths []string) (fmt.Stringer, error)
+	DryRun(paths []string) (fmt.Stringer, error)
 }
 
 type FormatDiff struct {

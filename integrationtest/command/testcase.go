@@ -16,11 +16,13 @@ import (
 
 const (
 	stdoutGoldenFile = "stdout.txt"
+	stderrGoldenFile = "stderr.txt"
 )
 
 type TestCase struct {
 	Dir        string
 	Command    string
+	IsError    bool
 	Update     bool
 	ShowStdout bool
 }
@@ -40,11 +42,20 @@ func (tc TestCase) run(t *testing.T) {
 
 	// Run the command for the test in the temp directory.
 	var stdoutBuf bytes.Buffer
-	cmd := tc.command(tempDir, &stdoutBuf)
+	var stderrBuf bytes.Buffer
+	cmd := tc.command(tempDir, &stdoutBuf, &stderrBuf)
 	err = cmd.Run()
-	assert.NilErr(t, err)
+	if tc.IsError {
+		assert.NotNilErr(t, err)
+	} else {
+		assert.NilErr(t, err)
+	}
 
+	fmt.Printf("stdout: %s\n", stdoutBuf.String())
+	fmt.Printf("stderr: %s\n", stderrBuf.String())
 	err = tc.goldenStdout(stdoutBuf.Bytes())
+	assert.NilErr(t, err)
+	err = tc.goldenStderr(stderrBuf.Bytes())
 	assert.NilErr(t, err)
 	err = tc.goldenAfter(tempDir)
 	assert.NilErr(t, err)
@@ -54,7 +65,7 @@ func (tc TestCase) testFolderBeforePath() string {
 	return tc.testdataDirPath() + "/before"
 }
 
-func (tc TestCase) command(wd string, stdoutBuf *bytes.Buffer) *exec.Cmd {
+func (tc TestCase) command(wd string, stdoutBuf *bytes.Buffer, stderrBuf *bytes.Buffer) *exec.Cmd {
 	cmdArgs := []string{}
 	for _, arg := range strings.Split(tc.Command, " ") {
 		// This is to handle potential typos in args with extra spaces.
@@ -66,12 +77,13 @@ func (tc TestCase) command(wd string, stdoutBuf *bytes.Buffer) *exec.Cmd {
 		Path:   cmdArgs[0], // This is just the path to the command
 		Args:   cmdArgs,    // Args needs to be an array of everything including the command
 		Stdout: stdoutBuf,
+		Stderr: stderrBuf,
 		Dir:    wd,
 	}
 }
 
 func (tc TestCase) goldenStdout(stdoutResult []byte) error {
-	if !tc.ShowStdout {
+	if tc.ShowStdout {
 		fmt.Printf("Output for test %s:\n%s", tc.Dir, stdoutResult)
 		return nil
 	}
@@ -80,6 +92,18 @@ func (tc TestCase) goldenStdout(stdoutResult []byte) error {
 		Update: tc.Update,
 	}
 	return goldenCtx.CompareGoldenFile(stdoutGoldenFile, stdoutResult)
+}
+
+func (tc TestCase) goldenStderr(stderrResult []byte) error {
+	if tc.ShowStdout {
+		fmt.Printf("Stderr output for test %s:\n%s", tc.Dir, stderrResult)
+		return nil
+	}
+	goldenCtx := tempfile.GoldenCtx{
+		Dir:    tc.testFolderStdoutPath(),
+		Update: tc.Update,
+	}
+	return goldenCtx.CompareGoldenFile(stderrGoldenFile, stderrResult)
 }
 
 func (tc TestCase) goldenAfter(wd string) error {

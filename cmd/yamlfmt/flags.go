@@ -20,7 +20,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/google/yamlfmt/command"
+	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/engine"
 )
 
 var (
@@ -38,6 +39,7 @@ operation without performing it.`)
 	flagContinueOnError   *bool   = flag.Bool("continue_on_error", false, "Continue to format files that didn't fail instead of exiting with code 1.")
 	flagGitignoreExcludes *bool   = flag.Bool("gitignore_excludes", false, "Use a gitignore file for excludes")
 	flagGitignorePath     *string = flag.String("gitignore_path", ".gitignore", "Path to gitignore file to use")
+	flagOutputFormat      *string = flag.String("output_format", "default", "The engine output format")
 	flagExclude                   = arrayFlag{}
 	flagFormatter                 = arrayFlag{}
 	flagExtensions                = arrayFlag{}
@@ -85,17 +87,21 @@ func configureHelp() {
 	}
 }
 
-func getOperationFromFlag() command.Operation {
+func getOperationFromFlag() yamlfmt.Operation {
 	if *flagIn || isStdinArg() {
-		return command.OperationStdin
+		return yamlfmt.OperationStdin
 	}
 	if *flagLint {
-		return command.OperationLint
+		return yamlfmt.OperationLint
 	}
 	if *flagDry {
-		return command.OperationDry
+		return yamlfmt.OperationDry
 	}
-	return command.OperationFormat
+	return yamlfmt.OperationFormat
+}
+
+func getOutputFormatFromFlag() engine.EngineOutputFormat {
+	return engine.EngineOutputFormat(*flagOutputFormat)
 }
 
 func isStdinArg() bool {

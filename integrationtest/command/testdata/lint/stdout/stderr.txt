@@ -1,0 +1,7 @@
+The following formatting differences were found:
+
+a.yaml:
+  a:     a:
+-  b: 1    b: 1
++        
+
