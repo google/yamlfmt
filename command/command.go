@@ -146,8 +146,8 @@ func (c *Command) Run() error {
 		}
 		if out != nil {
 			fmt.Print(out)
-		} else {
-			fmt.Print("No files will be changed.")
+		} else if !c.Quiet {
+			fmt.Println("No files will be changed.")
 		}
 	case yamlfmt.OperationStdin:
 		stdinYaml, err := readFromStdin()
