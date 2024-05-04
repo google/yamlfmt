@@ -158,7 +158,7 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-		fmt.Print(out)
+		fmt.Print(string(out))
 	}
 
 	return nil
