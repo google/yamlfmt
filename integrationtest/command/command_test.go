@@ -100,3 +100,11 @@ func TestDryQuiet(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestResolvedConf(t *testing.T) {
+	TestCase{
+		Dir:     "resolved_conf",
+		Command: yamlfmtWithArgs("-resolved_conf -continue_on_error=true -formatter retain_line_breaks=true"),
+		Update:  *updateFlag,
+	}.Run(t)
+}

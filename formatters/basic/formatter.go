@@ -23,8 +23,6 @@ import (
 	"github.com/google/yamlfmt"
 )
 
-const BasicFormatterType string = "basic"
-
 type BasicFormatter struct {
 	Config       *Config
 	Features     yamlfmt.FeatureList
@@ -34,7 +32,7 @@ type BasicFormatter struct {
 // yamlfmt.Formatter interface
 
 func (f *BasicFormatter) Type() string {
-	return BasicFormatterType
+	return yamlfmt.BasicFormatterType
 }
 
 func (f *BasicFormatter) Format(input []byte) ([]byte, error) {

@@ -29,6 +29,7 @@ const (
 	OperationLint
 	OperationDry
 	OperationStdin
+	OperationPrintConfig
 )
 
 type Engine interface {

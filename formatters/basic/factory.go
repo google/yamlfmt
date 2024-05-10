@@ -22,7 +22,7 @@ import (
 type BasicFormatterFactory struct{}
 
 func (f *BasicFormatterFactory) Type() string {
-	return BasicFormatterType
+	return yamlfmt.BasicFormatterType
 }
 
 func (f *BasicFormatterFactory) NewFormatter(configData map[string]interface{}) (yamlfmt.Formatter, error) {
