@@ -26,8 +26,6 @@ jobs:
     strategy:
       matrix:
         version: ['1.18']
-    env:
-      GORELEASER_CURRENT_TAG: ${{ github.ref_name }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
