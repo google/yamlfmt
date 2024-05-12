@@ -26,7 +26,7 @@ If the flag `-global_conf` is passed, all other steps will be circumvented and t
 
 In the `-conf` flag, the config file can be named anything. As long as it's valid yaml, yamlfmt will read it as a config file. This can be useful for applying unique configs to different directories in a project. The automatic discovery paths do need to use one of the known names.
 
-In the `-resolved_conf` flag, merged config values will be printed.
+In the `-print_conf` flag, merged config values will be printed.
 
 ## Command
 

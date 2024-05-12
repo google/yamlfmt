@@ -1,0 +1,26 @@
+continue_on_error: false
+doublestar: true
+exclude:
+    - '**/templates/*.yaml'
+extensions:
+    - yaml
+    - yml
+gitignore_excludes: false
+gitignore_path: .my_gitignore
+include: []
+line_ending: crlf
+output_format: default
+regex_exclude: []
+formatter:
+    disallow_anchors: false
+    drop_merge_tag: false
+    include_document_start: true
+    indent: 2
+    indentless_arrays: false
+    line_ending: crlf
+    max_line_length: 0
+    pad_line_comments: 1
+    retain_line_breaks: false
+    retain_line_breaks_single: true
+    scan_folded_as_literal: false
+    type: basic

@@ -34,7 +34,7 @@ operation without performing it.`)
 	flagConf              *string = flag.String("conf", "", "Read yamlfmt config from this path")
 	flagGlobalConf        *bool   = flag.Bool("global_conf", false, fmt.Sprintf("Use global yamlfmt config from %s", globalConfFlagVar()))
 	flagDisableGlobalConf *bool   = flag.Bool("no_global_conf", false, fmt.Sprintf("Disabled usage of global yamlfmt config from %s", globalConfFlagVar()))
-	flagResolvedConf      *bool   = flag.Bool("resolved_conf", false, "Print resolved config")
+	flagPrintConf         *bool   = flag.Bool("print_conf", false, "Print config")
 	flagDoublestar        *bool   = flag.Bool("dstar", false, "Use doublestar globs for include and exclude")
 	flagQuiet             *bool   = flag.Bool("quiet", false, "Print minimal output to stdout")
 	flagContinueOnError   *bool   = flag.Bool("continue_on_error", false, "Continue to format files that didn't fail instead of exiting with code 1.")
@@ -98,7 +98,7 @@ func getOperationFromFlag() yamlfmt.Operation {
 	if *flagDry {
 		return yamlfmt.OperationDry
 	}
-	if *flagResolvedConf {
+	if *flagPrintConf {
 		return yamlfmt.OperationPrintConfig
 	}
 	return yamlfmt.OperationFormat

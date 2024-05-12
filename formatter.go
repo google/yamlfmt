@@ -16,11 +16,10 @@ package yamlfmt
 
 import "fmt"
 
-const BasicFormatterType string = "basic"
-
 type Formatter interface {
 	Type() string
 	Format(yamlContent []byte) ([]byte, error)
+	ConfigMap() (map[string]any, error)
 }
 
 type Factory interface {
