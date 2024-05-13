@@ -19,6 +19,7 @@ import "fmt"
 type Formatter interface {
 	Type() string
 	Format(yamlContent []byte) ([]byte, error)
+	ConfigMap() (map[string]any, error)
 }
 
 type Factory interface {

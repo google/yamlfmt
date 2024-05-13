@@ -100,3 +100,26 @@ func TestDryQuiet(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestPrintConfFlags(t *testing.T) {
+	TestCase{
+		Dir:     "print_conf_flags",
+		Command: yamlfmtWithArgs("-print_conf -continue_on_error=true -formatter retain_line_breaks=true"),
+		Update:  *updateFlag,
+	}.Run(t)
+}
+
+func TestPrintConfFile(t *testing.T) {
+	TestCase{
+		Dir:     "print_conf_file",
+		Command: yamlfmtWithArgs("-print_conf"),
+		Update:  *updateFlag,
+	}.Run(t)
+}
+func TestPrintConfFlagsAndFile(t *testing.T) {
+	TestCase{
+		Dir:     "print_conf_flags_and_file",
+		Command: yamlfmtWithArgs("-print_conf -continue_on_error=true -formatter retain_line_breaks=true"),
+		Update:  *updateFlag,
+	}.Run(t)
+}

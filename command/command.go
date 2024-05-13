@@ -23,6 +23,9 @@ import (
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/engine"
+	"github.com/mitchellh/mapstructure"
+
+	"github.com/braydonk/yaml"
 )
 
 type FormatterConfig struct {
@@ -155,6 +158,30 @@ func (c *Command) Run() error {
 			return err
 		}
 		out, err := eng.FormatContent(stdinYaml)
+		if err != nil {
+			return err
+		}
+		fmt.Print(string(out))
+	case yamlfmt.OperationPrintConfig:
+		commandConfig := map[string]any{}
+		err = mapstructure.Decode(c.Config, &commandConfig)
+		if err != nil {
+			return err
+		}
+		delete(commandConfig, "formatter")
+		out, err := yaml.Marshal(commandConfig)
+		if err != nil {
+			return err
+		}
+		fmt.Print(string(out))
+
+		formatterConfigMap, err := formatter.ConfigMap()
+		if err != nil {
+			return err
+		}
+		out, err = yaml.Marshal(map[string]any{
+			"formatter": formatterConfigMap,
+		})
 		if err != nil {
 			return err
 		}

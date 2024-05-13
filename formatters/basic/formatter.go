@@ -21,6 +21,7 @@ import (
 
 	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt"
+	"github.com/mitchellh/mapstructure"
 )
 
 const BasicFormatterType string = "basic"
@@ -112,4 +113,14 @@ func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 	e.SetPadLineComments(f.Config.PadLineComments)
 
 	return e
+}
+
+func (f *BasicFormatter) ConfigMap() (map[string]any, error) {
+	configMap := map[string]any{}
+	err := mapstructure.Decode(f.Config, &configMap)
+	if err != nil {
+		return nil, err
+	}
+	configMap["type"] = BasicFormatterType
+	return configMap, err
 }

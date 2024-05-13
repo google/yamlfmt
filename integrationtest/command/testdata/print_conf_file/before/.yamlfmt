@@ -1,0 +1,11 @@
+continue_on_error: false
+doublestar: true
+exclude:
+  - "**/templates/*.yaml"
+gitignore_excludes: false
+gitignore_path: .my_gitignore
+line_ending: crlf
+formatter:
+    type: basic
+    retain_line_breaks_single: true
+    include_document_start: true

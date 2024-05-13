@@ -1,5 +1,6 @@
 # Sometimes use these for testing
 .yamlfmt
+!integrationtest/**/.yamlfmt
 tmp
 
 # Goreleaser build folder
