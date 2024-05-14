@@ -26,7 +26,10 @@ import (
 	"github.com/google/yamlfmt/internal/logger"
 )
 
-var version string = "0.12.0"
+var (
+	version = "dev"
+	commit  = "none"
+)
 
 func main() {
 	if err := run(); err != nil {
@@ -41,7 +44,7 @@ func run() error {
 	flag.Parse()
 
 	if *flagVersion {
-		fmt.Printf("%s\n", version)
+		fmt.Printf("yamlfmt %s (%s)\n", version, commit)
 		return nil
 	}
 

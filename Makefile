@@ -1,8 +1,13 @@
 .EXPORT_ALL_VARIABLES:
 
+VERSION  := $(shell git describe --abbrev=0 --tags | tr -d v)
+COMMIT := $(shell git rev-parse --short HEAD)
+LDFLAGS := -X 'main.version=$(VERSION)' \
+           -X 'main.commit=$(COMMIT)'
+
 .PHONY: build
 build:
-	go build -o dist/yamlfmt ./cmd/yamlfmt
+	go build -ldflags "$(LDFLAGS)" -o dist/yamlfmt ./cmd/yamlfmt
 
 .PHONY: test
 test:
@@ -43,7 +48,7 @@ endif
 
 .PHONY: install
 install:
-	go install ./cmd/yamlfmt
+	go install -ldflags "$(LDFLAGS)" ./cmd/yamlfmt
 
 .PHONY: install_tools
 install_tools:

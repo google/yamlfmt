@@ -25,6 +25,8 @@ builds:
       - linux
       - windows
       - darwin
+    ldflags:
+      - '-s -w -X main.version={{.Version}} -X main.commit={{.ShortCommit}}'
 archives:
   - name_template: >-
       {{ .ProjectName }}_
