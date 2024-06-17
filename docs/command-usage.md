@@ -16,7 +16,7 @@ You can also provide a directory path, which yamlfmt will search recursively thr
 yamlfmt .
 ```
 
-You can make use of the alternative Doublestar path mode for more dyanmic patterns.
+You can make use of the alternative Doublestar path mode for more dynamic patterns.
 
 ```bash
 yamlfmt -dstar "**/*.yaml"
