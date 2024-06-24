@@ -33,6 +33,7 @@ type Config struct {
 	DropMergeTag           bool                   `mapstructure:"drop_merge_tag"`
 	PadLineComments        int                    `mapstructure:"pad_line_comments"`
 	TrimTrailingWhitespace bool                   `mapstructure:"trim_trailing_whitespace"`
+	EOFNewline             bool                   `mapstructure:"eof_newline"`
 }
 
 func DefaultConfig() *Config {

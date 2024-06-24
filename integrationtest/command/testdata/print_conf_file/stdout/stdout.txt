@@ -14,6 +14,7 @@ regex_exclude: []
 formatter:
     disallow_anchors: false
     drop_merge_tag: false
+    eof_newline: false
     include_document_start: true
     indent: 2
     indentless_arrays: false
