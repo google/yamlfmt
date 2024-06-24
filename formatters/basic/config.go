@@ -32,6 +32,7 @@ type Config struct {
 	IndentlessArrays       bool                   `mapstructure:"indentless_arrays"`
 	DropMergeTag           bool                   `mapstructure:"drop_merge_tag"`
 	PadLineComments        int                    `mapstructure:"pad_line_comments"`
+	TrimTrailingWhitespace bool                   `mapstructure:"trim_trailing_whitespace"`
 }
 
 func DefaultConfig() *Config {

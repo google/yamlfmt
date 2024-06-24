@@ -309,3 +309,23 @@ func TestPadLineComments(t *testing.T) {
 		t.Fatalf("expected: '%s', got: '%s'", expectedStr, resultStr)
 	}
 }
+
+func TestTrimTrailingWhitespace(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.TrimTrailingWhitespace = true
+	f := newFormatter(config)
+
+	yml := `a: 1
+b: 2    `
+	expectedYml := `a: 1
+b: 2`
+
+	result, err := f.Format([]byte(yml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	resultStr := strings.TrimSuffix(string(result), "\n")
+	if resultStr != expectedYml {
+		t.Fatalf("expected: '%s', got: '%s'", expectedYml, resultStr)
+	}
+}

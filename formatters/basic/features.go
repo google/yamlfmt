@@ -19,17 +19,26 @@ import (
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/formatters/basic/anchors"
 	"github.com/google/yamlfmt/internal/hotfix"
+	"github.com/google/yamlfmt/internal/trim"
 )
 
 func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
+	lineSep, err := config.LineEnding.Separator()
+	if err != nil {
+		lineSep = "\n"
+	}
 	features := []yamlfmt.Feature{}
 	if config.RetainLineBreaks || config.RetainLineBreaksSingle {
-		lineSep, err := config.LineEnding.Separator()
-		if err != nil {
-			lineSep = "\n"
-		}
-		featLineBreak := hotfix.MakeFeatureRetainLineBreak(lineSep, config.RetainLineBreaksSingle)
-		features = append(features, featLineBreak)
+		features = append(
+			features,
+			hotfix.MakeFeatureRetainLineBreak(lineSep, config.RetainLineBreaksSingle),
+		)
+	}
+	if config.TrimTrailingWhitespace {
+		features = append(
+			features,
+			trim.MakeFeatureTrimTrailingWhitespace(lineSep),
+		)
 	}
 	return features
 }
