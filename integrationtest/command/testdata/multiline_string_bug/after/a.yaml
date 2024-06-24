@@ -1,0 +1,4 @@
+# There is a trailing whitespace within the string
+a: |-
+  hello
+  hi

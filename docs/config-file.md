@@ -82,6 +82,7 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `indentless_arrays`         | bool           | false   | Render `-` array items (block sequence items) without an increased indent. |
 | `drop_merge_tag`            | bool           | false   | Assume that any well formed merge using just a `<<` token will be a merge, and drop the `!!merge` tag from the formatted result. |
 | `pad_line_comments`         | int            | 1       | The number of padding spaces to insert before line comments. |
+| `trim_trailing_whitespace`  | bool           | false   | Whether to trim trailing whitespace from lines. |
 
 ### Note on `max_line_length`
 

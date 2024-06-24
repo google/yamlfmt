@@ -123,3 +123,11 @@ func TestPrintConfFlagsAndFile(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestMultilineStringBug(t *testing.T) {
+	TestCase{
+		Dir:     "multiline_string_bug",
+		Command: yamlfmtWithArgs("-formatter trim_trailing_whitespace=true ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
