@@ -42,7 +42,7 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: --skip-publish
+          args: --skip=publish
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
