@@ -12,31 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package trim
+package features
 
 import (
-	"bufio"
-	"bytes"
-	"strings"
-
 	"github.com/google/yamlfmt"
 )
 
-func MakeFeatureTrimTrailingWhitespace(linebreakStr string) yamlfmt.Feature {
+func MakeFeatureEOFNewline(linebreakStr string) yamlfmt.Feature {
 	return yamlfmt.Feature{
-		Name:         "Trim Trailing Whitespace",
-		BeforeAction: trimTrailingWhitespaceFeature(linebreakStr),
+		Name:        "EOF Newline",
+		AfterAction: eofNewlineFeature(linebreakStr),
 	}
 }
 
-func trimTrailingWhitespaceFeature(linebreakStr string) yamlfmt.FeatureFunc {
+func eofNewlineFeature(linebreakStr string) yamlfmt.FeatureFunc {
 	return func(content []byte) ([]byte, error) {
-		buf := bytes.NewBuffer(content)
-		s := bufio.NewScanner(buf)
-		newLines := []string{}
-		for s.Scan() {
-			newLines = append(newLines, strings.TrimRight(s.Text(), " "))
+		// This check works in both linebreak modes.
+		if content[len(content)-1] != '\n' {
+			linebreakBytes := []byte(linebreakStr)
+			content = append(content, linebreakBytes...)
 		}
-		return []byte(strings.Join(newLines, linebreakStr)), nil
+		return content, nil
 	}
 }

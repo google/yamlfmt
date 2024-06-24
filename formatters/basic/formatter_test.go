@@ -329,3 +329,25 @@ b: 2`
 		t.Fatalf("expected: '%s', got: '%s'", expectedYml, resultStr)
 	}
 }
+
+func TestEOFNewline(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.RetainLineBreaks = false
+	config.EOFNewline = true
+	f := newFormatter(config)
+
+	yml := `a: 1
+b: 2`
+	expectedYml := `a: 1
+b: 2
+`
+
+	result, err := f.Format([]byte(yml))
+	if err != nil {
+		t.Fatalf("expected formatting to pass, returned error: %v", err)
+	}
+	resultStr := string(result)
+	if resultStr != expectedYml {
+		t.Fatalf("expected: '%s', got: '%s'", expectedYml, resultStr)
+	}
+}

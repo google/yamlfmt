@@ -18,8 +18,8 @@ import (
 	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/formatters/basic/anchors"
+	"github.com/google/yamlfmt/internal/features"
 	"github.com/google/yamlfmt/internal/hotfix"
-	"github.com/google/yamlfmt/internal/trim"
 )
 
 func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
@@ -27,20 +27,26 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 	if err != nil {
 		lineSep = "\n"
 	}
-	features := []yamlfmt.Feature{}
+	configuredFeatures := []yamlfmt.Feature{}
 	if config.RetainLineBreaks || config.RetainLineBreaksSingle {
-		features = append(
-			features,
+		configuredFeatures = append(
+			configuredFeatures,
 			hotfix.MakeFeatureRetainLineBreak(lineSep, config.RetainLineBreaksSingle),
 		)
 	}
 	if config.TrimTrailingWhitespace {
-		features = append(
-			features,
-			trim.MakeFeatureTrimTrailingWhitespace(lineSep),
+		configuredFeatures = append(
+			configuredFeatures,
+			features.MakeFeatureTrimTrailingWhitespace(lineSep),
 		)
 	}
-	return features
+	if config.EOFNewline {
+		configuredFeatures = append(
+			configuredFeatures,
+			features.MakeFeatureEOFNewline(lineSep),
+		)
+	}
+	return configuredFeatures
 }
 
 // These features will directly use the `yaml.Node` type and

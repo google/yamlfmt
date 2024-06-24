@@ -131,3 +131,11 @@ func TestMultilineStringBug(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestEOFNewline(t *testing.T) {
+	TestCase{
+		Dir:     "eof_newline",
+		Command: yamlfmtWithArgs("-formatter eof_newline=true ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
