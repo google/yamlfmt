@@ -28,7 +28,7 @@ func MakeFeatureEOFNewline(linebreakStr string) yamlfmt.Feature {
 func eofNewlineFeature(linebreakStr string) yamlfmt.FeatureFunc {
 	return func(content []byte) ([]byte, error) {
 		// This check works in both linebreak modes.
-		if content[len(content)-1] != '\n' {
+		if len(content) == 0 || content[len(content)-1] != '\n' {
 			linebreakBytes := []byte(linebreakStr)
 			content = append(content, linebreakBytes...)
 		}
