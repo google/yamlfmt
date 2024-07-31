@@ -15,6 +15,8 @@
 package yamlfmt
 
 import (
+	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -162,7 +164,47 @@ func (c *DoublestarCollector) CollectPaths() ([]string, error) {
 	return pathsToFormat, nil
 }
 
+func findGitIgnorePath(gitignorePath string) (string, error) {
+	// if path is absolute, check if exists and return
+	if filepath.IsAbs(gitignorePath) {
+		_, err := os.Stat(gitignorePath)
+		return gitignorePath, err
+	}
+
+	// if path is relative, search for it until the git root
+	dir, err := os.Getwd()
+	if err != nil {
+		return gitignorePath, fmt.Errorf("cannot get current working directory: %w", err)
+	}
+	for {
+		// check if gitignore is there
+		gitIgnore := filepath.Join(dir, gitignorePath)
+		if _, err := os.Stat(gitIgnore); err == nil {
+			return gitIgnore, nil
+		}
+
+		// check if we are at the git root directory
+		gitRoot := filepath.Join(dir, ".git")
+		if _, err := os.Stat(gitRoot); err == nil {
+			return gitignorePath, errors.New("gitignore not found")
+		}
+
+		// check if we are at the root of the filesystem
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return gitignorePath, errors.New("no git repository found")
+		}
+
+		// level up
+		dir = parent
+	}
+}
+
 func ExcludeWithGitignore(gitignorePath string, paths []string) ([]string, error) {
+	gitignorePath, err := findGitIgnorePath(gitignorePath)
+	if err != nil {
+		return nil, err
+	}
 	logger.Debug(logger.DebugCodePaths, "excluding paths with gitignore: %s", gitignorePath)
 	ignorer, err := ignore.CompileIgnoreFile(gitignorePath)
 	if err != nil {
