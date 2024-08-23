@@ -7,7 +7,10 @@
   "properties": {
     "line_ending": {
       "type": "string",
-      "enum": ["lf", "crlf"],
+      "enum": [
+        "lf",
+        "crlf"
+      ],
       "default": "lf",
       "description": "Parse and write the file with 'lf' or 'crlf' line endings. This global setting will override any formatter line_ending options."
     },
@@ -74,14 +77,14 @@
           "type": "string",
           "default": "basic"
         }
-      },
-      "additionalProperties": {
-        "type": "any"
       }
     },
     "output_format": {
       "type": "string",
-      "enum": ["default", "line"],
+      "enum": [
+        "default",
+        "line"
+      ],
       "default": "default",
       "description": "The output format to use. See Output docs for more details."
     }
