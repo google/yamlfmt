@@ -17,7 +17,7 @@ package jsonschema_test
 import (
 	"testing"
 
-	"github.com/santhosh-tekuri/jsonschema/v6"
+	"github.com/santhosh-tekuri/jsonschema/v4"
 )
 
 func TestJSONSchemaIsValid(t *testing.T) {
