@@ -10,4 +10,4 @@ require (
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
 )
 
-require github.com/santhosh-tekuri/jsonschema/v4 v4.0.0 // indirect
+require github.com/santhosh-tekuri/jsonschema/v4 v4.0.0

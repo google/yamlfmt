@@ -28,7 +28,7 @@ This currently requires Go version 1.18 or greater.
 
 NOTE: Recommended setup if this is your first time installing Go would be in [this DigitalOcean blog post](https://www.digitalocean.com/community/tutorials/how-to-build-and-install-go-programs).
 
-You can also download the binary you want from releases. The binary is self-sufficient with no dependencies, and can simply be put somewhere on your PATH and run with the command `yamlfmt`.
+You can also download the binary you want from releases. The binary is self-sufficient with no dependencies, and can simply be put somewhere on your PATH and run with the command `yamlfmt`. Read more about verifying the authenticity of released artifacts [here](#verifying-release-artifacts).
 
 You can also install the command as a [pre-commit](https://pre-commit.com/) hook. See the [pre-commit hook](./docs/pre-commit.md) docs for instructions.
 
@@ -55,3 +55,41 @@ See the [doublestar](https://github.com/bmatcuk/doublestar) package for more inf
 
 The `yamlfmt` command can be configured through a yaml file called `.yamlfmt`. This file can live in your working directory, a path specified through a [CLI flag](./docs/command-usage.md#operation-flags), or in the standard global config path on your system (see docs for specifics).
 For in-depth configuration documentation see [Config](docs/config-file.md).
+
+## Verifying release artifacts
+
+In case you get the `yamlfmt` binary directly from a release, you may want to verify its authenticity. Checksums are applied to all released artifacts, and the resulting checksum file is signed using [cosign](https://docs.sigstore.dev/cosign/installation/).
+
+Steps to verify (replace `A.B.C` in the commands listed below with the version you want):
+
+1. Download the following files from the release:
+
+   ```text
+   curl -sfLO https://github.com/google/yamlfmt/releases/download/vA.B.C/checksums.txt
+   curl -sfLO https://github.com/google/yamlfmt/releases/download/vA.B.C/checksums.txt.pem
+   curl -sfLO https://github.com/google/yamlfmt/releases/download/vA.B.C/checksums.txt.sig
+   ```
+
+2. Verify the signature:
+
+   ```shell
+    cosign verify-blob checksums.txt \
+       --certificate checksums.txt.pem \
+       --signature checksums.txt.sig \
+       --certificate-identity-regexp 'https://github\.com/google/yamlfmt/\.github/workflows/.+' \
+       --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+   ```
+
+3. Download the compressed archive you want, and validate its checksum:
+
+   ```shell
+   curl -sfLO https://github.com/google/yamlfmt/releases/download/vA.B.C/yamlfmt_A.B.C_Linux_x86_64.tar.gz
+   sha256sum --ignore-missing -c checksums.txt
+   ```
+
+3. If checksum validation goes through, uncompress the archive:
+
+   ```shell
+   tar -xzf yamlfmt_A.B.C_Linux_x86_64.tar.gz
+   ./yamlfmt
+   ```
