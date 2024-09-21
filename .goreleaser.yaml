@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -39,7 +41,7 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
@@ -47,4 +49,15 @@ changelog:
       - '^docs:'
       - '^test:'
       - '^ci:'
-
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    args:
+      - "sign-blob"
+      - "--oidc-issuer=https://token.actions.githubusercontent.com"
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes"
+    artifacts: checksum
