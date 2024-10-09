@@ -58,6 +58,8 @@ For in-depth configuration documentation see [Config](docs/config-file.md).
 
 ## Verifying release artifacts
 
+NOTE: Support for verifying with cosign is present from v0.14.0 onward.
+
 In case you get the `yamlfmt` binary directly from a release, you may want to verify its authenticity. Checksums are applied to all released artifacts, and the resulting checksum file is signed using [cosign](https://docs.sigstore.dev/cosign/installation/).
 
 Steps to verify (replace `A.B.C` in the commands listed below with the version you want):
