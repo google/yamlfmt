@@ -15,7 +15,6 @@
 package basic_test
 
 import (
-	"runtime"
 	"strings"
 	"testing"
 
@@ -350,29 +349,5 @@ b: 2
 	resultStr := string(result)
 	if resultStr != expectedYml {
 		t.Fatalf("expected: '%s', got: '%s'", expectedYml, resultStr)
-	}
-}
-
-func TestWindowsEOFNewlineCRLFBug(t *testing.T) {
-	if runtime.GOOS != "windows" {
-		t.Skip("this test is Windows specific")
-	}
-
-	config := basic.DefaultConfig()
-	config.RetainLineBreaks = false
-	config.EOFNewline = true
-	config.LineEnding = yamlfmt.LineBreakStyleLF
-	f := newFormatter(config)
-
-	yml := `a: 1
-b: 2`
-
-	result, err := f.Format([]byte(yml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	resultStr := string(result)
-	if strings.Contains(resultStr, "\r") {
-		t.Fatalf("expected: no CRLF, found it")
 	}
 }

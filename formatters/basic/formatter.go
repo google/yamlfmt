@@ -17,7 +17,6 @@ package basic
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 
 	"github.com/braydonk/yaml"
@@ -103,7 +102,6 @@ func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 		e.SetWidth(f.Config.LineLength)
 	}
 
-	fmt.Println(f.Config.LineEnding)
 	if f.Config.LineEnding == yamlfmt.LineBreakStyleCRLF {
 		e.SetLineBreakStyle(yaml.LineBreakStyleCRLF)
 	}
