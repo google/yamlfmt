@@ -60,35 +60,9 @@ type Command struct {
 }
 
 func (c *Command) Run() error {
-	var formatter yamlfmt.Formatter
-	if c.Config.FormatterConfig == nil {
-		factory, err := c.Registry.GetDefaultFactory()
-		if err != nil {
-			return err
-		}
-		formatter, err = factory.NewFormatter(nil)
-		if err != nil {
-			return err
-		}
-	} else {
-		var (
-			factory yamlfmt.Factory
-			err     error
-		)
-		if c.Config.FormatterConfig.Type == "" {
-			factory, err = c.Registry.GetDefaultFactory()
-		} else {
-			factory, err = c.Registry.GetFactory(c.Config.FormatterConfig.Type)
-		}
-		if err != nil {
-			return err
-		}
-
-		c.Config.FormatterConfig.FormatterSettings["line_ending"] = c.Config.LineEnding
-		formatter, err = factory.NewFormatter(c.Config.FormatterConfig.FormatterSettings)
-		if err != nil {
-			return err
-		}
+	formatter, err := c.getFormatter()
+	if err != nil {
+		return err
 	}
 
 	lineSepChar, err := c.Config.LineEnding.Separator()
@@ -189,6 +163,30 @@ func (c *Command) Run() error {
 	}
 
 	return nil
+}
+
+func (c *Command) getFormatter() (yamlfmt.Formatter, error) {
+	var factoryType string
+
+	// In the existing codepaths, this value is always set. But
+	// it's a habit of mine to check anything that can possibly be nil
+	// if I remember that to be the case. :)
+	if c.Config.FormatterConfig != nil {
+		factoryType = c.Config.FormatterConfig.Type
+
+		// The line ending set within the formatter settings takes precedence over setting
+		// it from the top level config. If it's not set in formatter settings, then
+		// we use the value from the top level.
+		if _, ok := c.Config.FormatterConfig.FormatterSettings["line_ending"]; !ok {
+			c.Config.FormatterConfig.FormatterSettings["line_ending"] = c.Config.LineEnding
+		}
+	}
+
+	factory, err := c.Registry.GetFactory(factoryType)
+	if err != nil {
+		return nil, err
+	}
+	return factory.NewFormatter(c.Config.FormatterConfig.FormatterSettings)
 }
 
 func (c *Command) collectPaths() ([]string, error) {
