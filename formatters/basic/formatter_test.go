@@ -20,6 +20,7 @@ import (
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/formatters/basic"
+	"github.com/google/yamlfmt/internal/assert"
 )
 
 func newFormatter(config *basic.Config) *basic.BasicFormatter {
@@ -350,4 +351,15 @@ b: 2
 	if resultStr != expectedYml {
 		t.Fatalf("expected: '%s', got: '%s'", expectedYml, resultStr)
 	}
+}
+
+func TestStripDirectives(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.StripDirectives = true
+	f := newFormatter(config)
+
+	yml := "%YAML:1.0"
+
+	_, err := f.Format([]byte(yml))
+	assert.NilErr(t, err)
 }

@@ -17,6 +17,7 @@ package features
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"strings"
 
 	"github.com/google/yamlfmt"
@@ -30,13 +31,13 @@ func MakeFeatureTrimTrailingWhitespace(linebreakStr string) yamlfmt.Feature {
 }
 
 func trimTrailingWhitespaceFeature(linebreakStr string) yamlfmt.FeatureFunc {
-	return func(content []byte) ([]byte, error) {
+	return func(_ context.Context, content []byte) (context.Context, []byte, error) {
 		buf := bytes.NewBuffer(content)
 		s := bufio.NewScanner(buf)
 		newLines := []string{}
 		for s.Scan() {
 			newLines = append(newLines, strings.TrimRight(s.Text(), " "))
 		}
-		return []byte(strings.Join(newLines, linebreakStr)), nil
+		return nil, []byte(strings.Join(newLines, linebreakStr)), nil
 	}
 }

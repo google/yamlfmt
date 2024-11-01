@@ -20,6 +20,7 @@ package hotfix
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"strings"
 
 	"github.com/google/yamlfmt"
@@ -51,7 +52,7 @@ func MakeFeatureRetainLineBreak(linebreakStr string, chomp bool) yamlfmt.Feature
 }
 
 func replaceLineBreakFeature(newlineStr string, chomp bool) yamlfmt.FeatureFunc {
-	return func(content []byte) ([]byte, error) {
+	return func(_ context.Context, content []byte) (context.Context, []byte, error) {
 		var buf bytes.Buffer
 		reader := bytes.NewReader(content)
 		scanner := bufio.NewScanner(reader)
@@ -74,12 +75,12 @@ func replaceLineBreakFeature(newlineStr string, chomp bool) yamlfmt.FeatureFunc 
 				inLineBreaks = false
 			}
 		}
-		return buf.Bytes(), scanner.Err()
+		return nil, buf.Bytes(), scanner.Err()
 	}
 }
 
 func restoreLineBreakFeature(newlineStr string) yamlfmt.FeatureFunc {
-	return func(content []byte) ([]byte, error) {
+	return func(_ context.Context, content []byte) (context.Context, []byte, error) {
 		var buf bytes.Buffer
 		reader := bytes.NewReader(content)
 		scanner := bufio.NewScanner(reader)
@@ -98,6 +99,6 @@ func restoreLineBreakFeature(newlineStr string) yamlfmt.FeatureFunc {
 			buf.WriteString(txt)
 			buf.WriteString(newlineStr)
 		}
-		return buf.Bytes(), scanner.Err()
+		return nil, buf.Bytes(), scanner.Err()
 	}
 }

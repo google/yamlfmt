@@ -15,6 +15,8 @@
 package features
 
 import (
+	"context"
+
 	"github.com/google/yamlfmt"
 )
 
@@ -26,12 +28,12 @@ func MakeFeatureEOFNewline(linebreakStr string) yamlfmt.Feature {
 }
 
 func eofNewlineFeature(linebreakStr string) yamlfmt.FeatureFunc {
-	return func(content []byte) ([]byte, error) {
+	return func(_ context.Context, content []byte) (context.Context, []byte, error) {
 		// This check works in both linebreak modes.
 		if len(content) == 0 || content[len(content)-1] != '\n' {
 			linebreakBytes := []byte(linebreakStr)
 			content = append(content, linebreakBytes...)
 		}
-		return content, nil
+		return nil, content, nil
 	}
 }

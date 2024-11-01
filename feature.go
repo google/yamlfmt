@@ -14,9 +14,12 @@
 
 package yamlfmt
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
-type FeatureFunc func([]byte) ([]byte, error)
+type FeatureFunc func(context.Context, []byte) (context.Context, []byte, error)
 
 type Feature struct {
 	Name         string
@@ -47,7 +50,7 @@ func (e *FeatureApplyError) Unwrap() error {
 	return e.err
 }
 
-func (fl FeatureList) ApplyFeatures(input []byte, mode FeatureApplyMode) ([]byte, error) {
+func (fl FeatureList) ApplyFeatures(ctx context.Context, input []byte, mode FeatureApplyMode) (context.Context, []byte, error) {
 	// Declare err here so the result variable doesn't get shadowed in the loop
 	var err error
 	result := make([]byte, len(input))
@@ -55,21 +58,21 @@ func (fl FeatureList) ApplyFeatures(input []byte, mode FeatureApplyMode) ([]byte
 	for _, feature := range fl {
 		if mode == FeatureApplyBefore {
 			if feature.BeforeAction != nil {
-				result, err = feature.BeforeAction(result)
+				ctx, result, err = feature.BeforeAction(ctx, result)
 			}
 		} else {
 			if feature.AfterAction != nil {
-				result, err = feature.AfterAction(result)
+				ctx, result, err = feature.AfterAction(ctx, result)
 			}
 		}
 
 		if err != nil {
-			return nil, &FeatureApplyError{
+			return ctx, nil, &FeatureApplyError{
 				err:         err,
 				featureName: feature.Name,
 				mode:        mode,
 			}
 		}
 	}
-	return result, nil
+	return ctx, result, nil
 }
