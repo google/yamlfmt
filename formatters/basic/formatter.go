@@ -16,6 +16,7 @@ package basic
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 
@@ -40,7 +41,8 @@ func (f *BasicFormatter) Type() string {
 
 func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	// Run all features with BeforeActions
-	yamlContent, err := f.Features.ApplyFeatures(input, yamlfmt.FeatureApplyBefore)
+	ctx := context.Background()
+	ctx, yamlContent, err := f.Features.ApplyFeatures(ctx, input, yamlfmt.FeatureApplyBefore)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +80,7 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	}
 
 	// Run all features with AfterActions
-	resultYaml, err := f.Features.ApplyFeatures(b.Bytes(), yamlfmt.FeatureApplyAfter)
+	_, resultYaml, err := f.Features.ApplyFeatures(ctx, b.Bytes(), yamlfmt.FeatureApplyAfter)
 	if err != nil {
 		return nil, err
 	}

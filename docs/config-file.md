@@ -77,17 +77,30 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `retain_line_breaks`        | bool           | false   | Retain line breaks in formatted yaml. |
 | `retain_line_breaks_single` | bool           | false   | (NOTE: Takes precedence over `retain_line_breaks`) Retain line breaks in formatted yaml, but only keep a single line in groups of many blank lines. |
 | `disallow_anchors`          | bool           | false   | If true, reject any YAML anchors or aliases found in the document. |
-| `max_line_length`           | int            | 0       | Set the maximum line length (see notes below). if not set, defaults to 0 which means no limit. |
+| `max_line_length`           | int            | 0       | Set the maximum line length ([see note below](#max_line_length)). if not set, defaults to 0 which means no limit. |
 | `scan_folded_as_literal`    | bool           | false   | Option that will preserve newlines in folded block scalars (blocks that start with `>`). |
 | `indentless_arrays`         | bool           | false   | Render `-` array items (block sequence items) without an increased indent. |
 | `drop_merge_tag`            | bool           | false   | Assume that any well formed merge using just a `<<` token will be a merge, and drop the `!!merge` tag from the formatted result. |
 | `pad_line_comments`         | int            | 1       | The number of padding spaces to insert before line comments. |
 | `trim_trailing_whitespace`  | bool           | false   | Trim trailing whitespace from lines. |
 | `eof_newline`               | bool           | false   | Always add a newline at end of file. Useful in the scenario where `retain_line_breaks` is disabled but the trailing newline is still needed. |
+| `strip_directives`          | bool           | false   | [YAML Directives](https://yaml.org/spec/1.2.2/#3234-directives) are not supported by this formatter. This feature will attempt to strip the directives before formatting and put them back. [Use this feature at your own risk.](#strip_directives) |
 
-### Note on `max_line_length`
+## Additional Notes
+
+### `max_line_length`
 
 It's not perfect; it uses the `best_width` setting from the [gopkg.in/yaml.v3][1] library. If there's a very long token that extends too far for the line width, it won't split it up properly. I will keep trying to make this work better, but decided to get a version of the feature in that works for a lot of scenarios even if not all of them.
+
+### `strip_directives`
+
+TL;DR:
+* If you only have directives at the top of the file this feature will work just fine, otherwise make sure you test it first.
+* Please note that directives are completely tossed and ignored by the formatter
+
+This hotfix is flaky. It is very hard to reconstruct data like this without parsing or knowing what may have changed about the structure of the document. What it attempts to do is find the directives in the document before formatting, keep track of them, and put them back where they "belong". However, the only mechanism it has to decide where it "belongs" is the line it was at originally. This can easily change based on what the formatter ended up changing. This means that the only way this fix predictably and reliably works is for directives that are at the top of the document before the document actually starts (i.e. where the `%YAML` directive goes).
+
+In addition, while with this feature the `%YAML` directive may work, the formatter very specifically supports only the [YAML 1.2 spec](https://yaml.org/spec/1.2.2/). So the `%YAML:1.0` directive won't have the desired effect when passing a file through `yamlfmt`, and if you have 1.0-only syntax in your document the formatter may end up failing in other ways that will be unfixable.
 
 [1]: https://www.github.com/braydonk/yaml
 [Specifying Paths]: ./paths.md

@@ -46,6 +46,12 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 			features.MakeFeatureEOFNewline(lineSep),
 		)
 	}
+	if config.StripDirectives {
+		configuredFeatures = append(
+			configuredFeatures,
+			hotfix.MakeFeatureStripDirectives(lineSep),
+		)
+	}
 	return configuredFeatures
 }
 

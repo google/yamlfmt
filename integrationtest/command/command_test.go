@@ -139,3 +139,11 @@ func TestEOFNewline(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestStripDirectives(t *testing.T) {
+	TestCase{
+		Dir:     "strip_directives",
+		Command: yamlfmtWithArgs("-formatter strip_directives=true ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
