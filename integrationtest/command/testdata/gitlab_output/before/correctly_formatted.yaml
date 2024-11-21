@@ -1,0 +1,3 @@
+# Test case "gitlab_output"
+
+needs: "no-op"
