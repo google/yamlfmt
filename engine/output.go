@@ -15,9 +15,13 @@
 package engine
 
 import (
+	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/gitlab"
 )
 
 type EngineOutputFormat string
@@ -25,6 +29,7 @@ type EngineOutputFormat string
 const (
 	EngineOutputDefault   EngineOutputFormat = "default"
 	EngineOutputSingeLine EngineOutputFormat = "line"
+	EngineOutputGitlab    EngineOutputFormat = "gitlab"
 )
 
 func getEngineOutput(t EngineOutputFormat, operation yamlfmt.Operation, files yamlfmt.FileDiffs, quiet bool) (fmt.Stringer, error) {
@@ -33,6 +38,9 @@ func getEngineOutput(t EngineOutputFormat, operation yamlfmt.Operation, files ya
 		return engineOutput{Operation: operation, Files: files, Quiet: quiet}, nil
 	case EngineOutputSingeLine:
 		return engineOutputSingleLine{Operation: operation, Files: files, Quiet: quiet}, nil
+	case EngineOutputGitlab:
+		return engineOutputGitlab{Operation: operation, Files: files, Compact: quiet}, nil
+
 	}
 	return nil, fmt.Errorf("unknown output type: %s", t)
 }
@@ -84,4 +92,47 @@ func (eosl engineOutputSingleLine) String() string {
 		msg += fmt.Sprintf("%s: formatting difference found\n", fileDiff.Path)
 	}
 	return msg
+}
+
+type engineOutputGitlab struct {
+	Operation yamlfmt.Operation
+	Files     yamlfmt.FileDiffs
+	Compact   bool
+}
+
+func (eo engineOutputGitlab) String() string {
+	var findings []gitlab.CodeQuality
+
+	for _, file := range eo.Files {
+		if cq, ok := gitlab.NewCodeQuality(*file); ok {
+			findings = append(findings, cq)
+		}
+	}
+
+	if len(findings) == 0 {
+		return ""
+	}
+
+	sort.Sort(byPath(findings))
+
+	var b strings.Builder
+	enc := json.NewEncoder(&b)
+
+	if !eo.Compact {
+		enc.SetIndent("", "  ")
+	}
+
+	if err := enc.Encode(findings); err != nil {
+		panic(err)
+	}
+	return b.String()
+}
+
+// byPath is used to sort by Location.Path.
+type byPath []gitlab.CodeQuality
+
+func (b byPath) Len() int           { return len(b) }
+func (b byPath) Less(i, j int) bool { return b[i].Location.Path < b[j].Location.Path }
+func (b byPath) Swap(i, j int) {
+	b[i].Location.Path, b[j].Location.Path = b[j].Location.Path, b[i].Location.Path
 }

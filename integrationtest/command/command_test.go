@@ -147,3 +147,11 @@ func TestStripDirectives(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestGitLabOutput(t *testing.T) {
+	TestCase{
+		Dir:     "gitlab_output",
+		Command: yamlfmtWithArgs("-dry -output_format gitlab ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
