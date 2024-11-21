@@ -17,7 +17,7 @@ package engine
 import (
 	"encoding/json"
 	"fmt"
-	"slices"
+	"sort"
 	"strings"
 
 	"github.com/google/yamlfmt"
@@ -113,9 +113,7 @@ func (eo engineOutputGitlab) String() string {
 		return ""
 	}
 
-	slices.SortFunc(findings, func(a, b gitlab.CodeQuality) int {
-		return strings.Compare(a.Location.Path, b.Location.Path)
-	})
+	sort.Sort(byPath(findings))
 
 	var b strings.Builder
 	enc := json.NewEncoder(&b)
@@ -128,4 +126,13 @@ func (eo engineOutputGitlab) String() string {
 		panic(err)
 	}
 	return b.String()
+}
+
+// byPath is used to sort by Location.Path.
+type byPath []gitlab.CodeQuality
+
+func (b byPath) Len() int           { return len(b) }
+func (b byPath) Less(i, j int) bool { return b[i].Location.Path < b[j].Location.Path }
+func (b byPath) Swap(i, j int) {
+	b[i].Location.Path, b[j].Location.Path = b[j].Location.Path, b[i].Location.Path
 }
