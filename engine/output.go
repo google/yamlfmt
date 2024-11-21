@@ -114,7 +114,7 @@ func (eo engineOutputGitlab) String() string {
 	}
 
 	slices.SortFunc(findings, func(a, b gitlab.CodeQuality) int {
-		return strings.Compare(a.Path, b.Path)
+		return strings.Compare(a.Location.Path, b.Location.Path)
 	})
 
 	var b strings.Builder
