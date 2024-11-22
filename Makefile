@@ -43,8 +43,7 @@ command_test_case:
 ifndef TESTNAME
 	$(error "TESTNAME undefined")
 endif
-	mkdir -p integrationtest/command/testdata/$(TESTNAME)/before && \
-	mkdir -p integrationtest/command/testdata/$(TESTNAME)/stdout
+	./integrationtest/command/new_test_case.sh "$(TESTNAME)"
 
 .PHONY: install
 install:
