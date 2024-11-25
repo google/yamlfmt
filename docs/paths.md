@@ -34,7 +34,7 @@ By default, yamlfmt formats all files ending in `.yaml` and `.yml`.
 You can modify this behavior using the config file and command line flags.
 
 The config file **sets** the list of extensions.
-For example, with `extensions: ["foo"]`, yamlfmt will only match files ending in `.foo` and will *not* match files ending in `.yaml` or `yml`.
+For example, with `extensions: ["foo"]`, yamlfmt will only match files ending in `.foo` and will *not* match files ending in `.yaml` or `.yml`.
 An empty list triggers the default behavior.
 
 The `-extensions` command line flag **adds** to the list of extensions from the config file.
