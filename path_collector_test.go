@@ -193,6 +193,26 @@ func TestFilepathCollector(t *testing.T) {
 				"y.yaml": {},
 			},
 		},
+		{
+			name: "multi-part extension",
+			files: []tempfile.Path{
+				{FileName: "x.yaml"},
+				{FileName: "y.yaml.gotmpl"},
+				{FileName: "z.json"},
+			},
+			includePatterns: testPatterns{
+				{pattern: ""}, // with the test this functionally means the whole temp dir
+			},
+			extensions: []string{
+				"yaml",
+				"yml",
+				"yaml.gotmpl",
+			},
+			expectedFiles: collections.Set[string]{
+				"x.yaml":        {},
+				"y.yaml.gotmpl": {},
+			},
+		},
 	}.runAll(t, useFilepathCollector)
 }
 
