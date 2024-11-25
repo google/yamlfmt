@@ -18,6 +18,14 @@ To enable the doublestar mode, set `doublestar: true` in the config file or use 
 
 In both modes, `yamlfmt` will allow you to configure include and exclude paths. These can be paths to files in Standard or Doublestar modes, paths to directories in Standard mode, and valid doublestar patterns in Doublestar mode. These paths should be specified **relative to the working directory of `yamlfmt`**. They will work as absolute paths if both the includes and excludes are specified as absolute paths or if both are relative paths, however it will not work as expected if they are mixed together. It usually easier to reason about includes and excludes when always specifying both as relative paths from the directory `yamlfmt` is going to be run in.
 
+Exclude paths can be specified on the command line using the `-exclude` flag.
+Paths excluded from the command line are **added* to excluded paths from the config file.
+
+Include paths can be specified on the command line via the positional arguments, i.e. there is no flag for it.
+Paths from the command line take precedence over and **replace** any paths configured in the config file.
+
+yamlfmt will build a list of all files to format using the include list, then discard any files matching the exclude list.
+
 ## Extensions
 
 *Only in standard mode*
