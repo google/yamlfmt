@@ -95,24 +95,33 @@ func (c *FilepathCollector) CollectPaths() ([]string, error) {
 }
 
 func (c *FilepathCollector) walkDirectoryForYaml(dir string) ([]string, error) {
-	paths := []string{}
+	var paths []string
 	err := filepath.Walk(dir, func(path string, info fs.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}
 
-		extension := ""
-		if strings.Contains(info.Name(), ".") {
-			nameParts := strings.Split(info.Name(), ".")
-			extension = nameParts[len(nameParts)-1]
-		}
-		if collections.SliceContains(c.Extensions, extension) {
+		if c.extensionMatches(info.Name()) {
 			paths = append(paths, path)
 		}
 
 		return nil
 	})
 	return paths, err
+}
+
+func (c *FilepathCollector) extensionMatches(name string) bool {
+	for _, ext := range c.Extensions {
+		// Users may specify "yaml", but we only want to match ".yaml", not "buyaml".
+		if !strings.HasPrefix(ext, ".") {
+			ext = "." + ext
+		}
+
+		if strings.HasSuffix(name, ext) {
+			return true
+		}
+	}
+	return false
 }
 
 type DoublestarCollector struct {
