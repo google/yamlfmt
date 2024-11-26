@@ -281,7 +281,12 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 	}
 	config.GitignorePath = pickFirst(config.GitignorePath, *flagGitignorePath)
 	config.OutputFormat = pickFirst(config.OutputFormat, getOutputFormatFromFlag(), engine.EngineOutputDefault)
-	config.MatchType = pickFirst(config.MatchType, yamlfmt.MatchType(*flagMatchType), yamlfmt.MatchTypeStandard)
+
+	defaultMatchType := yamlfmt.MatchTypeStandard
+	if config.Doublestar {
+		defaultMatchType = yamlfmt.MatchTypeDoublestar
+	}
+	config.MatchType = pickFirst(config.MatchType, yamlfmt.MatchType(*flagMatchType), defaultMatchType)
 
 	// Overwrite config if includes are provided through args
 	if len(flag.Args()) > 0 {
