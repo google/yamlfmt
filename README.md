@@ -24,7 +24,7 @@ To download the `yamlfmt` command, you can download the desired binary from rele
 ```
 go install github.com/google/yamlfmt/cmd/yamlfmt@latest
 ```
-This currently requires Go version 1.18 or greater.
+This currently requires Go version 1.21 or greater.
 
 NOTE: Recommended setup if this is your first time installing Go would be in [this DigitalOcean blog post](https://www.digitalocean.com/community/tutorials/how-to-build-and-install-go-programs).
 
