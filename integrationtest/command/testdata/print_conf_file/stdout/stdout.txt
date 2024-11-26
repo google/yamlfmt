@@ -9,7 +9,9 @@ gitignore_excludes: false
 gitignore_path: .my_gitignore
 include: []
 line_ending: crlf
+match_type: standard
 output_format: default
+pattern_file: yamlfmt.patterns
 regex_exclude: []
 formatter:
     disallow_anchors: false

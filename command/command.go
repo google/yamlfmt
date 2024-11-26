@@ -40,6 +40,8 @@ func NewFormatterConfig() *FormatterConfig {
 
 type Config struct {
 	Extensions        []string                  `mapstructure:"extensions"`
+	MatchType         yamlfmt.MatchType         `mapstructure:"match_type"`
+	PatternFile       string                    `mapstructure:"pattern_file"`
 	Include           []string                  `mapstructure:"include"`
 	Exclude           []string                  `mapstructure:"exclude"`
 	RegexExclude      []string                  `mapstructure:"regex_exclude"`
@@ -190,7 +192,11 @@ func (c *Command) getFormatter() (yamlfmt.Formatter, error) {
 }
 
 func (c *Command) collectPaths() ([]string, error) {
-	collector := c.makePathCollector()
+	collector, err := c.makePathCollector()
+	if err != nil {
+		return nil, err
+	}
+
 	return collector.CollectPaths()
 }
 
@@ -203,17 +209,31 @@ func (c *Command) analyzePaths(paths []string) ([]string, error) {
 	return includePaths, err
 }
 
-func (c *Command) makePathCollector() yamlfmt.PathCollector {
-	if c.Config.Doublestar {
+func (c *Command) makePathCollector() (yamlfmt.PathCollector, error) {
+	switch c.Config.MatchType {
+	case yamlfmt.MatchTypeDoublestar:
 		return &yamlfmt.DoublestarCollector{
 			Include: c.Config.Include,
 			Exclude: c.Config.Exclude,
+		}, nil
+	case yamlfmt.MatchTypeGitignore:
+		path := yamlfmt.DefaultPatternFile
+		if c.Config.PatternFile != "" {
+			path = c.Config.PatternFile
 		}
+
+		patternFile, err := yamlfmt.NewPatternFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("NewPatternFile(%q): %w", path, err)
 	}
+
+		return patternFile, nil
+	default:
 	return &yamlfmt.FilepathCollector{
 		Include:    c.Config.Include,
 		Exclude:    c.Config.Exclude,
 		Extensions: c.Config.Extensions,
+		}, nil
 	}
 }
 

@@ -27,6 +27,7 @@ import (
 	"github.com/braydonk/yaml"
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
+	"github.com/google/yamlfmt/engine"
 	"github.com/google/yamlfmt/internal/collections"
 	"github.com/google/yamlfmt/internal/logger"
 	"github.com/mitchellh/mapstructure"
@@ -280,6 +281,8 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 	}
 	config.GitignorePath = pickFirst(config.GitignorePath, *flagGitignorePath)
 	config.OutputFormat = pickFirst(config.OutputFormat, getOutputFormatFromFlag(), engine.EngineOutputDefault)
+	config.MatchType = pickFirst(config.MatchType, yamlfmt.MatchType(*flagMatchType), yamlfmt.MatchTypeStandard)
+	config.PatternFile = pickFirst(config.PatternFile, *flagPatternFile, yamlfmt.DefaultPatternFile)
 
 	// Overwrite config if includes are provided through args
 	if len(flag.Args()) > 0 {

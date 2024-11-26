@@ -15,8 +15,10 @@
 package yamlfmt
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -26,6 +28,14 @@ import (
 	"github.com/google/yamlfmt/internal/collections"
 	"github.com/google/yamlfmt/internal/logger"
 	ignore "github.com/sabhiram/go-gitignore"
+)
+
+type MatchType string
+
+const (
+	MatchTypeStandard   MatchType = "standard"
+	MatchTypeDoublestar MatchType = "doublestar"
+	MatchTypeGitignore  MatchType = "gitignore"
 )
 
 type PathCollector interface {
@@ -229,4 +239,70 @@ func ExcludeWithGitignore(gitignorePath string, paths []string) ([]string, error
 	}
 	logger.Debug(logger.DebugCodePaths, "paths to format: %s", pathsToFormat)
 	return pathsToFormat, nil
+}
+
+const DefaultPatternFile = "yamlfmt.patterns"
+
+// PatternFile determines which files to format and which to ignore based on a pattern file in gitignore(5) syntax.
+type PatternFile struct {
+	fs      fs.FS
+	matcher *ignore.GitIgnore
+}
+
+func NewPatternFile(path string) (PatternFile, error) {
+	fh, err := os.Open(path)
+	if err != nil {
+		return PatternFile{}, err
+	}
+	defer fh.Close()
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return PatternFile{}, fmt.Errorf("os.Getwd: %w", err)
+	}
+
+	return NewPatternFileFS(fh, os.DirFS(wd)), nil
+}
+
+func NewPatternFileFS(r io.Reader, fs fs.FS) PatternFile {
+	var lines []string
+
+	s := bufio.NewScanner(r)
+	for s.Scan() {
+		lines = append(lines, s.Text())
+	}
+
+	return PatternFile{
+		fs:      fs,
+		matcher: ignore.CompileIgnoreLines(lines...),
+	}
+}
+
+// CollectPaths implements the PathCollector interface.
+func (pf PatternFile) CollectPaths() ([]string, error) {
+	var files []string
+
+	err := fs.WalkDir(pf.fs, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		ok, pattern := pf.matcher.MatchesPathHow(path)
+		switch {
+		case ok && pattern.Negate && d.IsDir():
+			return fs.SkipDir
+		case ok && pattern.Negate:
+			return nil
+		case ok && d.Type().IsRegular():
+			files = append(files, path)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("WalkDir: %w", err)
+	}
+
+	return files, nil
 }
