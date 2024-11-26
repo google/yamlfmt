@@ -10,7 +10,6 @@ include: []
 line_ending: lf
 match_type: standard
 output_format: default
-pattern_file: yamlfmt.patterns
 regex_exclude: []
 formatter:
     disallow_anchors: false

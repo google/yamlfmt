@@ -42,7 +42,6 @@ operation without performing it.`)
 	flagGitignorePath     *string = flag.String("gitignore_path", ".gitignore", "Path to gitignore file to use")
 	flagOutputFormat      *string = flag.String("output_format", "default", "The engine output format")
 	flagMatchType         *string = flag.String("match_type", "", "The file discovery method to use. Valid values: standard, doublestar, gitignore")
-	flagPatternFile       *string = flag.String("pattern_file", "", "File from which to read matching patterns. Requires '-match_type=gitignore'.")
 	flagExclude                   = arrayFlag{}
 	flagFormatter                 = arrayFlag{}
 	flagExtensions                = arrayFlag{}

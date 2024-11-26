@@ -16,6 +16,7 @@ package yamlfmt
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -249,21 +250,48 @@ type PatternFile struct {
 	matcher *ignore.GitIgnore
 }
 
-func NewPatternFile(path string) (PatternFile, error) {
-	fh, err := os.Open(path)
+// NewPatternFile initializes a new PatternFile using the provided file(s).
+// If multiple files are provided, their content is concatenated in order.
+// All patterns are relative to the current working directory.
+func NewPatternFile(files ...string) (PatternFile, error) {
+	r, err := cat(files...)
 	if err != nil {
 		return PatternFile{}, err
 	}
-	defer fh.Close()
 
 	wd, err := os.Getwd()
 	if err != nil {
 		return PatternFile{}, fmt.Errorf("os.Getwd: %w", err)
 	}
 
-	return NewPatternFileFS(fh, os.DirFS(wd)), nil
+	return NewPatternFileFS(r, os.DirFS(wd)), nil
 }
 
+// cat concatenates the contents of all files in its argument list.
+func cat(files ...string) (io.Reader, error) {
+	var b bytes.Buffer
+
+	for _, f := range files {
+		fh, err := os.Open(f)
+		if err != nil {
+			return nil, err
+		}
+		defer fh.Close()
+
+		if _, err := io.Copy(&b, fh); err != nil {
+			return nil, fmt.Errorf("copying %q: %w", f, err)
+		}
+		fh.Close()
+
+		// Append a newline to avoid issues with files lacking a newline at end-of-file.
+		fmt.Fprintln(&b)
+	}
+
+	return &b, nil
+}
+
+// NewPatternFileFS reads a pattern file from r and uses fs for file lookups.
+// It is used by NewPatternFile and primarily public because it is useful for testing.
 func NewPatternFileFS(r io.Reader, fs fs.FS) PatternFile {
 	var lines []string
 

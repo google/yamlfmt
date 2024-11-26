@@ -158,8 +158,8 @@ func TestGitLabOutput(t *testing.T) {
 
 func TestPatternFile(t *testing.T) {
 	TestCase{
-		Dir: "pattern_file",
-		Command: yamlfmtWithArgs("-match_type gitignore -pattern_file yamlfmt.patterns"),
+		Dir:     "pattern_file",
+		Command: yamlfmtWithArgs("-match_type gitignore yamlfmt.patterns"),
 		Update:  *updateFlag,
 	}.Run(t)
 }
