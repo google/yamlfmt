@@ -253,15 +253,15 @@ type PatternFileCollector struct {
 // NewPatternFileCollector initializes a new PatternFile using the provided file(s).
 // If multiple files are provided, their content is concatenated in order.
 // All patterns are relative to the current working directory.
-func NewPatternFileCollector(files ...string) (PatternFileCollector, error) {
+func NewPatternFileCollector(files ...string) (*PatternFileCollector, error) {
 	r, err := cat(files...)
 	if err != nil {
-		return PatternFileCollector{}, err
+		return nil, err
 	}
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return PatternFileCollector{}, fmt.Errorf("os.Getwd: %w", err)
+		return nil, fmt.Errorf("os.Getwd: %w", err)
 	}
 
 	return NewPatternFileCollectorFS(r, os.DirFS(wd)), nil
@@ -292,7 +292,7 @@ func cat(files ...string) (io.Reader, error) {
 
 // NewPatternFileCollectorFS reads a pattern file from r and uses fs for file lookups.
 // It is used by NewPatternFile and primarily public because it is useful for testing.
-func NewPatternFileCollectorFS(r io.Reader, fs fs.FS) PatternFileCollector {
+func NewPatternFileCollectorFS(r io.Reader, fs fs.FS) *PatternFileCollector {
 	var lines []string
 
 	s := bufio.NewScanner(r)
@@ -300,22 +300,22 @@ func NewPatternFileCollectorFS(r io.Reader, fs fs.FS) PatternFileCollector {
 		lines = append(lines, s.Text())
 	}
 
-	return PatternFileCollector{
+	return &PatternFileCollector{
 		fs:      fs,
 		matcher: ignore.CompileIgnoreLines(lines...),
 	}
 }
 
 // CollectPaths implements the PathCollector interface.
-func (pf PatternFileCollector) CollectPaths() ([]string, error) {
+func (c *PatternFileCollector) CollectPaths() ([]string, error) {
 	var files []string
 
-	err := fs.WalkDir(pf.fs, ".", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(c.fs, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		ok, pattern := pf.matcher.MatchesPathHow(path)
+		ok, pattern := c.matcher.MatchesPathHow(path)
 		switch {
 		case ok && pattern.Negate && d.IsDir():
 			return fs.SkipDir
