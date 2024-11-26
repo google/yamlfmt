@@ -43,7 +43,7 @@ func (g GoldenCtx) CompareGoldenFile(path string, gotContent []byte) error {
 	// If we are not updating, check that the content is the same.
 	expectedContent, err := os.ReadFile(g.goldenPath(path))
 	if err != nil {
-		return err
+		return fmt.Errorf("os.ReadFile(%q): %w", g.goldenPath(path), err)
 	}
 	// Edge case for empty stdout.
 	if gotContent == nil {
@@ -84,11 +84,11 @@ func (g GoldenCtx) CompareDirectory(resultPath string) error {
 	for path := range resultPaths {
 		gotContent, err := os.ReadFile(filepath.Join(resultPath, path))
 		if err != nil {
-			return fmt.Errorf("%s: %w", path, err)
+			return fmt.Errorf("os.ReadFile(%q): %w", path, err)
 		}
 		err = g.CompareGoldenFile(path, gotContent)
 		if err != nil {
-			return fmt.Errorf("%s: %w", path, err)
+			return fmt.Errorf("CompareGoldenFile(%q): %w", path, err)
 		}
 	}
 	// If there are no errors this will be nil, otherwise will be a
@@ -118,7 +118,7 @@ func (g GoldenCtx) updateGoldenDirectory(resultPath string) error {
 func readAllPaths(dirPath string) (collections.Set[string], error) {
 	paths := collections.Set[string]{}
 	allNamesButCurrentDirectory := func(path string, d fs.DirEntry, err error) error {
-		if path == dirPath {
+		if d.IsDir() {
 			return nil
 		}
 		paths.Add(d.Name())
