@@ -278,12 +278,8 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 	if !config.GitignoreExcludes {
 		config.GitignoreExcludes = *flagGitignoreExcludes
 	}
-	if config.GitignorePath == "" {
-		config.GitignorePath = *flagGitignorePath
-	}
-	if config.OutputFormat == "" {
-		config.OutputFormat = getOutputFormatFromFlag()
-	}
+	config.GitignorePath = pickFirst(config.GitignorePath, *flagGitignorePath)
+	config.OutputFormat = pickFirst(config.OutputFormat, getOutputFormatFromFlag(), engine.EngineOutputDefault)
 
 	// Overwrite config if includes are provided through args
 	if len(flag.Args()) > 0 {
@@ -295,6 +291,17 @@ func makeCommandConfigFromData(configData map[string]any) (*command.Config, erro
 	config.Extensions = append(config.Extensions, flagExtensions...)
 
 	return &config, nil
+}
+
+// pickFirst returns the first string in ss that is not empty.
+func pickFirst[T ~string](ss ...T) T {
+	for _, s := range ss {
+		if s != "" {
+			return s
+		}
+	}
+
+	return ""
 }
 
 func parseFormatterConfigFlag(flagValues []string) (map[string]any, error) {
