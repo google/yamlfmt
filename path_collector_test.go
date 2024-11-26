@@ -518,7 +518,7 @@ func TestPatternFile(t *testing.T) {
 				}
 			}
 
-			patternFile := yamlfmt.NewPatternFileFS(bytes.NewReader(tc.patterns), fs)
+			patternFile := yamlfmt.NewPatternFileCollectorFS(bytes.NewReader(tc.patterns), fs)
 
 			gotFiles, err := patternFile.CollectPaths()
 			if err != nil {

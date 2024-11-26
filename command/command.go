@@ -221,7 +221,7 @@ func (c *Command) makePathCollector() (yamlfmt.PathCollector, error) {
 			files = []string{yamlfmt.DefaultPatternFile}
 		}
 
-		patternFile, err := yamlfmt.NewPatternFile(files...)
+		patternFile, err := yamlfmt.NewPatternFileCollector(files...)
 		if err != nil {
 			return nil, fmt.Errorf("NewPatternFile(%q): %w", files, err)
 		}

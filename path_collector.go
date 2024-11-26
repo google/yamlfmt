@@ -244,27 +244,27 @@ func ExcludeWithGitignore(gitignorePath string, paths []string) ([]string, error
 
 const DefaultPatternFile = "yamlfmt.patterns"
 
-// PatternFile determines which files to format and which to ignore based on a pattern file in gitignore(5) syntax.
-type PatternFile struct {
+// PatternFileCollector determines which files to format and which to ignore based on a pattern file in gitignore(5) syntax.
+type PatternFileCollector struct {
 	fs      fs.FS
 	matcher *ignore.GitIgnore
 }
 
-// NewPatternFile initializes a new PatternFile using the provided file(s).
+// NewPatternFileCollector initializes a new PatternFile using the provided file(s).
 // If multiple files are provided, their content is concatenated in order.
 // All patterns are relative to the current working directory.
-func NewPatternFile(files ...string) (PatternFile, error) {
+func NewPatternFileCollector(files ...string) (PatternFileCollector, error) {
 	r, err := cat(files...)
 	if err != nil {
-		return PatternFile{}, err
+		return PatternFileCollector{}, err
 	}
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return PatternFile{}, fmt.Errorf("os.Getwd: %w", err)
+		return PatternFileCollector{}, fmt.Errorf("os.Getwd: %w", err)
 	}
 
-	return NewPatternFileFS(r, os.DirFS(wd)), nil
+	return NewPatternFileCollectorFS(r, os.DirFS(wd)), nil
 }
 
 // cat concatenates the contents of all files in its argument list.
@@ -290,9 +290,9 @@ func cat(files ...string) (io.Reader, error) {
 	return &b, nil
 }
 
-// NewPatternFileFS reads a pattern file from r and uses fs for file lookups.
+// NewPatternFileCollectorFS reads a pattern file from r and uses fs for file lookups.
 // It is used by NewPatternFile and primarily public because it is useful for testing.
-func NewPatternFileFS(r io.Reader, fs fs.FS) PatternFile {
+func NewPatternFileCollectorFS(r io.Reader, fs fs.FS) PatternFileCollector {
 	var lines []string
 
 	s := bufio.NewScanner(r)
@@ -300,14 +300,14 @@ func NewPatternFileFS(r io.Reader, fs fs.FS) PatternFile {
 		lines = append(lines, s.Text())
 	}
 
-	return PatternFile{
+	return PatternFileCollector{
 		fs:      fs,
 		matcher: ignore.CompileIgnoreLines(lines...),
 	}
 }
 
 // CollectPaths implements the PathCollector interface.
-func (pf PatternFile) CollectPaths() ([]string, error) {
+func (pf PatternFileCollector) CollectPaths() ([]string, error) {
 	var files []string
 
 	err := fs.WalkDir(pf.fs, ".", func(path string, d fs.DirEntry, err error) error {
