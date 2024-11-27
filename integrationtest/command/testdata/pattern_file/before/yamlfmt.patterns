@@ -1,0 +1,7 @@
+# vim: syntax=gitignore
+
+*.yaml
+*.yml
+
+!excluded_file.yaml
+!excluded_dir/

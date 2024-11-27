@@ -39,6 +39,7 @@ The command package defines the main command engine that `cmd/yamlfmt` uses. It 
 | `line_ending`            | `lf` or `crlf` | `crlf` on Windows, `lf` otherwise | Parse and write the file with "lf" or "crlf" line endings. This global setting will override any formatter `line_ending` options. |
 | `doublestar`             | bool                | false         | Use [doublestar](https://github.com/bmatcuk/doublestar) for include and exclude paths. (This was the default before 0.7.0) |
 | `continue_on_error`      | bool                | false         | Continue formatting and don't exit with code 1 when there is an invalid yaml file found. |
+| `match_type`             | string              | `standard`    | Controls how `include` and `exclude` are interpreted. See [Specifying Paths][] for more details. |
 | `include`                | []string            | []            | The paths for the command to include for formatting. See [Specifying Paths][] for more details. |
 | `exclude`                | []string            | []            | The paths for the command to exclude from formatting. See [Specifying Paths][] for more details. |
 | `gitignore_excludes`     | bool                | false         | Use gitignore files for exclude paths. This is in addition to the patterns from the `exclude` option. |

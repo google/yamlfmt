@@ -8,6 +8,7 @@ gitignore_excludes: false
 gitignore_path: .gitignore
 include: []
 line_ending: lf
+match_type: standard
 output_format: default
 regex_exclude: []
 formatter:

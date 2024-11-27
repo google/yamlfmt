@@ -15,8 +15,11 @@
 package yamlfmt
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -26,6 +29,14 @@ import (
 	"github.com/google/yamlfmt/internal/collections"
 	"github.com/google/yamlfmt/internal/logger"
 	ignore "github.com/sabhiram/go-gitignore"
+)
+
+type MatchType string
+
+const (
+	MatchTypeStandard   MatchType = "standard"
+	MatchTypeDoublestar MatchType = "doublestar"
+	MatchTypeGitignore  MatchType = "gitignore"
 )
 
 type PathCollector interface {
@@ -229,4 +240,97 @@ func ExcludeWithGitignore(gitignorePath string, paths []string) ([]string, error
 	}
 	logger.Debug(logger.DebugCodePaths, "paths to format: %s", pathsToFormat)
 	return pathsToFormat, nil
+}
+
+const DefaultPatternFile = "yamlfmt.patterns"
+
+// PatternFileCollector determines which files to format and which to ignore based on a pattern file in gitignore(5) syntax.
+type PatternFileCollector struct {
+	fs      fs.FS
+	matcher *ignore.GitIgnore
+}
+
+// NewPatternFileCollector initializes a new PatternFile using the provided file(s).
+// If multiple files are provided, their content is concatenated in order.
+// All patterns are relative to the current working directory.
+func NewPatternFileCollector(files ...string) (*PatternFileCollector, error) {
+	r, err := cat(files...)
+	if err != nil {
+		return nil, err
+	}
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("os.Getwd: %w", err)
+	}
+
+	return NewPatternFileCollectorFS(r, os.DirFS(wd)), nil
+}
+
+// cat concatenates the contents of all files in its argument list.
+func cat(files ...string) (io.Reader, error) {
+	var b bytes.Buffer
+
+	for _, f := range files {
+		fh, err := os.Open(f)
+		if err != nil {
+			return nil, err
+		}
+		defer fh.Close()
+
+		if _, err := io.Copy(&b, fh); err != nil {
+			return nil, fmt.Errorf("copying %q: %w", f, err)
+		}
+		fh.Close()
+
+		// Append a newline to avoid issues with files lacking a newline at end-of-file.
+		fmt.Fprintln(&b)
+	}
+
+	return &b, nil
+}
+
+// NewPatternFileCollectorFS reads a pattern file from r and uses fs for file lookups.
+// It is used by NewPatternFile and primarily public because it is useful for testing.
+func NewPatternFileCollectorFS(r io.Reader, fs fs.FS) *PatternFileCollector {
+	var lines []string
+
+	s := bufio.NewScanner(r)
+	for s.Scan() {
+		lines = append(lines, s.Text())
+	}
+
+	return &PatternFileCollector{
+		fs:      fs,
+		matcher: ignore.CompileIgnoreLines(lines...),
+	}
+}
+
+// CollectPaths implements the PathCollector interface.
+func (c *PatternFileCollector) CollectPaths() ([]string, error) {
+	var files []string
+
+	err := fs.WalkDir(c.fs, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		ok, pattern := c.matcher.MatchesPathHow(path)
+		switch {
+		case ok && pattern.Negate && d.IsDir():
+			return fs.SkipDir
+		case ok && pattern.Negate:
+			return nil
+		case ok && d.Type().IsRegular():
+			files = append(files, path)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("WalkDir: %w", err)
+	}
+
+	return files, nil
 }

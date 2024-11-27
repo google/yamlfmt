@@ -15,12 +15,16 @@
 package yamlfmt_test
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"testing/fstest"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/internal/collections"
 	"github.com/google/yamlfmt/internal/tempfile"
@@ -447,5 +451,90 @@ func useDoublestarCollector(tc testCase, path string) yamlfmt.PathCollector {
 	return &yamlfmt.DoublestarCollector{
 		Include: includePatterns,
 		Exclude: tc.excludePatterns.allPatterns(path),
+	}
+}
+
+func TestPatternFile(t *testing.T) {
+	t.Parallel()
+
+	makePatterns := func(patterns ...string) []byte {
+		var b bytes.Buffer
+
+		fmt.Fprintln(&b, "# Comment followed by empty line")
+		fmt.Fprintln(&b)
+		for _, p := range patterns {
+			fmt.Fprintln(&b, p)
+		}
+
+		return b.Bytes()
+	}
+
+	cases := []struct {
+		name      string
+		patterns  []byte
+		haveFiles []string
+		wantFiles []string
+	}{
+		{
+			name:      "yaml and yml files",
+			patterns:  makePatterns("*.yaml", "*.yml"),
+			haveFiles: []string{"x.yaml", "y.yml", "README.md"},
+			wantFiles: []string{"x.yaml", "y.yml"},
+		},
+		{
+			name:      "ignore pattern",
+			patterns:  makePatterns("*.yaml", "*.yml", "!test_input.yaml"),
+			haveFiles: []string{"x.yaml", "y.yml", "test_input.yaml"},
+			wantFiles: []string{"x.yaml", "y.yml"},
+		},
+		{
+			name:      "descent into directories",
+			patterns:  makePatterns("*.yaml", "*.yml"),
+			haveFiles: []string{"a/x.yaml", "b/y.yml"},
+			wantFiles: []string{"a/x.yaml", "b/y.yml"},
+		},
+		{
+			name:      "exclude directories",
+			patterns:  makePatterns("*.yaml", "*.yml", "!a/"),
+			haveFiles: []string{"a/x.yaml", "b/y.yml"},
+			wantFiles: []string{"b/y.yml"},
+		},
+		{
+			name:      "matches are rooted at the working directory",
+			patterns:  makePatterns("*.yaml", "!/x.yaml"),
+			haveFiles: []string{"x.yaml", "a/x.yaml"},
+			wantFiles: []string{"a/x.yaml"},
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			fs := make(fstest.MapFS)
+			for _, f := range tc.haveFiles {
+				fs[f] = &fstest.MapFile{
+					Data: []byte("test"),
+				}
+			}
+
+			patternFile := yamlfmt.NewPatternFileCollectorFS(bytes.NewReader(tc.patterns), fs)
+
+			gotFiles, err := patternFile.CollectPaths()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			// Ignore the order of files in tc.wantFiles and gotFiles.
+			opts := []cmp.Option{
+				cmpopts.SortSlices(func(a, b string) bool { return a < b }),
+			}
+
+			if diff := cmp.Diff(tc.wantFiles, gotFiles, opts...); diff != "" {
+				t.Errorf("PatternFile.CollectPaths() differs (-want/+got):\n%s", diff)
+			}
+		})
 	}
 }

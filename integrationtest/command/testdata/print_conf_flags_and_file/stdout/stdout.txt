@@ -9,6 +9,7 @@ gitignore_excludes: false
 gitignore_path: .my_gitignore
 include: []
 line_ending: crlf
+match_type: doublestar
 output_format: default
 regex_exclude: []
 formatter:
