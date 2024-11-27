@@ -31,7 +31,7 @@ Despite having "ignore" in the name, yamlfmt will format all files that match th
 
 Please read the [gitignore manpage](https://git-scm.com/docs/gitignore) for the full syntax description and further examples.
 
-To use the *gitignore* mode, set `match_type: gitignore` in the config file or use the `-match_type gitignore` command line flag.
+To use the `gitignore` mode, set `match_type: gitignore` in the config file or use the `-match_type gitignore` command line flag.
 In this mode, positional arguments on the command line and files listed in the `include` config option are considered to be files using the gitignore syntax.
 If no file is specified, yamlfmt will look for a file called `yamlfmt.patterns` in the working directory.
 
