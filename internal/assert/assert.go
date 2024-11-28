@@ -25,7 +25,7 @@ var (
 	NilErrMessage = "expected no error, got error:\n%v"
 
 	// The failure format string if the err is nil.
-	NotNilErrMesage = "expected an error, got nil"
+	NotNilErrMessage = "expected an error, got nil"
 
 	// The failure format string for slices being different sizes. Formatted with `expected` then `got`.
 	SliceSizeMessage = "slices were different sizes.\nexpected len:%d\n     got len:%d\n"
@@ -69,16 +69,16 @@ func DereferenceEqual[T comparable](t TestingT, expected *T, got *T) {
 	DereferenceEqualMsg(t, expected, got, DereferenceEqualErrMsg, EqualMessage)
 }
 
-// Assert that that `err` is nil. Uses `assert.NilErrMessage`.
+// Assert that `err` is nil. Uses `assert.NilErrMessage`.
 func NilErr(t TestingT, err error) {
 	t.Helper()
 	Assert(t, err == nil, NilErrMessage, err)
 }
 
-// Assert that that `err` is not nil. Uses `assert.NotNillErrMesage`.
+// Assert that `err` is not nil. Uses `assert.NotNilErrMessage`.
 func NotNilErr(t TestingT, err error) {
 	t.Helper()
-	Assert(t, err != nil, NotNilErrMesage)
+	Assert(t, err != nil, NotNilErrMessage)
 }
 
 // Assert that slices `got` and `expected` are equal. Will produce a

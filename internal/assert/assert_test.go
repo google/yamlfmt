@@ -108,7 +108,7 @@ func TestDereferenceEqualErr(t *testing.T) {
 	}
 }
 
-func TestDerefenceEqualFail(t *testing.T) {
+func TestDereferenceEqualFail(t *testing.T) {
 	testInstance := newTMock()
 	type x struct {
 		num int
