@@ -13,8 +13,8 @@
 # limitations under the License.
 
 - id: yamlfmt
-  name: yamlfmt 
-  description: This hook uses github.com/google/yamlfmt to format yaml files. Requires golang >1.18 to be installed.
+  name: yamlfmt
+  description: This hook uses github.com/google/yamlfmt to format yaml files. Requires Go >1.18 to be installed.
   entry: yamlfmt
   language: golang
   types: [yaml]
