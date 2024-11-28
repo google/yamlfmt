@@ -56,7 +56,7 @@
         "type": "string"
       },
       "default": [],
-      "description": "Regex patterns to match file contents for, if the file content matches the regex the file will be excluded. Use Golang regexes."
+      "description": "Regex patterns to match file contents for, if the file content matches the regex the file will be excluded. Use Go regexes."
     },
     "extensions": {
       "type": "array",
