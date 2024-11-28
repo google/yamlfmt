@@ -75,7 +75,7 @@ func NilErr(t TestingT, err error) {
 	Assert(t, err == nil, NilErrMessage, err)
 }
 
-// Assert that `err` is not nil. Uses `assert.NotNillErrMessage`.
+// Assert that `err` is not nil. Uses `assert.NotNilErrMessage`.
 func NotNilErr(t TestingT, err error) {
 	t.Helper()
 	Assert(t, err != nil, NotNilErrMessage)
