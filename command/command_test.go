@@ -24,7 +24,7 @@ import (
 
 // This test asserts the proper behaviour for `line_ending` settings specified
 // in formatter settings overriding the global configuration.
-func TestLineEndingFormatterVsGloabl(t *testing.T) {
+func TestLineEndingFormatterVsGlobal(t *testing.T) {
 	c := &Command{
 		Config: &Config{
 			LineEnding: "lf",
