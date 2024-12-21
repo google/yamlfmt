@@ -58,7 +58,7 @@ jobs:
             dist/checksums.txt.sig
             dist/*.tar.gz
 
-  docker:
+  container_image:
     runs-on: ubuntu-latest
     steps:
       - name: Login to GHCR
