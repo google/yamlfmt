@@ -63,7 +63,7 @@ yaml lint:
 ```
 The Docker image can also be used to run yamlfmt without installing it on your system.
 ```bash
-docker run -v $(pwd):/project ghcr.io/google/yamlfmt:latest yamlfmt .
+docker run -v "$(pwd):/project" ghcr.io/google/yamlfmt:latest .
 ```
 
 # Configuration File
