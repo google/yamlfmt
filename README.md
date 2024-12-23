@@ -51,6 +51,21 @@ yamlfmt -dstar **/*.{yaml,yml}
 ```
 See the [doublestar](https://github.com/bmatcuk/doublestar) package for more information on this format.
 
+Yamlfmt can also be used in ci/cd pipelines which supports running containers. The following snippet shows an example job for GitLab CI:
+```yaml
+yaml lint:
+  image: ghcr.io/google/yamlfmt:latest
+  before_script:
+    - apk add git
+  script:
+    - yamlfmt .
+    - git diff --exit-code
+```
+The Docker image can also be used to run yamlfmt without installing it on your system.
+```bash
+docker run -v $(pwd):/project ghcr.io/google/yamlfmt:latest yamlfmt .
+```
+
 # Configuration File
 
 The `yamlfmt` command can be configured through a yaml file called `.yamlfmt`. This file can live in your working directory, a path specified through a [CLI flag](./docs/command-usage.md#operation-flags), or in the standard global config path on your system (see docs for specifics).
