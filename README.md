@@ -61,9 +61,9 @@ yaml lint:
     - yamlfmt .
     - git diff --exit-code
 ```
-The Docker image can also be used to run yamlfmt without installing it on your system.
+The Docker image can also be used to run yamlfmt without installing it on your system. Just mount the directory you want to format as a volume (`/project` is used by default):
 ```bash
-docker run -v "$(pwd):/project" ghcr.io/google/yamlfmt:latest .
+docker run -v "$(pwd):/project" ghcr.io/google/yamlfmt:latest <yamlfmt args>
 ```
 
 # Configuration File
