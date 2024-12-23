@@ -7,3 +7,4 @@ RUN make build
 
 FROM alpine:latest
 COPY --from=build /build/dist/yamlfmt /bin/yamlfmt
+ENTRYPOINT ["/bin/yamlfmt"]
