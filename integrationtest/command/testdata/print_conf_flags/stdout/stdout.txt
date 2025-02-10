@@ -12,11 +12,13 @@ match_type: standard
 output_format: default
 regex_exclude: []
 formatter:
+    array_indent: 0
     disallow_anchors: false
     drop_merge_tag: false
     eof_newline: false
     include_document_start: false
     indent: 2
+    indent_root_array: false
     indentless_arrays: false
     line_ending: lf
     max_line_length: 0
