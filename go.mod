@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.7.1
-	github.com/braydonk/yaml v0.8.0
+	github.com/braydonk/yaml v0.9.0
 	github.com/google/go-cmp v0.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
