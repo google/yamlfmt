@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/braydonk/yaml"
+	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/google/yamlfmt/formatters/basic/anchors"
 )
 

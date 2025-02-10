@@ -23,9 +23,8 @@ import (
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/engine"
+	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/mitchellh/mapstructure"
-
-	"github.com/braydonk/yaml"
 )
 
 type FormatterConfig struct {

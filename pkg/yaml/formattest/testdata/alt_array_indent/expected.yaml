@@ -1,0 +1,9 @@
+a:
+    b: 1
+c:
+ - array
+ - values
+d:
+    e:
+     - abc
+     - def
