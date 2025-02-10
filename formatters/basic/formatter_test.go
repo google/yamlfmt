@@ -363,3 +363,41 @@ func TestStripDirectives(t *testing.T) {
 	_, err := f.Format([]byte(yml))
 	assert.NilErr(t, err)
 }
+
+func TestArrayIndent(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.ArrayIndent = 1
+	f := newFormatter(config)
+
+	yml := `a:
+  - 1
+  - 2
+`
+	expectedYml := `a:
+ - 1
+ - 2
+`
+
+	result, err := f.Format([]byte(yml))
+	assert.NilErr(t, err)
+	resultStr := string(result)
+	if resultStr != expectedYml {
+		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
+	}
+}
+
+func TestIndentRootArray(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.IndentRootArray = true
+	f := newFormatter(config)
+
+	yml := "- 1\n"
+	expectedYml := "  - 1\n"
+
+	result, err := f.Format([]byte(yml))
+	assert.NilErr(t, err)
+	resultStr := string(result)
+	if resultStr != expectedYml {
+		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
+	}
+}

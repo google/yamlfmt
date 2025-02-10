@@ -114,6 +114,11 @@ func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 	e.SetDropMergeTag(f.Config.DropMergeTag)
 	e.SetPadLineComments(f.Config.PadLineComments)
 
+	if f.Config.ArrayIndent > 0 {
+		e.SetArrayIndent(f.Config.ArrayIndent)
+	}
+	e.SetIndentRootArray(f.Config.IndentRootArray)
+
 	return e
 }
 

@@ -13,11 +13,13 @@ match_type: doublestar
 output_format: default
 regex_exclude: []
 formatter:
+    array_indent: 0
     disallow_anchors: false
     drop_merge_tag: false
     eof_newline: false
     include_document_start: true
     indent: 2
+    indent_root_array: false
     indentless_arrays: false
     line_ending: crlf
     max_line_length: 0
