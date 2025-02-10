@@ -35,6 +35,8 @@ type Config struct {
 	TrimTrailingWhitespace bool                   `mapstructure:"trim_trailing_whitespace"`
 	EOFNewline             bool                   `mapstructure:"eof_newline"`
 	StripDirectives        bool                   `mapstructure:"strip_directives"`
+	ArrayIndent            int                    `mapstructure:"array_indent"`
+	IndentRootArray        bool                   `mapstructure:"indent_root_array"`
 }
 
 func DefaultConfig() *Config {

@@ -86,6 +86,8 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `trim_trailing_whitespace`  | bool           | false   | Trim trailing whitespace from lines. |
 | `eof_newline`               | bool           | false   | Always add a newline at end of file. Useful in the scenario where `retain_line_breaks` is disabled but the trailing newline is still needed. |
 | `strip_directives`          | bool           | false   | [YAML Directives](https://yaml.org/spec/1.2.2/#3234-directives) are not supported by this formatter. This feature will attempt to strip the directives before formatting and put them back. [Use this feature at your own risk.](#strip_directives) |
+| `array_indent`              | int            | = indent | Set a different indentation level for block sequences specifically. |
+| `indent_root_array`         | int            | false   | Tells the formatter to indent an array that is at the lowest indentation level of the document. |
 
 ## Additional Notes
 
