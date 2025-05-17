@@ -15,7 +15,12 @@ test:
 
 .PHONY: test_v
 test_v:
-	go test -v ./...
+	@go test -v $$(go list ./... | grep -v "pkg/yaml")
+	@go test ./pkg/yaml/formattest
+
+.PHONY: vet
+vet:
+	go vet $$(go list ./... | grep -v "pkg/yaml")
 
 YAMLFMT_BIN ?= $(shell pwd)/dist/yamlfmt
 .PHONY: integrationtest
@@ -53,10 +58,12 @@ install:
 install_tools:
 	go install github.com/google/addlicense@latest
 
+ADDLICENSE = addlicense -ignore "**/testdata/**" -ignore "**/pkg/yaml/**" -c "Google LLC" -l apache
+
 .PHONY: addlicense
 addlicense:
-	addlicense -ignore "**/testdata/**" -c "Google LLC" -l apache .
+	$(ADDLICENSE) .
 
 .PHONY: addlicense_check
 addlicense_check:
-	addlicense -check -ignore "**/testdata/**" -c "Google LLC" -l apache .
+	$(ADDLICENSE) -check .
