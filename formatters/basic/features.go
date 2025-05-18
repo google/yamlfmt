@@ -15,9 +15,8 @@
 package basic
 
 import (
-	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/google/yamlfmt"
-	"github.com/google/yamlfmt/formatters/basic/anchors"
+	yamlFeatures "github.com/google/yamlfmt/formatters/basic/features"
 	"github.com/google/yamlfmt/internal/features"
 	"github.com/google/yamlfmt/internal/hotfix"
 )
@@ -55,24 +54,19 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 	return configuredFeatures
 }
 
-// These features will directly use the `yaml.Node` type and
-// as such are specific to this formatter.
-type YAMLFeatureFunc func(yaml.Node) error
-type YAMLFeatureList []YAMLFeatureFunc
+func ConfigureYAMLFeaturesFromConfig(config *Config) yamlFeatures.YAMLFeatureList {
+	var featureList yamlFeatures.YAMLFeatureList
 
-func (y YAMLFeatureList) ApplyFeatures(node yaml.Node) error {
-	for _, f := range y {
-		if err := f(node); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func ConfigureYAMLFeaturesFromConfig(config *Config) YAMLFeatureList {
-	var features YAMLFeatureList
 	if config.DisallowAnchors {
-		features = append(features, anchors.Check)
+		featureList = append(featureList, yamlFeatures.Check)
 	}
-	return features
+
+	if config.ForceArrayStyle != "" {
+		featureList = append(
+			featureList,
+			yamlFeatures.FeatureForceSequenceStyle(config.ForceArrayStyle),
+		)
+	}
+
+	return featureList
 }
