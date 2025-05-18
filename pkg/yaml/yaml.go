@@ -343,7 +343,7 @@ func (e *Encoder) SetPadLineComments(padLineComments int) {
 	yaml_emitter_set_pad_line_comments(&e.encoder.emitter, padLineComments)
 }
 
-// SetCorrectAliasKeys changes the number of padding spaces before line comments.
+// SetCorrectAliasKeys enables alias key syntax correction.
 func (e *Encoder) SetCorrectAliasKeys(correctAliasKeys bool) {
 	yaml_emitter_set_correct_alias_keys(&e.encoder.emitter, correctAliasKeys)
 }
