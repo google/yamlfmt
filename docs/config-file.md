@@ -105,5 +105,5 @@ This hotfix is flaky. It is very hard to reconstruct data like this without pars
 
 In addition, while with this feature the `%YAML` directive may work, the formatter very specifically supports only the [YAML 1.2 spec](https://yaml.org/spec/1.2.2/). So the `%YAML:1.0` directive won't have the desired effect when passing a file through `yamlfmt`, and if you have 1.0-only syntax in your document the formatter may end up failing in other ways that will be unfixable.
 
-[1]: https://www.github.com/braydonk/yaml
+[1]: ../pkg/yaml/
 [Specifying Paths]: ./paths.md

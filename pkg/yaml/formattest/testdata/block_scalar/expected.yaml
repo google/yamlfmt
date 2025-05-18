@@ -1,0 +1,4 @@
+commands: >
+    [ -f "/usr/local/bin/foo" ] &&
+    echo "skip install" ||
+    go install github.com/foo/foo@latest

@@ -20,7 +20,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/braydonk/yaml"
+	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/google/yamlfmt"
 	"github.com/mitchellh/mapstructure"
 )

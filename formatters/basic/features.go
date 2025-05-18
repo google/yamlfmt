@@ -15,7 +15,7 @@
 package basic
 
 import (
-	"github.com/braydonk/yaml"
+	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/formatters/basic/anchors"
 	"github.com/google/yamlfmt/internal/features"
