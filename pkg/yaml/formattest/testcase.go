@@ -32,7 +32,7 @@ func noopDecoder(_ *yaml.Decoder) {}
 
 type encoderConfigureFunc func(*yaml.Encoder)
 
-func noopEncoder(_ *yaml.Encoder) {}
+// func noopEncoder(_ *yaml.Encoder) {}
 
 type formatTestCase struct {
 	name             string

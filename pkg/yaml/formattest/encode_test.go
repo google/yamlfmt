@@ -140,6 +140,8 @@ func TestAliasKey(t *testing.T) {
 		name:             "alias_key",
 		folder:           "alias_key",
 		configureDecoder: noopDecoder,
-		configureEncoder: noopEncoder,
+		configureEncoder: func(enc *yaml.Encoder) {
+			enc.SetCorrectAliasKeys(true)
+		},
 	}.Run(t)
 }
