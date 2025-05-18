@@ -182,8 +182,7 @@ func TestForceBlockStyle(t *testing.T) {
 
 func TestForceFlowStyle(t *testing.T) {
 	TestCase{
-		Dir: "force_flow_style",
-		// TODO: Change arguments to match your test case.
+		Dir:     "force_flow_style",
 		Command: yamlfmtWithArgs("."),
 		Update:  *updateFlag,
 	}.Run(t)
