@@ -183,7 +183,7 @@ func TestForceBlockStyle(t *testing.T) {
 func TestForceFlowStyle(t *testing.T) {
 	TestCase{
 		Dir:     "force_flow_style",
-		Command: yamlfmtWithArgs("."),
+		Command: yamlfmtWithArgs("-formatter force_array_style=flow ."),
 		Update:  *updateFlag,
 	}.Run(t)
 }
