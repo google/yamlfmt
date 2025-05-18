@@ -20,8 +20,8 @@ import (
 	"errors"
 	"io"
 
-	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -118,6 +118,13 @@ func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 		e.SetArrayIndent(f.Config.ArrayIndent)
 	}
 	e.SetIndentRootArray(f.Config.IndentRootArray)
+
+	// Yes I know I could SetCorrectAliasKeys(!f.Config.DisableAliasKeyCorrection)
+	// but I know myself and I know I'll get confused and have to go look up
+	// the source again next time I look and forget.
+	if !f.Config.DisableAliasKeyCorrection {
+		e.SetCorrectAliasKeys(true)
+	}
 
 	return e
 }

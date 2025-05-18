@@ -13,6 +13,7 @@ output_format: default
 regex_exclude: []
 formatter:
     array_indent: 0
+    disable_alias_key_correction: false
     disallow_anchors: false
     drop_merge_tag: false
     eof_newline: false

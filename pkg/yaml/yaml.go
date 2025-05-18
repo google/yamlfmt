@@ -343,6 +343,11 @@ func (e *Encoder) SetPadLineComments(padLineComments int) {
 	yaml_emitter_set_pad_line_comments(&e.encoder.emitter, padLineComments)
 }
 
+// SetCorrectAliasKeys changes the number of padding spaces before line comments.
+func (e *Encoder) SetCorrectAliasKeys(correctAliasKeys bool) {
+	yaml_emitter_set_correct_alias_keys(&e.encoder.emitter, correctAliasKeys)
+}
+
 // Close closes the encoder by writing any remaining data.
 // It does not write a stream terminating string "...".
 func (e *Encoder) Close() (err error) {

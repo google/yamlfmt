@@ -88,6 +88,7 @@ The basic formatter is a barebones formatter that simply takes the data provided
 | `strip_directives`          | bool           | false   | [YAML Directives](https://yaml.org/spec/1.2.2/#3234-directives) are not supported by this formatter. This feature will attempt to strip the directives before formatting and put them back. [Use this feature at your own risk.](#strip_directives) |
 | `array_indent`              | int            | = indent | Set a different indentation level for block sequences specifically. |
 | `indent_root_array`         | int            | false   | Tells the formatter to indent an array that is at the lowest indentation level of the document. |
+| `disable_alias_key_correction` | bool        | false   | Disables functionality to fix alias nodes being used as keys. See #247 for details. |
 
 ## Additional Notes
 

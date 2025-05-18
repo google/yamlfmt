@@ -1,0 +1,18 @@
+# example taken from https://github.com/google/yamlfmt/issues/242
+x-config-values:
+  x-domain-ext: &domain-ext www.example.com
+  x-domain-int: &domain-int example.local
+ingresses:
+  *domain-ext :
+    name: example
+    hosts:
+      - domainName: *domain-ext
+        paths:
+          - path: "/"
+            pathType: Prefix
+  *domain-int :
+    name: example-local
+    hosts:
+      - paths:
+          - path: "/api"
+            pathType: Prefix
