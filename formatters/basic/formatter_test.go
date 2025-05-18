@@ -20,13 +20,15 @@ import (
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/formatters/basic"
+	"github.com/google/yamlfmt/formatters/basic/features"
 	"github.com/google/yamlfmt/internal/assert"
 )
 
 func newFormatter(config *basic.Config) *basic.BasicFormatter {
 	return &basic.BasicFormatter{
-		Config:   config,
-		Features: basic.ConfigureFeaturesFromConfig(config),
+		Config:       config,
+		Features:     basic.ConfigureFeaturesFromConfig(config),
+		YAMLFeatures: basic.ConfigureYAMLFeaturesFromConfig(config),
 	}
 }
 
@@ -393,6 +395,58 @@ func TestIndentRootArray(t *testing.T) {
 
 	yml := "- 1\n"
 	expectedYml := "  - 1\n"
+
+	result, err := f.Format([]byte(yml))
+	assert.NilErr(t, err)
+	resultStr := string(result)
+	if resultStr != expectedYml {
+		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
+	}
+}
+
+func TestForceFlowSequence(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.ForceArrayStyle = features.SequenceStyleFlow
+	f := newFormatter(config)
+
+	yml := `a:
+  - 1
+  - 2
+  - 3
+b: [1, 2, 3]
+`
+	expectedYml := `a: [1, 2, 3]
+b: [1, 2, 3]
+`
+
+	result, err := f.Format([]byte(yml))
+	assert.NilErr(t, err)
+	resultStr := string(result)
+	if resultStr != expectedYml {
+		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
+	}
+}
+
+func TestForceBlockSequence(t *testing.T) {
+	config := basic.DefaultConfig()
+	config.ForceArrayStyle = features.SequenceStyleBlock
+	f := newFormatter(config)
+
+	yml := `a:
+  - 1
+  - 2
+  - 3
+b: [1, 2, 3]
+`
+	expectedYml := `a:
+  - 1
+  - 2
+  - 3
+b:
+  - 1
+  - 2
+  - 3
+`
 
 	result, err := f.Format([]byte(yml))
 	assert.NilErr(t, err)

@@ -21,6 +21,7 @@ import (
 	"io"
 
 	"github.com/google/yamlfmt"
+	yamlFeature "github.com/google/yamlfmt/formatters/basic/features"
 	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/mitchellh/mapstructure"
 )
@@ -30,7 +31,7 @@ const BasicFormatterType string = "basic"
 type BasicFormatter struct {
 	Config       *Config
 	Features     yamlfmt.FeatureList
-	YAMLFeatures YAMLFeatureList
+	YAMLFeatures yamlFeature.YAMLFeatureList
 }
 
 // yamlfmt.Formatter interface

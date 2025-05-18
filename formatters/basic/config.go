@@ -18,26 +18,28 @@ import (
 	"runtime"
 
 	"github.com/google/yamlfmt"
+	yamlFeatures "github.com/google/yamlfmt/formatters/basic/features"
 )
 
 type Config struct {
-	Indent                    int                    `mapstructure:"indent"`
-	IncludeDocumentStart      bool                   `mapstructure:"include_document_start"`
-	LineEnding                yamlfmt.LineBreakStyle `mapstructure:"line_ending"`
-	LineLength                int                    `mapstructure:"max_line_length"`
-	RetainLineBreaks          bool                   `mapstructure:"retain_line_breaks"`
-	RetainLineBreaksSingle    bool                   `mapstructure:"retain_line_breaks_single"`
-	DisallowAnchors           bool                   `mapstructure:"disallow_anchors"`
-	ScanFoldedAsLiteral       bool                   `mapstructure:"scan_folded_as_literal"`
-	IndentlessArrays          bool                   `mapstructure:"indentless_arrays"`
-	DropMergeTag              bool                   `mapstructure:"drop_merge_tag"`
-	PadLineComments           int                    `mapstructure:"pad_line_comments"`
-	TrimTrailingWhitespace    bool                   `mapstructure:"trim_trailing_whitespace"`
-	EOFNewline                bool                   `mapstructure:"eof_newline"`
-	StripDirectives           bool                   `mapstructure:"strip_directives"`
-	ArrayIndent               int                    `mapstructure:"array_indent"`
-	IndentRootArray           bool                   `mapstructure:"indent_root_array"`
-	DisableAliasKeyCorrection bool                   `mapstructure:"disable_alias_key_correction"`
+	Indent                    int                        `mapstructure:"indent"`
+	IncludeDocumentStart      bool                       `mapstructure:"include_document_start"`
+	LineEnding                yamlfmt.LineBreakStyle     `mapstructure:"line_ending"`
+	LineLength                int                        `mapstructure:"max_line_length"`
+	RetainLineBreaks          bool                       `mapstructure:"retain_line_breaks"`
+	RetainLineBreaksSingle    bool                       `mapstructure:"retain_line_breaks_single"`
+	DisallowAnchors           bool                       `mapstructure:"disallow_anchors"`
+	ScanFoldedAsLiteral       bool                       `mapstructure:"scan_folded_as_literal"`
+	IndentlessArrays          bool                       `mapstructure:"indentless_arrays"`
+	DropMergeTag              bool                       `mapstructure:"drop_merge_tag"`
+	PadLineComments           int                        `mapstructure:"pad_line_comments"`
+	TrimTrailingWhitespace    bool                       `mapstructure:"trim_trailing_whitespace"`
+	EOFNewline                bool                       `mapstructure:"eof_newline"`
+	StripDirectives           bool                       `mapstructure:"strip_directives"`
+	ArrayIndent               int                        `mapstructure:"array_indent"`
+	IndentRootArray           bool                       `mapstructure:"indent_root_array"`
+	DisableAliasKeyCorrection bool                       `mapstructure:"disable_alias_key_correction"`
+	ForceArrayStyle           yamlFeatures.SequenceStyle `mapstructure:"force_array_style"`
 }
 
 func DefaultConfig() *Config {

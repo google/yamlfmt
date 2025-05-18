@@ -166,9 +166,24 @@ func TestPatternFile(t *testing.T) {
 
 func TestAliasKeyCorrection(t *testing.T) {
 	TestCase{
-		Dir: "alias_key_correction",
-		// TODO: Change arguments to match your test case.
+		Dir:     "alias_key_correction",
 		Command: yamlfmtWithArgs("."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
+
+func TestForceBlockStyle(t *testing.T) {
+	TestCase{
+		Dir:     "force_block_style",
+		Command: yamlfmtWithArgs("-formatter force_array_style=block ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
+
+func TestForceFlowStyle(t *testing.T) {
+	TestCase{
+		Dir:     "force_flow_style",
+		Command: yamlfmtWithArgs("-formatter force_array_style=flow ."),
 		Update:  *updateFlag,
 	}.Run(t)
 }
