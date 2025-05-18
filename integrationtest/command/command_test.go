@@ -163,3 +163,12 @@ func TestPatternFile(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestAliasKeyCorrection(t *testing.T) {
+	TestCase{
+		Dir: "alias_key_correction",
+		// TODO: Change arguments to match your test case.
+		Command: yamlfmtWithArgs("."),
+		Update:  *updateFlag,
+	}.Run(t)
+}

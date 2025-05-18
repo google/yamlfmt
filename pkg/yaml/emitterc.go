@@ -906,6 +906,11 @@ func yaml_emitter_emit_alias(emitter *yaml_emitter_t, event *yaml_event_t) bool 
 	if !yaml_emitter_process_anchor(emitter) {
 		return false
 	}
+	if emitter.correct_alias_keys && len(emitter.states) > 1 && emitter.states[len(emitter.states)-2] == yaml_EMIT_BLOCK_MAPPING_KEY_STATE {
+		if !put(emitter, ' ') {
+			return false
+		}
+	}
 	emitter.state = emitter.states[len(emitter.states)-1]
 	emitter.states = emitter.states[:len(emitter.states)-1]
 	return true

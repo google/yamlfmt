@@ -1,0 +1,4 @@
+map_key: &anchor hello
+map:
+    *anchor :
+        key: value

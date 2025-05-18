@@ -741,6 +741,7 @@ type yaml_emitter_t struct {
 	explicit_document_start   bool         // Force an explicit document start
 	assume_folded_as_literal  bool         // Assume blocks were scanned as literals
 	pad_line_comments         int          // The number of spaces to insert before line comments.
+	correct_alias_keys        bool         // Whether to correct alias nodes used as map keys.
 
 	state  yaml_emitter_state_t   // The current emitter state.
 	states []yaml_emitter_state_t // The stack of states.

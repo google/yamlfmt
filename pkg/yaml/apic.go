@@ -214,6 +214,11 @@ func yaml_emitter_set_pad_line_comments(emitter *yaml_emitter_t, pad_line_commen
 	emitter.pad_line_comments = pad_line_comments
 }
 
+// Set correct alias keys.
+func yaml_emitter_set_correct_alias_keys(emitter *yaml_emitter_t, correct_alias_keys bool) {
+	emitter.correct_alias_keys = correct_alias_keys
+}
+
 ///*
 // * Destroy a token object.
 // */

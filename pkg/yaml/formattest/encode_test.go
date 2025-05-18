@@ -134,3 +134,14 @@ func TestImplicitDocumentStartComments(t *testing.T) {
 		},
 	}.Run(t)
 }
+
+func TestAliasKey(t *testing.T) {
+	formatTestCase{
+		name:             "alias_key",
+		folder:           "alias_key",
+		configureDecoder: noopDecoder,
+		configureEncoder: func(enc *yaml.Encoder) {
+			enc.SetCorrectAliasKeys(true)
+		},
+	}.Run(t)
+}

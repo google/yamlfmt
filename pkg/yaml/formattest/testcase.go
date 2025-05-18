@@ -28,9 +28,11 @@ import (
 
 type decoderConfigureFunc func(*yaml.Decoder)
 
-func noopDecoder(dec *yaml.Decoder) {}
+func noopDecoder(_ *yaml.Decoder) {}
 
 type encoderConfigureFunc func(*yaml.Encoder)
+
+// func noopEncoder(_ *yaml.Encoder) {}
 
 type formatTestCase struct {
 	name             string
