@@ -35,9 +35,9 @@ func TestFilepathCollector(t *testing.T) {
 		{
 			name: "finds direct paths",
 			files: []tempfile.Path{
-				{FileName: "x.yaml"},
-				{FileName: "y.yaml"},
-				{FileName: "z.yml"},
+				{FilePath: "x.yaml"},
+				{FilePath: "y.yaml"},
+				{FilePath: "z.yml"},
 			},
 			includePatterns: testPatterns{
 				{pattern: "x.yaml"},
@@ -53,10 +53,10 @@ func TestFilepathCollector(t *testing.T) {
 		{
 			name: "finds all in directory one layer",
 			files: []tempfile.Path{
-				{FileName: "a", IsDir: true},
-				{FileName: "a/x.yaml"},
-				{FileName: "a/y.yaml"},
-				{FileName: "a/z.yml"},
+				{FilePath: "a", IsDir: true},
+				{FilePath: "a/x.yaml"},
+				{FilePath: "a/y.yaml"},
+				{FilePath: "a/z.yml"},
 			},
 			includePatterns: testPatterns{
 				{pattern: "a"},
@@ -74,10 +74,10 @@ func TestFilepathCollector(t *testing.T) {
 		{
 			name: "finds direct path to subdirectory",
 			files: []tempfile.Path{
-				{FileName: "a", IsDir: true},
-				{FileName: "a/x.yaml"},
-				{FileName: "a/y.yaml"},
-				{FileName: "a/z.yml"},
+				{FilePath: "a", IsDir: true},
+				{FilePath: "a/x.yaml"},
+				{FilePath: "a/y.yaml"},
+				{FilePath: "a/z.yml"},
 			},
 			includePatterns: testPatterns{
 				{pattern: "a/x.yaml"},
@@ -91,14 +91,14 @@ func TestFilepathCollector(t *testing.T) {
 		{
 			name: "finds all in layered directories",
 			files: []tempfile.Path{
-				{FileName: "a", IsDir: true},
-				{FileName: "a/b", IsDir: true},
-				{FileName: "x.yml"},
-				{FileName: "y.yml"},
-				{FileName: "z.yaml"},
-				{FileName: "a/x.yaml"},
-				{FileName: "a/b/x.yaml"},
-				{FileName: "a/b/y.yml"},
+				{FilePath: "a", IsDir: true},
+				{FilePath: "a/b", IsDir: true},
+				{FilePath: "x.yml"},
+				{FilePath: "y.yml"},
+				{FilePath: "z.yaml"},
+				{FilePath: "a/x.yaml"},
+				{FilePath: "a/b/x.yaml"},
+				{FilePath: "a/b/y.yml"},
 			},
 			includePatterns: testPatterns{
 				{pattern: ""}, // with the test this functionally means the whole temp dir
@@ -119,14 +119,14 @@ func TestFilepathCollector(t *testing.T) {
 		{
 			name: "exclude files",
 			files: []tempfile.Path{
-				{FileName: "a", IsDir: true},
-				{FileName: "a/b", IsDir: true},
-				{FileName: "x.yml"},
-				{FileName: "y.yml"},
-				{FileName: "z.yaml"},
-				{FileName: "a/x.yaml"},
-				{FileName: "a/b/x.yaml"},
-				{FileName: "a/b/y.yml"},
+				{FilePath: "a", IsDir: true},
+				{FilePath: "a/b", IsDir: true},
+				{FilePath: "x.yml"},
+				{FilePath: "y.yml"},
+				{FilePath: "z.yaml"},
+				{FilePath: "a/x.yaml"},
+				{FilePath: "a/b/x.yaml"},
+				{FilePath: "a/b/y.yml"},
 			},
 			includePatterns: testPatterns{
 				{pattern: ""}, // with the test this functionally means the whole temp dir
@@ -150,16 +150,16 @@ func TestFilepathCollector(t *testing.T) {
 			name:            "exclude directory",
 			changeToTempDir: true,
 			files: []tempfile.Path{
-				{FileName: "x.yml"},
-				{FileName: "y.yml"},
-				{FileName: "z.yaml"},
+				{FilePath: "x.yml"},
+				{FilePath: "y.yml"},
+				{FilePath: "z.yaml"},
 
-				{FileName: "a", IsDir: true},
-				{FileName: "a/x.yaml"},
+				{FilePath: "a", IsDir: true},
+				{FilePath: "a/x.yaml"},
 
-				{FileName: "a/b", IsDir: true},
-				{FileName: "a/b/x.yaml"},
-				{FileName: "a/b/y.yml"},
+				{FilePath: "a/b", IsDir: true},
+				{FilePath: "a/b/x.yaml"},
+				{FilePath: "a/b/y.yml"},
 			},
 			includePatterns: testPatterns{
 				{pattern: ""}, // with the test this functionally means the whole temp dir
@@ -181,9 +181,9 @@ func TestFilepathCollector(t *testing.T) {
 		{
 			name: "don't get files with wrong extension",
 			files: []tempfile.Path{
-				{FileName: "x.yml"},
-				{FileName: "y.yaml"},
-				{FileName: "z.json"},
+				{FilePath: "x.yml"},
+				{FilePath: "y.yaml"},
+				{FilePath: "z.json"},
 			},
 			includePatterns: testPatterns{
 				{pattern: ""}, // with the test this functionally means the whole temp dir
@@ -200,9 +200,9 @@ func TestFilepathCollector(t *testing.T) {
 		{
 			name: "multi-part extension",
 			files: []tempfile.Path{
-				{FileName: "x.yaml"},
-				{FileName: "y.yaml.gotmpl"},
-				{FileName: "z.json"},
+				{FilePath: "x.yaml"},
+				{FilePath: "y.yaml.gotmpl"},
+				{FilePath: "z.json"},
 			},
 			includePatterns: testPatterns{
 				{pattern: ""}, // with the test this functionally means the whole temp dir
@@ -225,9 +225,9 @@ func TestDoublestarCollectorBasic(t *testing.T) {
 		{
 			name: "no excludes",
 			files: []tempfile.Path{
-				{FileName: "x.yaml"},
-				{FileName: "y.yaml"},
-				{FileName: "z.yaml"},
+				{FilePath: "x.yaml"},
+				{FilePath: "y.yaml"},
+				{FilePath: "z.yaml"},
 			},
 			includePatterns: testPatterns{
 				{pattern: "**/*.yaml"},
@@ -243,15 +243,15 @@ func TestDoublestarCollectorBasic(t *testing.T) {
 
 func TestDoublestarCollectorExcludeDirectory(t *testing.T) {
 	testFiles := []tempfile.Path{
-		{FileName: "x.yaml"},
+		{FilePath: "x.yaml"},
 
-		{FileName: "y", IsDir: true},
-		{FileName: "y/y.yaml"},
+		{FilePath: "y", IsDir: true},
+		{FilePath: "y/y.yaml"},
 
-		{FileName: "z", IsDir: true},
-		{FileName: "z/z.yaml"},
-		{FileName: "z/z1.yaml"},
-		{FileName: "z/z2.yaml"},
+		{FilePath: "z", IsDir: true},
+		{FilePath: "z/z.yaml"},
+		{FilePath: "z/z1.yaml"},
+		{FilePath: "z/z2.yaml"},
 	}
 
 	testCaseTable{

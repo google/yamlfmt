@@ -57,6 +57,7 @@ type Command struct {
 	Registry  *yamlfmt.Registry
 	Config    *Config
 	Quiet     bool
+	Verbose   bool
 }
 
 func (c *Command) Run() error {
@@ -74,6 +75,7 @@ func (c *Command) Run() error {
 		LineSepCharacter: lineSepChar,
 		Formatter:        formatter,
 		Quiet:            c.Quiet,
+		Verbose:          c.Verbose,
 		ContinueOnError:  c.Config.ContinueOnError,
 		OutputFormat:     c.Config.OutputFormat,
 	}

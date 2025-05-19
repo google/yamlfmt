@@ -32,10 +32,10 @@ const (
 	EngineOutputGitlab    EngineOutputFormat = "gitlab"
 )
 
-func getEngineOutput(t EngineOutputFormat, operation yamlfmt.Operation, files yamlfmt.FileDiffs, quiet bool) (fmt.Stringer, error) {
+func getEngineOutput(t EngineOutputFormat, operation yamlfmt.Operation, files yamlfmt.FileDiffs, quiet bool, verbose bool) (fmt.Stringer, error) {
 	switch t {
 	case EngineOutputDefault:
-		return engineOutput{Operation: operation, Files: files, Quiet: quiet}, nil
+		return engineOutput{Operation: operation, Files: files, Quiet: quiet, Verbose: verbose}, nil
 	case EngineOutputSingeLine:
 		return engineOutputSingleLine{Operation: operation, Files: files, Quiet: quiet}, nil
 	case EngineOutputGitlab:
@@ -49,11 +49,23 @@ type engineOutput struct {
 	Operation yamlfmt.Operation
 	Files     yamlfmt.FileDiffs
 	Quiet     bool
+	Verbose   bool
 }
 
 func (eo engineOutput) String() string {
 	var msg string
 	switch eo.Operation {
+	case yamlfmt.OperationFormat:
+		// Formatting only produces output in verbose mode.
+		if !eo.Verbose {
+			return ""
+		}
+
+		msg = "The following files were modified:\n"
+		for _, file := range eo.Files {
+			msg += fmt.Sprintf("%s\n", file.Path)
+		}
+		return msg
 	case yamlfmt.OperationLint:
 		msg = "The following formatting differences were found:"
 		if eo.Quiet {
@@ -65,7 +77,7 @@ func (eo engineOutput) String() string {
 				msg = "The following files would be formatted:"
 			}
 		} else {
-			return "No files will formatted."
+			return "No files will be formatted."
 		}
 	}
 	var result string

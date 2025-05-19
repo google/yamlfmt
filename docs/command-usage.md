@@ -59,15 +59,16 @@ All flags must be specified **before** any path arguments.
 
 These flags adjust the command's mode of operation. All of these flags are booleans.
 
-| Name          | Flag          | Example                     | Description                                               |
-| :------------ | :------------ | :-------------------------- | :-------------------------------------------------------- |
-| Help          | `-help`       | `yamlfmt -help`             | Print the command usage information.                      |
-| Print Version | `-version`    | `yamlfmt -version`          | Print the yamlfmt version.                                |
-| Print Config  | `-print_conf` | `yamlfmt -print_conf`       | Print the merged configuration to use.                    |
-| Dry Run       | `-dry`        | `yamlfmt -dry .`            | Use [Dry Run](#dry-run) mode                              |
-| Lint          | `-lint`       | `yamlfmt -lint .`           | Use [Lint](#lint) mode                                    |
-| Quiet Mode    | `-quiet`      | `yamlfmt -dry -quiet .`     | Use quiet mode. Only has effect in Dry Run or Lint modes. |
-| Read Stdin    | `-in`         | `cat x.yaml \| yamlfmt -in` | Read input from stdin and output result to stdout.        |
+| Name          | Flag             | Example                     | Description                                               |
+| :------------ | :--------------- | :-------------------------- | :-------------------------------------------------------- |
+| Help          | `-help`          | `yamlfmt -help`             | Print the command usage information.                      |
+| Print Version | `-version`       | `yamlfmt -version`          | Print the yamlfmt version.                                |
+| Print Config  | `-print_conf`    | `yamlfmt -print_conf`       | Print the merged configuration to use.                    |
+| Dry Run       | `-dry`           | `yamlfmt -dry .`            | Use [Dry Run](#dry-run) mode                              |
+| Lint          | `-lint`          | `yamlfmt -lint .`           | Use [Lint](#lint) mode                                    |
+| Read Stdin    | `-in`            | `cat x.yaml \| yamlfmt -in` | Read input from stdin and output result to stdout.        |
+| Quiet Mode    | `-quiet`, `-q`   | `yamlfmt -dry -q .`         | Use quiet mode. Only has effect in Dry Run or Lint modes. |
+| Verbose Mode  | `-verbose`, `-v` | `yamlfmt -v .`              | Use verbose mode. Only has effect in Format mode.         |
 
 ### Configuration Flags
 
@@ -111,5 +112,7 @@ Debug logging can be enabled through the `-debug` [array flag](#string-array-fla
     - Log the details for the path discovery process. Use it to debug your include/exclude patterns.
 * `config`
     - Log the details for the configuration loading process. Use it to figure out which config file yamlfmt uses and why.
+* `diffs`
+    - Log each diff for all formatted files.
 * `all`
     - Enable all available debug codes.

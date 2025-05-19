@@ -1,0 +1,12 @@
+[DEBUG]: a.yaml:
+- a:  1  a: 1
++        
+
+[DEBUG]: b.yaml:
+- a:  1  a: 1
++        
+
+[DEBUG]: c.yaml:
+- a:  1  a: 1
++        
+

@@ -26,13 +26,15 @@ const (
 	DebugCodeAny DebugCode = iota
 	DebugCodeConfig
 	DebugCodePaths
+	DebugCodeDiffs
 )
 
 var (
 	supportedDebugCodes = map[string][]DebugCode{
 		"config": {DebugCodeConfig},
 		"paths":  {DebugCodePaths},
-		"all":    {DebugCodeConfig, DebugCodePaths},
+		"diffs":  {DebugCodeDiffs},
+		"all":    {DebugCodeConfig, DebugCodePaths, DebugCodeDiffs},
 	}
 	activeDebugCodes = collections.Set[DebugCode]{}
 )

@@ -37,6 +37,7 @@ func (g GoldenCtx) goldenPath(path string) string {
 func (g GoldenCtx) CompareGoldenFile(path string, gotContent []byte) error {
 	// If we are updating, just rewrite the file.
 	if g.Update {
+		fmt.Println("writing file: ", path)
 		return os.WriteFile(g.goldenPath(path), gotContent, os.ModePerm)
 	}
 
@@ -121,7 +122,7 @@ func readAllPaths(dirPath string) (collections.Set[string], error) {
 		if d.IsDir() {
 			return nil
 		}
-		paths.Add(d.Name())
+		paths.Add(path)
 		return nil
 	}
 	err := filepath.WalkDir(dirPath, allNamesButCurrentDirectory)
@@ -134,5 +135,5 @@ type GoldenDiffError struct {
 }
 
 func (e *GoldenDiffError) Error() string {
-	return fmt.Sprintf("golden: %s differed: %s", e.path, e.diff)
+	return fmt.Sprintf("golden: %s differed:\n%s", e.path, e.diff)
 }
