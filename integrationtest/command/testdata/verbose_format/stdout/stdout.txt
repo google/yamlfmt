@@ -1,0 +1,4 @@
+The following files were modified:
+a.yaml
+b.yaml
+c.yaml

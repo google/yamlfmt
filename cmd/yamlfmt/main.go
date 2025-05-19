@@ -55,7 +55,8 @@ func run() error {
 	c := &command.Command{
 		Operation: getOperationFromFlag(),
 		Registry:  getFullRegistry(),
-		Quiet:     *flagQuiet,
+		Quiet:     *flagQuiet || *flagQuietShort,
+		Verbose:   *flagVerbose || *flagVerboseShort,
 	}
 
 	configData := map[string]any{}
