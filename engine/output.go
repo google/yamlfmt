@@ -62,9 +62,7 @@ func (eo engineOutput) String() string {
 		}
 
 		msg = "The following files were modified:\n"
-		for _, file := range eo.Files {
-			msg += fmt.Sprintf("%s\n", file.Path)
-		}
+		msg += eo.Files.StrOutputQuiet()
 		return msg
 	case yamlfmt.OperationLint:
 		msg = "The following formatting differences were found:"

@@ -40,9 +40,10 @@ func (e *ConsecutiveEngine) Format(paths []string) (fmt.Stringer, error) {
 	formatDiffs, formatErrs := e.formatAll(paths)
 
 	// Debug format diff output.
-	for _, diff := range formatDiffs {
-		logger.Debug(logger.DebugCodeDiffs, diff.StrOutput())
-	}
+	logger.Debug(
+		logger.DebugCodeDiffs,
+		fmt.Sprintf("The following files were modified:\n%s", formatDiffs.StrOutput()),
+	)
 
 	if len(formatErrs) > 0 {
 		if e.ContinueOnError {

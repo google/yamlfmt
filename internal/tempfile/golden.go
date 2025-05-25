@@ -15,23 +15,36 @@
 package tempfile
 
 import (
-	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/yamlfmt/internal/collections"
 )
 
 type GoldenCtx struct {
-	Dir    string
-	Update bool
+	GoldenDir string
+	ResultDir string
+	Update    bool
+}
+
+// Given either a result or golden path, this will strip
+// and give you the base.
+func (g GoldenCtx) basePath(path string) string {
+	if basePath, ok := strings.CutPrefix(path, g.GoldenDir); ok {
+		return basePath
+	}
+	if basePath, ok := strings.CutPrefix(path, g.ResultDir); ok {
+		return basePath
+	}
+	return path
 }
 
 func (g GoldenCtx) goldenPath(path string) string {
-	return filepath.Join(g.Dir, path)
+	return filepath.Join(g.GoldenDir, g.basePath(path))
 }
 
 func (g GoldenCtx) CompareGoldenFile(path string, gotContent []byte) error {
@@ -42,20 +55,21 @@ func (g GoldenCtx) CompareGoldenFile(path string, gotContent []byte) error {
 	}
 
 	// If we are not updating, check that the content is the same.
-	expectedContent, err := os.ReadFile(g.goldenPath(path))
+	goldenPath := g.goldenPath(path)
+	expectedContent, err := os.ReadFile(goldenPath)
 	if err != nil {
-		return fmt.Errorf("os.ReadFile(%q): %w", g.goldenPath(path), err)
+		return fmt.Errorf("os.ReadFile(%q): %w", goldenPath, err)
 	}
 	// Edge case for empty stdout.
 	if gotContent == nil {
 		gotContent = []byte{}
 	}
-	diff := cmp.Diff(string(expectedContent), string(gotContent))
+	diff := cmp.Diff(string(gotContent), string(expectedContent))
 	// If there is no diff between the content, nothing to do in either mode.
 	if diff == "" {
 		return nil
 	}
-	return &GoldenDiffError{path: path, diff: diff}
+	return &GoldenDiffError{path: g.basePath(path), diff: diff}
 }
 
 func (g GoldenCtx) CompareDirectory(resultPath string) error {
@@ -70,26 +84,26 @@ func (g GoldenCtx) CompareDirectory(resultPath string) error {
 	if err != nil {
 		return err
 	}
-	goldenPaths, err := readAllPaths(g.Dir)
+	goldenPaths, err := readAllPaths(g.GoldenDir)
 	if err != nil {
 		return err
 	}
 
 	// If the directories differ in paths then the test has failed.
-	if !resultPaths.Equals(goldenPaths) {
-		return errors.New("the directories were different")
+	if err := directoryFilesEqual(goldenPaths, resultPaths); err != nil {
+		return err
 	}
 
 	// Compare each file and gather each error.
 	compareErrors := collections.Errors{}
 	for path := range resultPaths {
-		gotContent, err := os.ReadFile(filepath.Join(resultPath, path))
+		gotContent, err := os.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("os.ReadFile(%q): %w", path, err)
 		}
 		err = g.CompareGoldenFile(path, gotContent)
 		if err != nil {
-			return fmt.Errorf("CompareGoldenFile(%q): %w", path, err)
+			return fmt.Errorf("CompareGoldenFile(%q): %w", g.basePath(path), err)
 		}
 	}
 	// If there are no errors this will be nil, otherwise will be a
@@ -99,17 +113,17 @@ func (g GoldenCtx) CompareDirectory(resultPath string) error {
 
 func (g GoldenCtx) updateGoldenDirectory(resultPath string) error {
 	// Clear the golden directory
-	err := os.RemoveAll(g.Dir)
+	err := os.RemoveAll(g.GoldenDir)
 	if err != nil {
-		return fmt.Errorf("could not clear golden directory %s: %w", g.Dir, err)
+		return fmt.Errorf("could not clear golden directory %s: %w", g.GoldenDir, err)
 	}
-	err = os.Mkdir(g.Dir, os.ModePerm)
+	err = os.Mkdir(g.GoldenDir, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("could not recreate golden directory %s: %w", g.Dir, err)
+		return fmt.Errorf("could not recreate golden directory %s: %w", g.GoldenDir, err)
 	}
 
 	// Recreate the goldens directory
-	paths, err := ReplicateDirectory(resultPath, g.Dir)
+	paths, err := ReplicateDirectory(resultPath, g.GoldenDir)
 	if err != nil {
 		return err
 	}
@@ -127,6 +141,26 @@ func readAllPaths(dirPath string) (collections.Set[string], error) {
 	}
 	err := filepath.WalkDir(dirPath, allNamesButCurrentDirectory)
 	return paths, err
+}
+
+func directoryFilesEqual(expectedPaths, actualPaths collections.Set[string]) error {
+	expectedFiles := filenamesFromSet(expectedPaths)
+	actualFiles := filenamesFromSet(actualPaths)
+	if !expectedFiles.Equals(actualFiles) {
+		return fmt.Errorf(
+			"got different files in generated directory\nexpected: %v\nactual: %v",
+			expectedFiles, actualFiles,
+		)
+	}
+	return nil
+}
+
+func filenamesFromSet(paths collections.Set[string]) collections.Set[string] {
+	files := collections.Set[string]{}
+	for path := range paths {
+		files.Add(filepath.Base(path))
+	}
+	return files
 }
 
 type GoldenDiffError struct {

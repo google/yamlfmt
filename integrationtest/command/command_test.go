@@ -198,8 +198,7 @@ func TestVerboseFormat(t *testing.T) {
 
 func TestDebugDiffs(t *testing.T) {
 	TestCase{
-		Dir: "debug_diffs",
-		// TODO: Change arguments to match your test case.
+		Dir:     "debug_diffs",
 		Command: yamlfmtWithArgs("-debug diffs ."),
 		Update:  *updateFlag,
 	}.Run(t)

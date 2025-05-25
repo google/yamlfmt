@@ -17,6 +17,7 @@ package yamlfmt
 import (
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/google/yamlfmt/internal/collections"
 	"github.com/google/yamlfmt/internal/multilinediff"
@@ -88,7 +89,9 @@ func (fds FileDiffs) Add(diff *FileDiff) error {
 
 func (fds FileDiffs) StrOutput() string {
 	result := ""
-	for _, fd := range fds {
+	sortedPaths := fds.sortedPaths()
+	for _, path := range sortedPaths {
+		fd := fds[path]
 		if fd.Diff.Changed() {
 			result += fd.StrOutput()
 		}
@@ -98,7 +101,9 @@ func (fds FileDiffs) StrOutput() string {
 
 func (fds FileDiffs) StrOutputQuiet() string {
 	result := ""
-	for _, fd := range fds {
+	sortedPaths := fds.sortedPaths()
+	for _, path := range sortedPaths {
+		fd := fds[path]
 		if fd.Diff.Changed() {
 			result += fd.StrOutputQuiet()
 		}
@@ -124,4 +129,13 @@ func (fds FileDiffs) ChangedCount() int {
 		}
 	}
 	return changed
+}
+
+func (fds FileDiffs) sortedPaths() []string {
+	pathKeys := []string{}
+	for path := range fds {
+		pathKeys = append(pathKeys, path)
+	}
+	slices.Sort(pathKeys)
+	return pathKeys
 }
