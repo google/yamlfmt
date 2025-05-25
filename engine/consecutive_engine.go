@@ -19,15 +19,17 @@ import (
 	"os"
 
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/logger"
 )
 
 // Engine that will process each file one by one consecutively.
 type ConsecutiveEngine struct {
 	LineSepCharacter string
 	Formatter        yamlfmt.Formatter
-	Quiet            bool
 	ContinueOnError  bool
 	OutputFormat     EngineOutputFormat
+	Quiet            bool
+	Verbose          bool
 }
 
 func (e *ConsecutiveEngine) FormatContent(content []byte) ([]byte, error) {
@@ -36,6 +38,13 @@ func (e *ConsecutiveEngine) FormatContent(content []byte) ([]byte, error) {
 
 func (e *ConsecutiveEngine) Format(paths []string) (fmt.Stringer, error) {
 	formatDiffs, formatErrs := e.formatAll(paths)
+
+	// Debug format diff output.
+	logger.Debug(
+		logger.DebugCodeDiffs,
+		fmt.Sprintf("The following files were modified:\n%s", formatDiffs.StrOutput()),
+	)
+
 	if len(formatErrs) > 0 {
 		if e.ContinueOnError {
 			fmt.Print(formatErrs)
@@ -44,7 +53,11 @@ func (e *ConsecutiveEngine) Format(paths []string) (fmt.Stringer, error) {
 			return nil, formatErrs
 		}
 	}
-	return nil, formatDiffs.ApplyAll()
+	applyErr := formatDiffs.ApplyAll()
+	if applyErr != nil {
+		return nil, applyErr
+	}
+	return getEngineOutput(e.OutputFormat, yamlfmt.OperationFormat, formatDiffs, e.Quiet, e.Verbose)
 }
 
 func (e *ConsecutiveEngine) Lint(paths []string) (fmt.Stringer, error) {
@@ -55,7 +68,7 @@ func (e *ConsecutiveEngine) Lint(paths []string) (fmt.Stringer, error) {
 	if formatDiffs.ChangedCount() == 0 {
 		return nil, nil
 	}
-	return getEngineOutput(e.OutputFormat, yamlfmt.OperationLint, formatDiffs, e.Quiet)
+	return getEngineOutput(e.OutputFormat, yamlfmt.OperationLint, formatDiffs, e.Quiet, e.Verbose)
 }
 
 func (e *ConsecutiveEngine) DryRun(paths []string) (fmt.Stringer, error) {
@@ -66,7 +79,7 @@ func (e *ConsecutiveEngine) DryRun(paths []string) (fmt.Stringer, error) {
 	if formatDiffs.ChangedCount() == 0 {
 		return nil, nil
 	}
-	return getEngineOutput(e.OutputFormat, yamlfmt.OperationDry, formatDiffs, e.Quiet)
+	return getEngineOutput(e.OutputFormat, yamlfmt.OperationDry, formatDiffs, e.Quiet, e.Verbose)
 }
 
 func (e *ConsecutiveEngine) formatAll(paths []string) (yamlfmt.FileDiffs, FormatErrors) {

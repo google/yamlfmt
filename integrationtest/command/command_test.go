@@ -187,3 +187,19 @@ func TestForceFlowStyle(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestVerboseFormat(t *testing.T) {
+	TestCase{
+		Dir:     "verbose_format",
+		Command: yamlfmtWithArgs("-v ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
+
+func TestDebugDiffs(t *testing.T) {
+	TestCase{
+		Dir:     "debug_diffs",
+		Command: yamlfmtWithArgs("-debug diffs ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}

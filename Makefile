@@ -41,7 +41,7 @@ integrationtest_stdout:
 .PHONY: integrationtest_update
 integrationtest_update:
 	$(MAKE) build
-	go test -tags=integration_test ./integrationtest/command -update
+	go test -tags=integration_test -v ./integrationtest/command -update
 
 .PHONY: command_test_case
 command_test_case:

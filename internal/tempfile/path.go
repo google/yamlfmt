@@ -18,13 +18,16 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/google/yamlfmt/internal/collections"
 )
 
 type Path struct {
+	// BasePath is the new location for the file represented by this Path.
 	BasePath string
-	FileName string
+	// FilePath is the destination path within the BasePath.
+	FilePath string
 	IsDir    bool
 	Content  []byte
 }
@@ -41,7 +44,7 @@ func (p *Path) Create() error {
 }
 
 func (p *Path) fullPath() string {
-	return filepath.Join(p.BasePath, p.FileName)
+	return filepath.Join(p.BasePath, p.FilePath)
 }
 
 type Paths []Path
@@ -56,7 +59,7 @@ func (ps Paths) CreateAll() error {
 
 func ReplicateDirectory(dir string, newBase string) (Paths, error) {
 	paths := Paths{}
-	walkAllButCurrentDirectory := func(path string, info fs.FileInfo, walkErr error) error {
+	walkAllButCurrentDirectory := func(path string, info fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
 		}
@@ -76,12 +79,12 @@ func ReplicateDirectory(dir string, newBase string) (Paths, error) {
 
 		paths = append(paths, Path{
 			BasePath: newBase,
-			FileName: info.Name(),
+			FilePath: strings.TrimPrefix(path, dir),
 			IsDir:    info.IsDir(),
 			Content:  content,
 		})
 		return nil
 	}
-	err := filepath.Walk(dir, walkAllButCurrentDirectory)
+	err := filepath.WalkDir(dir, walkAllButCurrentDirectory)
 	return paths, err
 }

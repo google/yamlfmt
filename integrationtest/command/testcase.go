@@ -29,8 +29,8 @@ import (
 )
 
 const (
-	stdoutGoldenFile = "stdout.txt"
-	stderrGoldenFile = "stderr.txt"
+	stdoutGoldenFileName = "stdout.txt"
+	stderrGoldenFileName = "stderr.txt"
 )
 
 type TestCase struct {
@@ -39,6 +39,8 @@ type TestCase struct {
 	IsError    bool
 	Update     bool
 	ShowStdout bool
+
+	tempDir string
 }
 
 func (tc TestCase) Run(t *testing.T) {
@@ -48,8 +50,8 @@ func (tc TestCase) Run(t *testing.T) {
 
 func (tc TestCase) run(t *testing.T) {
 	// Replicate the "before" directory in the test temp directory.
-	tempDir := t.TempDir()
-	paths, err := tempfile.ReplicateDirectory(tc.testFolderBeforePath(), tempDir)
+	tc.tempDir = t.TempDir()
+	paths, err := tempfile.ReplicateDirectory(tc.testFolderBeforePath(), tc.tempDir)
 	assert.NilErr(t, err)
 	err = paths.CreateAll()
 	assert.NilErr(t, err)
@@ -57,7 +59,7 @@ func (tc TestCase) run(t *testing.T) {
 	// Run the command for the test in the temp directory.
 	var stdoutBuf bytes.Buffer
 	var stderrBuf bytes.Buffer
-	cmd := tc.command(tempDir, &stdoutBuf, &stderrBuf)
+	cmd := tc.command(&stdoutBuf, &stderrBuf)
 	err = cmd.Run()
 	if tc.IsError {
 		assert.NotNilErr(t, err)
@@ -71,7 +73,7 @@ func (tc TestCase) run(t *testing.T) {
 	assert.NilErr(t, err)
 	err = tc.goldenStderr(stderrBuf.Bytes())
 	assert.NilErr(t, err)
-	err = tc.goldenAfter(tempDir)
+	err = tc.goldenAfter(tc.tempDir)
 	assert.NilErr(t, err)
 }
 
@@ -79,7 +81,7 @@ func (tc TestCase) testFolderBeforePath() string {
 	return tc.testdataDirPath() + "/before"
 }
 
-func (tc TestCase) command(wd string, stdoutBuf *bytes.Buffer, stderrBuf *bytes.Buffer) *exec.Cmd {
+func (tc TestCase) command(stdoutBuf *bytes.Buffer, stderrBuf *bytes.Buffer) *exec.Cmd {
 	cmdArgs := []string{}
 	for _, arg := range strings.Split(tc.Command, " ") {
 		// This is to handle potential typos in args with extra spaces.
@@ -92,7 +94,7 @@ func (tc TestCase) command(wd string, stdoutBuf *bytes.Buffer, stderrBuf *bytes.
 		Args:   cmdArgs,    // Args needs to be an array of everything including the command
 		Stdout: stdoutBuf,
 		Stderr: stderrBuf,
-		Dir:    wd,
+		Dir:    tc.tempDir,
 	}
 }
 
@@ -102,10 +104,14 @@ func (tc TestCase) goldenStdout(stdoutResult []byte) error {
 		return nil
 	}
 	goldenCtx := tempfile.GoldenCtx{
-		Dir:    tc.testFolderStdoutPath(),
-		Update: tc.Update,
+		GoldenDir: tc.testFolderStdoutPath(),
+		ResultDir: tc.tempDir,
+		Update:    tc.Update,
 	}
-	return goldenCtx.CompareGoldenFile(stdoutGoldenFile, stdoutResult)
+	return goldenCtx.CompareGoldenFile(
+		filepath.Join(tc.tempDir, stdoutGoldenFileName),
+		stdoutResult,
+	)
 }
 
 func (tc TestCase) goldenStderr(stderrResult []byte) error {
@@ -114,16 +120,21 @@ func (tc TestCase) goldenStderr(stderrResult []byte) error {
 		return nil
 	}
 	goldenCtx := tempfile.GoldenCtx{
-		Dir:    tc.testFolderStdoutPath(),
-		Update: tc.Update,
+		GoldenDir: tc.testFolderStdoutPath(),
+		ResultDir: tc.tempDir,
+		Update:    tc.Update,
 	}
-	return goldenCtx.CompareGoldenFile(stderrGoldenFile, stderrResult)
+	return goldenCtx.CompareGoldenFile(
+		filepath.Join(tc.tempDir, stderrGoldenFileName),
+		stderrResult,
+	)
 }
 
 func (tc TestCase) goldenAfter(wd string) error {
 	goldenCtx := tempfile.GoldenCtx{
-		Dir:    tc.testFolderAfterPath(),
-		Update: tc.Update,
+		GoldenDir: tc.testFolderAfterPath(),
+		ResultDir: tc.tempDir,
+		Update:    tc.Update,
 	}
 	return goldenCtx.CompareDirectory(wd)
 }

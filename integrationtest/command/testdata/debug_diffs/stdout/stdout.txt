@@ -1,0 +1,11 @@
+[DEBUG]: The following files were modified:
+a.yaml:
+- a:  1  a: 1
++        
+b.yaml:
+- a:  1  a: 1
++        
+c.yaml:
+- a:  1  a: 1
++        
+
