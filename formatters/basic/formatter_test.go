@@ -455,3 +455,17 @@ b:
 		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
 	}
 }
+
+func TestJustComments(t *testing.T) {
+	config := basic.DefaultConfig()
+	f := newFormatter(config)
+
+	yml := `# hi`
+	expectedYml := `# hi`
+	result, err := f.Format([]byte(yml))
+	assert.NilErr(t, err)
+	resultStr := string(result)
+	if resultStr != expectedYml {
+		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
+	}
+}

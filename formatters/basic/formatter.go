@@ -64,6 +64,10 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 		documents = append(documents, docNode)
 	}
 
+	if len(documents) == 0 {
+		return input, nil
+	}
+
 	// Run all YAML features.
 	for _, d := range documents {
 		if err := f.YAMLFeatures.ApplyFeatures(d); err != nil {
