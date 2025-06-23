@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/google/yamlfmt/pkg/yaml"
 )
 
@@ -77,8 +78,9 @@ func (tc formatTestCase) Run(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if buf.String() != string(expected) {
-			t.Fatalf("expected:\n%s\nactual:\n%s", string(expected), buf.String())
+
+		if diff := cmp.Diff(string(expected), buf.String()); diff != "" {
+			t.Fatalf("Encode() result differs (-want/+got):\n%s", diff)
 		}
 	})
 }

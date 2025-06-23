@@ -2,3 +2,8 @@ map_key: &anchor hello
 map:
     *anchor :
         key: value
+
+to_be_merged: &tbm
+    key1: value1
+merged_map:
+    <<: *tbm

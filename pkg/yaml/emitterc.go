@@ -888,7 +888,7 @@ func yaml_emitter_emit_node(emitter *yaml_emitter_t, event *yaml_event_t,
 
 	switch event.typ {
 	case yaml_ALIAS_EVENT:
-		return yaml_emitter_emit_alias(emitter, event)
+		return yaml_emitter_emit_alias(emitter)
 	case yaml_SCALAR_EVENT:
 		return yaml_emitter_emit_scalar(emitter, event)
 	case yaml_SEQUENCE_START_EVENT:
@@ -902,11 +902,12 @@ func yaml_emitter_emit_node(emitter *yaml_emitter_t, event *yaml_event_t,
 }
 
 // Expect ALIAS.
-func yaml_emitter_emit_alias(emitter *yaml_emitter_t, event *yaml_event_t) bool {
+func yaml_emitter_emit_alias(emitter *yaml_emitter_t) bool {
 	if !yaml_emitter_process_anchor(emitter) {
 		return false
 	}
-	if emitter.correct_alias_keys && len(emitter.states) > 1 && emitter.states[len(emitter.states)-2] == yaml_EMIT_BLOCK_MAPPING_KEY_STATE {
+	if emitter.correct_alias_keys && emitter.simple_key_context &&
+		len(emitter.states) > 1 && emitter.states[len(emitter.states)-2] == yaml_EMIT_BLOCK_MAPPING_KEY_STATE {
 		if !put(emitter, ' ') {
 			return false
 		}
