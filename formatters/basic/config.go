@@ -15,8 +15,11 @@
 package basic
 
 import (
+	"os"
 	"runtime"
+	"strconv"
 
+	"github.com/editorconfig/editorconfig-core-go/v2"
 	"github.com/google/yamlfmt"
 	yamlFeatures "github.com/google/yamlfmt/formatters/basic/features"
 )
@@ -42,14 +45,49 @@ type Config struct {
 	ForceArrayStyle           yamlFeatures.SequenceStyle `mapstructure:"force_array_style"`
 }
 
+func (c *Config) applyEditorConfig() {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return
+	}
+
+	ec, err := editorconfig.GetDefinitionForFilename(cwd)
+	if err != nil {
+		return
+	}
+
+	indent, err := strconv.Atoi(ec.IndentSize)
+	if err == nil && indent > 0 {
+		c.Indent = indent
+	}
+
+	if ec.EndOfLine == "crlf" {
+		c.LineEnding = yamlfmt.LineBreakStyleCRLF
+	} else if ec.EndOfLine == "lf" {
+		c.LineEnding = yamlfmt.LineBreakStyleLF
+	} else if ec.EndOfLine == "cr" {
+		// should we log this?
+	}
+
+	if ec.TrimTrailingWhitespace != nil {
+		c.TrimTrailingWhitespace = *ec.TrimTrailingWhitespace
+	}
+
+	if ec.InsertFinalNewline != nil {
+		c.EOFNewline = *ec.InsertFinalNewline
+	}
+}
+
 func DefaultConfig() *Config {
 	lineBreakStyle := yamlfmt.LineBreakStyleLF
 	if runtime.GOOS == "windows" {
 		lineBreakStyle = yamlfmt.LineBreakStyleCRLF
 	}
-	return &Config{
+	config := &Config{
 		Indent:          2,
 		LineEnding:      lineBreakStyle,
 		PadLineComments: 1,
 	}
+	config.applyEditorConfig()
+	return config
 }
