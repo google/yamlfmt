@@ -61,11 +61,12 @@ func (c *Config) applyEditorConfig() {
 		c.Indent = indent
 	}
 
-	if ec.EndOfLine == "crlf" {
+	switch ec.EndOfLine {
+	case "crlf":
 		c.LineEnding = yamlfmt.LineBreakStyleCRLF
-	} else if ec.EndOfLine == "lf" {
+	case "lf":
 		c.LineEnding = yamlfmt.LineBreakStyleLF
-	} else if ec.EndOfLine == "cr" {
+	case "cr":
 		// should we log this?
 	}
 
