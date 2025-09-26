@@ -53,13 +53,10 @@ See the [doublestar](https://github.com/bmatcuk/doublestar) package for more inf
 
 Yamlfmt can also be used in ci/cd pipelines which supports running containers. The following snippet shows an example job for GitLab CI:
 ```yaml
-yaml lint:
+yamllint:
   image: ghcr.io/google/yamlfmt:latest
-  before_script:
-    - apk add git
   script:
-    - yamlfmt .
-    - git diff --exit-code
+    - yamlfmt -lint .
 ```
 The Docker image can also be used to run yamlfmt without installing it on your system. Just mount the directory you want to format as a volume (`/project` is used by default):
 ```bash
