@@ -1,0 +1,5 @@
+root = true
+
+[*.yaml]
+indent_size = 3
+trim_trailing_whitespace = true

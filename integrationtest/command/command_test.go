@@ -203,3 +203,27 @@ func TestDebugDiffs(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestEditorconfigBasic(t *testing.T) {
+	TestCase{
+		Dir: "editorconfig_basic",
+		Command: yamlfmtWithArgs("."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
+
+func TestEditorconfigNested(t *testing.T) {
+	TestCase{
+		Dir: "editorconfig_nested",
+		Command: yamlfmtWithArgs("."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
+
+func TestEditorconfigOverride(t *testing.T) {
+	TestCase{
+		Dir: "editorconfig_override",
+		Command: yamlfmtWithArgs("-format indent=2 ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
