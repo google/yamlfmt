@@ -69,6 +69,12 @@ func run() error {
 		if err != nil {
 			return err
 		}
+	} else if len(os.Args) == 1 {
+		// If the user doesn't have a yamlfmt config and didn't provide
+		// any arguments, the command is destined to no-op. Provide the
+		// default help message to indicate proper usage.
+		flag.Usage()
+		return nil
 	}
 
 	commandConfig, err := makeCommandConfigFromData(configData)
