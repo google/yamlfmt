@@ -53,6 +53,6 @@ In `v0.18.0` and `v0.18.1`, the experience was changed to what is documented her
   hooks:
     - id: yamlfmt
       entry: yamlfmt
-      files: [yaml]
+      types: [yaml]
       pass_filenames: true
 ```
