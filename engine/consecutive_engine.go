@@ -40,8 +40,9 @@ func (e *ConsecutiveEngine) Format(paths []string) (fmt.Stringer, error) {
 	formatDiffs, formatErrs := e.formatAll(paths)
 
 	// Debug format diff output. Manually check for the debug code
-	// to be active since the diff calculation can be performance
-	// intensive, thus don't want to calculate it if it's not needed.
+	// to be active since the diff string construction can be
+	// performance intensive, thus don't want to calculate it if
+	// it's not needed.
 	if logger.DebugCodeIsActive(logger.DebugCodeDiffs) {
 		logger.Debug(
 			logger.DebugCodeDiffs,
