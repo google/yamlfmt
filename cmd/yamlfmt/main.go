@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime/debug"
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
@@ -27,8 +28,8 @@ import (
 )
 
 var (
-	version = "dev"
-	commit  = "none"
+	version = ""
+	commit  = ""
 )
 
 func main() {
@@ -44,7 +45,12 @@ func run() error {
 	flag.Parse()
 
 	if *flagVersion {
-		fmt.Printf("yamlfmt %s (%s)\n", version, commit)
+		currentVersion, currentCommit := getVersion()
+		versionMessage := fmt.Sprintf("yamlfmt %s", currentVersion)
+		if currentCommit != "" {
+			versionMessage += fmt.Sprintf(" (%s)", currentCommit)
+		}
+		fmt.Println(versionMessage)
 		return nil
 	}
 
@@ -88,4 +94,21 @@ func run() error {
 
 func getFullRegistry() *yamlfmt.Registry {
 	return yamlfmt.NewFormatterRegistry(&basic.BasicFormatterFactory{})
+}
+
+func getVersion() (string, string) {
+	// If version was set via ldflags, return that.
+	if version != "" {
+		return version, commit
+	}
+
+	buildInfo, ok := debug.ReadBuildInfo()
+	// If buildinfo can't be read, return default values.
+	if !ok {
+		return "dev", ""
+	}
+
+	// Otherwise read the version from buildInfo (this is to cover
+	// the go install usecase).
+	return buildInfo.Main.Version, ""
 }
