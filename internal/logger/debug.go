@@ -45,6 +45,10 @@ func ActivateDebugCode(code string) {
 	}
 }
 
+func DebugCodeIsActive(code DebugCode) bool {
+	return activeDebugCodes.Contains(code)
+}
+
 // Debug prints a message if the given debug code is active.
 func Debug(code DebugCode, msg string, args ...any) {
 	if activeDebugCodes.Contains(code) {
