@@ -63,10 +63,7 @@ func (l diffLine) toLine(length int) string {
 
 	line += l.old
 
-	for i := 0; i < length-len(l.old); i++ {
-		line += " "
-	}
-
+	line += strings.Repeat(" ", length-len(l.old))
 	line += "  "
 
 	line += l.new
