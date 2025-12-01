@@ -32,7 +32,7 @@ type CodeQuality struct {
 	Location    Location `json:"location,omitempty"`
 }
 
-// Location now includes Lines for GitLab compatibility.
+// Location is the location of a Code Quality finding.
 type Location struct {
 	Path  string `json:"path,omitempty"`
 	Lines *Lines `json:"lines,omitempty"`
@@ -44,7 +44,9 @@ type Lines struct {
 	End   int `json:"end"`
 }
 
-// NewCodeQuality creates a new report entry based on a diff.
+// NewCodeQuality creates a new CodeQuality object from a yamlfmt.FileDiff.
+//
+// If the file did not change, i.e. the diff is empty, an empty struct and false is returned.
 func NewCodeQuality(diff yamlfmt.FileDiff) (CodeQuality, bool) {
 	if !diff.Diff.Changed() {
 		return CodeQuality{}, false
@@ -98,13 +100,15 @@ func detectChangedLine(diff *yamlfmt.FileDiff) (begin int, end int) {
 	return 1, 1
 }
 
-// fingerprint returns SHA256 of original file.
+// fingerprint returns a 256-bit SHA256 hash of the original unformatted file.
+// This is used to uniquely identify a code quality finding.
 func fingerprint(diff yamlfmt.FileDiff) string {
 	hash := sha256.New()
 	fmt.Fprint(hash, diff.Diff.Original)
 	return fmt.Sprintf("%x", hash.Sum(nil)) //nolint:perfsprint
 }
 
+// Severity is the severity of a code quality finding.
 type Severity string
 
 const (
