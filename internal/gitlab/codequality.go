@@ -18,13 +18,12 @@ package gitlab
 import (
 	"crypto/sha256"
 	"fmt"
+	"strings"
 
 	"github.com/google/yamlfmt"
 )
 
-// CodeQuality represents a single code quality finding.
-//
-// Documentation: https://docs.gitlab.com/ee/ci/testing/code_quality.html#code-quality-report-format
+// CodeQuality represents a Code Quality finding.
 type CodeQuality struct {
 	Description string   `json:"description,omitempty"`
 	Name        string   `json:"check_name,omitempty"`
@@ -33,18 +32,25 @@ type CodeQuality struct {
 	Location    Location `json:"location,omitempty"`
 }
 
-// Location is the location of a Code Quality finding.
+// Location now includes Lines for GitLab compatibility.
 type Location struct {
-	Path string `json:"path,omitempty"`
+	Path  string `json:"path,omitempty"`
+	Lines *Lines `json:"lines,omitempty"`
 }
 
-// NewCodeQuality creates a new CodeQuality object from a yamlfmt.FileDiff.
-//
-// If the file did not change, i.e. the diff is empty, an empty struct and false is returned.
+// Lines follows the GitLab Code Quality schema.
+type Lines struct {
+	Begin int `json:"begin"`
+	End   int `json:"end"`
+}
+
+// NewCodeQuality creates a new report entry based on a diff.
 func NewCodeQuality(diff yamlfmt.FileDiff) (CodeQuality, bool) {
 	if !diff.Diff.Changed() {
 		return CodeQuality{}, false
 	}
+
+	begin, end := detectChangedLine(&diff)
 
 	return CodeQuality{
 		Description: "Not formatted correctly, run yamlfmt to resolve.",
@@ -53,21 +59,52 @@ func NewCodeQuality(diff yamlfmt.FileDiff) (CodeQuality, bool) {
 		Severity:    Major,
 		Location: Location{
 			Path: diff.Path,
+			Lines: &Lines{
+				Begin: begin,
+				End:   end,
+			},
 		},
 	}, true
 }
 
-// fingerprint returns a 256-bit SHA256 hash of the original unformatted file.
-// This is used to uniquely identify a code quality finding.
+// detectChangedLine finds the first line that differs between original and formatted content.
+func detectChangedLine(diff *yamlfmt.FileDiff) (begin int, end int) {
+	original := strings.Split(diff.Diff.Original, "\n")
+	formatted := strings.Split(diff.Diff.Formatted, "\n")
+
+	max := len(original)
+	if len(formatted) > max {
+		max = len(formatted)
+	}
+
+	for i := 0; i < max; i++ {
+		origLine := ""
+		fmtLine := ""
+
+		if i < len(original) {
+			origLine = original[i]
+		}
+		if i < len(formatted) {
+			fmtLine = formatted[i]
+		}
+
+		if origLine != fmtLine {
+			lineNumber := i + 1
+			return lineNumber, lineNumber
+		}
+	}
+
+	// fallback (should not happen because diff.Changed() was true)
+	return 1, 1
+}
+
+// fingerprint returns SHA256 of original file.
 func fingerprint(diff yamlfmt.FileDiff) string {
 	hash := sha256.New()
-
 	fmt.Fprint(hash, diff.Diff.Original)
-
 	return fmt.Sprintf("%x", hash.Sum(nil)) //nolint:perfsprint
 }
 
-// Severity is the severity of a code quality finding.
 type Severity string
 
 const (
@@ -77,3 +114,4 @@ const (
 	Critical Severity = "critical"
 	Blocker  Severity = "blocker"
 )
+
