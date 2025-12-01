@@ -23,7 +23,9 @@ import (
 	"github.com/google/yamlfmt"
 )
 
-// CodeQuality represents a Code Quality finding.
+// CodeQuality represents a single code quality finding.
+//
+// Documentation: https://docs.gitlab.com/ee/ci/testing/code_quality.html#code-quality-report-format
 type CodeQuality struct {
 	Description string   `json:"description,omitempty"`
 	Name        string   `json:"check_name,omitempty"`
