@@ -137,7 +137,7 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-		fmt.Print(string(out))
+		fmt.Printf("%s", out)
 	case yamlfmt.OperationPrintConfig:
 		commandConfig := map[string]any{}
 		err = mapstructure.Decode(c.Config, &commandConfig)
@@ -149,7 +149,7 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-		fmt.Print(string(out))
+		fmt.Printf("%s", out)
 
 		formatterConfigMap, err := formatter.ConfigMap()
 		if err != nil {
@@ -161,7 +161,7 @@ func (c *Command) Run() error {
 		if err != nil {
 			return err
 		}
-		fmt.Print(string(out))
+		fmt.Printf("%s", out)
 	}
 
 	return nil

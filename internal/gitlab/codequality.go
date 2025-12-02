@@ -62,7 +62,7 @@ func NewCodeQuality(diff yamlfmt.FileDiff) (CodeQuality, bool) {
 func fingerprint(diff yamlfmt.FileDiff) string {
 	hash := sha256.New()
 
-	fmt.Fprint(hash, diff.Diff.Original)
+	fmt.Fprint(hash, diff.Diff.GetOriginal())
 
 	return fmt.Sprintf("%x", hash.Sum(nil)) //nolint:perfsprint
 }
