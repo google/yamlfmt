@@ -26,17 +26,17 @@ YAMLFMT_BIN ?= $(shell pwd)/dist/yamlfmt
 .PHONY: integrationtest
 integrationtest:
 	$(MAKE) build
-	go test -v -tags=integration_test ./integrationtest/command
+	go test -tags=integration_test -run=$(TESTNAME) ./integrationtest/command
 
 .PHONY: integrationtest_v
 integrationtest_v:
 	$(MAKE) build
-	go test -v -tags=integration_test ./integrationtest/command
+	go test -v -tags=integration_test -run=$(TESTNAME) ./integrationtest/command
 
 .PHONY: integrationtest_stdout
 integrationtest_stdout:
 	$(MAKE) build
-	go test -v -tags=integration_test ./integrationtest/command -stdout
+	go test -v -tags=integration_test -run=$(TESTNAME) ./integrationtest/command -stdout
 
 .PHONY: integrationtest_update
 integrationtest_update:
