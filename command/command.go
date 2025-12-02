@@ -80,22 +80,29 @@ func (c *Command) Run() error {
 		OutputFormat:     c.Config.OutputFormat,
 	}
 
-	collectedPaths, err := c.collectPaths()
-	if err != nil {
-		return err
-	}
-	if c.Config.GitignoreExcludes {
-		newPaths, err := yamlfmt.ExcludeWithGitignore(c.Config.GitignorePath, collectedPaths)
+	var paths []string
+	// If the operation is stdin, skip path analysis. You can only
+	// read from /dev/stdin once, so we don't want to read it
+	// if that's the argument the user passed in.
+	if c.Operation == yamlfmt.OperationStdin {
+		paths = []string{}
+	} else {
+		collectedPaths, err := c.collectPaths()
 		if err != nil {
 			return err
 		}
-		collectedPaths = newPaths
-	}
-
-	paths, err := c.analyzePaths(collectedPaths)
-	if err != nil {
-		fmt.Printf("path analysis found the following errors:\n%v", err)
-		fmt.Println("Continuing...")
+		if c.Config.GitignoreExcludes {
+			newPaths, err := yamlfmt.ExcludeWithGitignore(c.Config.GitignorePath, collectedPaths)
+			if err != nil {
+				return err
+			}
+			collectedPaths = newPaths
+		}
+		paths, err = c.analyzePaths(collectedPaths)
+		if err != nil {
+			fmt.Printf("path analysis found the following errors:\n%v", err)
+			fmt.Println("Continuing...")
+		}
 	}
 
 	switch c.Operation {
