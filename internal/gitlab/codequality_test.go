@@ -16,6 +16,8 @@ package gitlab_test
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -91,5 +93,196 @@ func TestCodeQuality(t *testing.T) {
 				t.Errorf("json.Marshal() and json.Unmarshal() mismatch (-got +want):\n%s", diff)
 			}
 		})
+	}
+}
+
+func TestCodeQuality_DetectChangedLines_MultipleCases(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name      string
+		original  string
+		formatted string
+		wantBegin int
+		wantEnd   int
+	}{
+		{
+			name:      "single line change",
+			original:  "a:   b",
+			formatted: "a: b",
+			wantBegin: 1,
+			wantEnd:   1,
+		},
+		{
+			name: "multiple consecutive lines",
+			original: `line1
+line2:   value
+line3:  value
+line4`,
+			formatted: `line1
+line2: value
+line3: value
+line4`,
+			wantBegin: 2,
+			wantEnd:   3,
+		},
+		{
+			name: "non-consecutive changes",
+			original: `line1
+line2:   value
+line3
+line4:  value
+line5`,
+			formatted: `line1
+line2: value
+line3
+line4: value
+line5`,
+			wantBegin: 2,
+			wantEnd:   4,
+		},
+		{
+			name: "change at beginning",
+			original: `key:   value
+line2
+line3`,
+			formatted: `key: value
+line2
+line3`,
+			wantBegin: 1,
+			wantEnd:   1,
+		},
+		{
+			name: "change at end",
+			original: `line1
+line2
+key:   value`,
+			formatted: `line1
+line2
+key: value`,
+			wantBegin: 3,
+			wantEnd:   3,
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			diff := yamlfmt.FileDiff{
+				Path: "test.yaml",
+				Diff: &yamlfmt.FormatDiff{
+					Original:  tc.original,
+					Formatted: tc.formatted,
+				},
+			}
+
+			cq, ok := gitlab.NewCodeQuality(diff)
+			if !ok {
+				t.Fatal("NewCodeQuality() returned false, expected true")
+			}
+
+			if cq.Location.Lines == nil {
+				t.Fatal("Location.Lines is nil")
+			}
+
+			if cq.Location.Lines.Begin == nil {
+				t.Fatal("Location.Lines.Begin is nil")
+			}
+
+			if cq.Location.Lines.End == nil {
+				t.Fatal("Location.Lines.End is nil")
+			}
+
+			gotBegin := *cq.Location.Lines.Begin
+			if gotBegin != tc.wantBegin {
+				t.Errorf("Location.Lines.Begin = %d, want %d", gotBegin, tc.wantBegin)
+			}
+
+			gotEnd := *cq.Location.Lines.End
+			if gotEnd != tc.wantEnd {
+				t.Errorf("Location.Lines.End = %d, want %d", gotEnd, tc.wantEnd)
+			}
+		})
+	}
+}
+
+func TestCodeQuality_DetectChangedLines(t *testing.T) {
+	t.Parallel()
+
+	testdataDir := "testdata/gitlab/changed_line"
+	print(testdataDir)
+	originalPath := filepath.Join(testdataDir, "original.yaml")
+	formattedPath := filepath.Join(testdataDir, "formatted.yaml")
+
+	original, err := os.ReadFile(originalPath)
+	if err != nil {
+		t.Fatalf("failed to read original file: %v", err)
+	}
+
+	formatted, err := os.ReadFile(formattedPath)
+	if err != nil {
+		t.Fatalf("failed to read formatted file: %v", err)
+	}
+
+	diff := yamlfmt.FileDiff{
+		Path: "testdata/original.yaml",
+		Diff: &yamlfmt.FormatDiff{
+			Original:  string(original),
+			Formatted: string(formatted),
+		},
+	}
+
+	cq, ok := gitlab.NewCodeQuality(diff)
+	if !ok {
+		t.Fatal("NewCodeQuality() returned false, expected true")
+	}
+
+	if cq.Location.Lines == nil {
+		t.Fatal("Location.Lines is nil")
+	}
+
+	if cq.Location.Lines.Begin == nil {
+		t.Fatal("Location.Lines.Begin is nil")
+	}
+
+	if cq.Location.Lines.End == nil {
+		t.Fatal("Location.Lines.End is nil")
+	}
+
+	wantBeginLine := 6
+	gotBeginLine := *cq.Location.Lines.Begin
+
+	if gotBeginLine != wantBeginLine {
+		t.Errorf("Location.Lines.Begin = %d, want %d", gotBeginLine, wantBeginLine)
+	}
+
+	wantEndLine := 7
+	gotEndLine := *cq.Location.Lines.End
+
+	if gotEndLine != wantEndLine {
+		t.Errorf("Location.Lines.End = %d, want %d", gotEndLine, wantEndLine)
+	}
+
+	if cq.Location.Path != diff.Path {
+		t.Errorf("Location.Path = %q, want %q", cq.Location.Path, diff.Path)
+	}
+
+	if cq.Description == "" {
+		t.Error("Description is empty")
+	}
+
+	if cq.Name == "" {
+		t.Error("Name is empty")
+	}
+
+	if cq.Fingerprint == "" {
+		t.Error("Fingerprint is empty")
+	}
+
+	if cq.Severity == "" {
+		t.Error("Severity is empty")
 	}
 }

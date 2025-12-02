@@ -43,6 +43,7 @@ type Location struct {
 // Lines follows the GitLab Code Quality schema.
 type Lines struct {
 	Begin *int `json:"begin,omitempty"`
+	End   *int `json:"end,omitempty"`
 }
 
 // NewCodeQuality creates a new CodeQuality object from a yamlfmt.FileDiff.
@@ -53,7 +54,7 @@ func NewCodeQuality(diff yamlfmt.FileDiff) (CodeQuality, bool) {
 		return CodeQuality{}, false
 	}
 
-	begin := detectChangedLine(&diff)
+	begin, end := detectChangedLines(&diff)
 
 	return CodeQuality{
 		Description: "Not formatted correctly, run yamlfmt to resolve.",
@@ -64,13 +65,14 @@ func NewCodeQuality(diff yamlfmt.FileDiff) (CodeQuality, bool) {
 			Path: diff.Path,
 			Lines: &Lines{
 				Begin: &begin,
+				End:   &end,
 			},
 		},
 	}, true
 }
 
-// detectChangedLine finds the first line that differs between original and formatted content.
-func detectChangedLine(diff *yamlfmt.FileDiff) (begin int) {
+// detectChangedLines finds the first and last lines that differ between original and formatted content.
+func detectChangedLines(diff *yamlfmt.FileDiff) (begin int, end int) {
 	original := strings.Split(diff.Diff.Original, "\n")
 	formatted := strings.Split(diff.Diff.Formatted, "\n")
 
@@ -78,6 +80,9 @@ func detectChangedLine(diff *yamlfmt.FileDiff) (begin int) {
 	if len(formatted) > max {
 		max = len(formatted)
 	}
+
+	begin = -1
+	end = -1
 
 	for i := 0; i < max; i++ {
 		origLine := ""
@@ -91,13 +96,22 @@ func detectChangedLine(diff *yamlfmt.FileDiff) (begin int) {
 		}
 
 		if origLine != fmtLine {
-			lineNumber := i + 1
-			return lineNumber
+			if begin == -1 {
+				begin = i + 1
+			}
+			end = i + 1
 		}
 	}
 
 	// fallback (should not happen because diff.Changed() was true)
-	return 1
+	if begin == -1 {
+		begin = 1
+	}
+	if end == -1 {
+		end = 1
+	}
+
+	return begin, end
 }
 
 // fingerprint returns a 256-bit SHA256 hash of the original unformatted file.
