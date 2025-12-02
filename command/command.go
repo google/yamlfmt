@@ -92,10 +92,18 @@ func (c *Command) Run() error {
 		collectedPaths = newPaths
 	}
 
-	paths, err := c.analyzePaths(collectedPaths)
-	if err != nil {
-		fmt.Printf("path analysis found the following errors:\n%v", err)
-		fmt.Println("Continuing...")
+	var paths []string
+	// If the operation is stdin, skip path analysis. You can only
+	// read from /dev/stdin once, so we don't want to read it
+	// if that's the argument the user passed in.
+	if c.Operation == yamlfmt.OperationStdin {
+		paths = []string{}
+	} else {
+		paths, err = c.analyzePaths(collectedPaths)
+		if err != nil {
+			fmt.Printf("path analysis found the following errors:\n%v", err)
+			fmt.Println("Continuing...")
+		}
 	}
 
 	switch c.Operation {
