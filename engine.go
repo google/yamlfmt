@@ -15,6 +15,7 @@
 package yamlfmt
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"slices"
@@ -41,17 +42,40 @@ type Engine interface {
 }
 
 type FormatDiff struct {
-	Original  string
-	Formatted string
+	Original  []byte
+	Formatted []byte
 	LineSep   string
+
+	originalStr  string
+	formattedStr string
+}
+
+// GetOriginal will get the FormatDiff.Original from the diff as a string.
+// It is accessed through a method to ensure the string cast only
+// occurs once.
+func (d *FormatDiff) GetOriginal() string {
+	if d.originalStr == "" {
+		d.originalStr = string(d.Original)
+	}
+	return d.originalStr
+}
+
+// GetFormatted will get FormatDiff.Formatted from the diff as a string.
+// It is accessed through a method to ensure the string cast only
+// occurs once.
+func (d *FormatDiff) GetFormatted() string {
+	if d.formattedStr == "" {
+		d.formattedStr = string(d.Formatted)
+	}
+	return d.formattedStr
 }
 
 func (d *FormatDiff) MultilineDiff() (string, int) {
-	return multilinediff.Diff(d.Original, d.Formatted, d.LineSep)
+	return multilinediff.Diff(d.GetOriginal(), d.GetFormatted(), d.LineSep)
 }
 
 func (d *FormatDiff) Changed() bool {
-	return d.Original != d.Formatted
+	return !bytes.Equal(d.Original, d.Formatted)
 }
 
 type FileDiff struct {
@@ -73,7 +97,7 @@ func (fd *FileDiff) Apply() error {
 	if !fd.Diff.Changed() {
 		return nil
 	}
-	return os.WriteFile(fd.Path, []byte(fd.Diff.Formatted), 0644)
+	return os.WriteFile(fd.Path, fd.Diff.Formatted, 0644)
 }
 
 type FileDiffs map[string]*FileDiff

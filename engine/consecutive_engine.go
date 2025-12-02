@@ -113,8 +113,8 @@ func (e *ConsecutiveEngine) formatFileContent(path string) (*yamlfmt.FileDiff, e
 	return &yamlfmt.FileDiff{
 		Path: path,
 		Diff: &yamlfmt.FormatDiff{
-			Original:  string(content),
-			Formatted: string(formatted),
+			Original:  content,
+			Formatted: formatted,
 			LineSep:   e.LineSepCharacter,
 		},
 	}, nil

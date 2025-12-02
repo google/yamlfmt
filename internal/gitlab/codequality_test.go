@@ -39,8 +39,8 @@ func TestCodeQuality(t *testing.T) {
 			diff: yamlfmt.FileDiff{
 				Path: "testcase/no_diff.yaml",
 				Diff: &yamlfmt.FormatDiff{
-					Original:  "a: b",
-					Formatted: "a: b",
+					Original:  []byte("a: b"),
+					Formatted: []byte("a: b"),
 				},
 			},
 			wantOK: false,
@@ -50,8 +50,8 @@ func TestCodeQuality(t *testing.T) {
 			diff: yamlfmt.FileDiff{
 				Path: "testcase/with_diff.yaml",
 				Diff: &yamlfmt.FormatDiff{
-					Original:  "a:   b",
-					Formatted: "a: b",
+					Original:  []byte("a:   b"),
+					Formatted: []byte("a: b"),
 				},
 			},
 			wantOK: true,
