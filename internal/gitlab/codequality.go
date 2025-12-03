@@ -42,7 +42,7 @@ type Location struct {
 
 // Lines follows the GitLab Code Quality schema.
 type Lines struct {
-	Begin *int `json:"begin,omitempty"`
+	Begin int  `json:"begin"`
 	End   *int `json:"end,omitempty"`
 }
 
@@ -64,7 +64,7 @@ func NewCodeQuality(diff yamlfmt.FileDiff) (CodeQuality, bool) {
 		Location: Location{
 			Path: diff.Path,
 			Lines: &Lines{
-				Begin: &begin,
+				Begin: begin,
 				End:   &end,
 			},
 		},

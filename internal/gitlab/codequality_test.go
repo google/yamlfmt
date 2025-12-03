@@ -131,19 +131,15 @@ func TestCodeQuality_DetectChangedLine(t *testing.T) {
 		t.Fatal("Location.Lines is nil")
 	}
 
-	if cq.Location.Lines.Begin == nil {
-		t.Fatal("Location.Lines.Begin is nil")
+	wantBeginLine := 6
+	gotBeginLine := cq.Location.Lines.Begin
+
+	if gotBeginLine != wantBeginLine {
+		t.Errorf("Location.Lines.Begin = %d, want %d", gotBeginLine, wantBeginLine)
 	}
 
 	if cq.Location.Lines.End == nil {
 		t.Fatal("Location.Lines.End is nil")
-	}
-
-	wantBeginLine := 6
-	gotBeginLine := *cq.Location.Lines.Begin
-
-	if gotBeginLine != wantBeginLine {
-		t.Errorf("Location.Lines.Begin = %d, want %d", gotBeginLine, wantBeginLine)
 	}
 
 	wantEndLine := 8
@@ -266,17 +262,13 @@ key: value`,
 				t.Fatal("Location.Lines is nil")
 			}
 
-			if cq.Location.Lines.Begin == nil {
-				t.Fatal("Location.Lines.Begin is nil")
+			gotBegin := cq.Location.Lines.Begin
+			if gotBegin != tc.wantBegin {
+				t.Errorf("Location.Lines.Begin = %d, want %d", gotBegin, tc.wantBegin)
 			}
 
 			if cq.Location.Lines.End == nil {
-				t.Fatal("Location.Lines.End is nil")
-			}
-
-			gotBegin := *cq.Location.Lines.Begin
-			if gotBegin != tc.wantBegin {
-				t.Errorf("Location.Lines.Begin = %d, want %d", gotBegin, tc.wantBegin)
+				t.Fatalf("Location.Lines.End is nil")
 			}
 
 			gotEnd := *cq.Location.Lines.End
