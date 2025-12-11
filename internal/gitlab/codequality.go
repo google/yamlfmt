@@ -73,8 +73,8 @@ func NewCodeQuality(diff yamlfmt.FileDiff) (CodeQuality, bool) {
 
 // detectChangedLines finds the first and last lines that differ between original and formatted content.
 func detectChangedLines(diff *yamlfmt.FileDiff) (begin int, end *int) {
-	original := strings.Split(diff.Diff.Original, "\n")
-	formatted := strings.Split(diff.Diff.Formatted, "\n")
+	original := strings.Split(string(diff.Diff.Original), "\n")
+	formatted := strings.Split(string(diff.Diff.Formatted), "\n")
 
 	max := len(original)
 	if len(formatted) > max {
