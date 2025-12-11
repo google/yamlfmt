@@ -5,7 +5,11 @@
     "fingerprint": "e9b14e45ca01a9a72fda9b8356a9ddbbaf7fe8c47116790a51cd699ae1679353",
     "severity": "major",
     "location": {
-      "path": "needs_format.yaml"
+      "path": "needs_format.yaml",
+      "lines": {
+        "begin": 2,
+        "end": 4
+      }
     }
   }
 ]
