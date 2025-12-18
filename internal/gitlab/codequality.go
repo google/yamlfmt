@@ -76,14 +76,11 @@ func detectChangedLines(diff *yamlfmt.FileDiff) (begin int, end *int) {
 	original := strings.Split(string(diff.Diff.Original), "\n")
 	formatted := strings.Split(string(diff.Diff.Formatted), "\n")
 
-	max := len(original)
-	if len(formatted) > max {
-		max = len(formatted)
-	}
+	maxLines := max(len(original), len(formatted))
 
 	begin = -1
 
-	for i := 0; i < max; i++ {
+	for i := 0; i < maxLines; i++ {
 		origLine := ""
 		fmtLine := ""
 

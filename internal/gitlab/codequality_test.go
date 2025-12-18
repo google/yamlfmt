@@ -22,6 +22,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/assert"
 	"github.com/google/yamlfmt/internal/gitlab"
 )
 
@@ -68,29 +69,24 @@ func TestCodeQuality(t *testing.T) {
 			t.Parallel()
 
 			got, gotOK := gitlab.NewCodeQuality(tc.diff)
-			if gotOK != tc.wantOK {
-				t.Fatalf("NewCodeQuality() = (%#v, %v), want (*, %v)", got, gotOK, tc.wantOK)
-			}
+			assert.Equal(t, tc.wantOK, gotOK)
 			if !gotOK {
 				return
 			}
 
-			if tc.wantFingerprint != "" && tc.wantFingerprint != got.Fingerprint {
-				t.Fatalf("NewCodeQuality().Fingerprint = %q, want %q", got.Fingerprint, tc.wantFingerprint)
+			if tc.wantFingerprint != "" {
+				assert.Equal(t, tc.wantFingerprint, got.Fingerprint)
 			}
 
 			data, err := json.Marshal(got)
-			if err != nil {
-				t.Fatal(err)
-			}
+			assert.NilErr(t, err)
 
 			var gotUnmarshal gitlab.CodeQuality
-			if err := json.Unmarshal(data, &gotUnmarshal); err != nil {
-				t.Fatal(err)
-			}
+			err = json.Unmarshal(data, &gotUnmarshal)
+			assert.NilErr(t, err)
 
-			if diff := cmp.Diff(got, gotUnmarshal); diff != "" {
-				t.Errorf("json.Marshal() and json.Unmarshal() mismatch (-got +want):\n%s", diff)
+			if d := cmp.Diff(got, gotUnmarshal); d != "" {
+				assert.EqualMsg(t, "", d, "json.Marshal() and json.Unmarshal() mismatch (-got +want):\n%s")
 			}
 		})
 	}
@@ -99,74 +95,136 @@ func TestCodeQuality(t *testing.T) {
 func TestCodeQuality_DetectChangedLine(t *testing.T) {
 	t.Parallel()
 
-	testdataDir := "../../testdata/gitlab/changed_line"
-	print(testdataDir)
+	testdataDir := "./testdata/changed_line"
 	originalPath := filepath.Join(testdataDir, "original.yaml")
 	formattedPath := filepath.Join(testdataDir, "formatted.yaml")
 
 	original, err := os.ReadFile(originalPath)
-	if err != nil {
-		t.Fatalf("failed to read original file: %v", err)
-	}
+	assert.NilErr(t, err)
 
 	formatted, err := os.ReadFile(formattedPath)
-	if err != nil {
-		t.Fatalf("failed to read formatted file: %v", err)
-	}
+	assert.NilErr(t, err)
 
 	diff := yamlfmt.FileDiff{
 		Path: "testdata/original.yaml",
 		Diff: &yamlfmt.FormatDiff{
-			Original:  string(original),
-			Formatted: string(formatted),
+			Original:  original,
+			Formatted: formatted,
 		},
 	}
 
 	cq, ok := gitlab.NewCodeQuality(diff)
-	if !ok {
-		t.Fatal("NewCodeQuality() returned false, expected true")
-	}
+	assert.Assert(t, ok, "NewCodeQuality() returned false, expected true")
 
-	if cq.Location.Lines == nil {
-		t.Fatal("Location.Lines is nil")
-	}
+	assert.Assert(t, cq.Location.Lines != nil, "Location.Lines is nil")
 
 	wantBeginLine := 6
 	gotBeginLine := cq.Location.Lines.Begin
+	assert.Equal(t, wantBeginLine, gotBeginLine)
 
-	if gotBeginLine != wantBeginLine {
-		t.Errorf("Location.Lines.Begin = %d, want %d", gotBeginLine, wantBeginLine)
-	}
-
-	if cq.Location.Lines.End == nil {
-		t.Fatal("Location.Lines.End is nil")
-	}
+	assert.Assert(t, cq.Location.Lines.End != nil, "Location.Lines.End is nil")
 
 	wantEndLine := 8
 	gotEndLine := *cq.Location.Lines.End
+	assert.Equal(t, wantEndLine, gotEndLine)
 
-	if gotEndLine != wantEndLine {
-		t.Errorf("Location.Lines.End = %d, want %d", gotEndLine, wantEndLine)
+	assert.Equal(t, diff.Path, cq.Location.Path)
+
+	assert.Assert(t, cq.Description != "", "Description is empty")
+	assert.Assert(t, cq.Name != "", "Name is empty")
+	assert.Assert(t, cq.Fingerprint != "", "Fingerprint is empty")
+	assert.Assert(t, cq.Severity != "", "Severity is empty")
+}
+
+func TestCodeQuality_DetectChangedLines_FromTestdata(t *testing.T) {
+	t.Parallel()
+
+	type tc struct {
+		name      string
+		dir       string
+		wantOK    bool
+		wantBegin int
+		wantEnd   int
 	}
 
-	if cq.Location.Path != diff.Path {
-		t.Errorf("Location.Path = %q, want %q", cq.Location.Path, diff.Path)
+	cases := []tc{
+		{
+			name:   "no lines changed",
+			dir:    "no_lines_changed",
+			wantOK: false,
+		},
+		{
+			name:      "all lines changed",
+			dir:       "all_lines_changed",
+			wantOK:    true,
+			wantBegin: 1,
+			wantEnd:   2,
+		},
+		{
+			name:      "single line changed",
+			dir:       "single_line_changed",
+			wantOK:    true,
+			wantBegin: 2,
+			wantEnd:   2,
+		},
+		{
+			name:      "only the last line changed",
+			dir:       "last_line_changed",
+			wantOK:    true,
+			wantBegin: 3,
+			wantEnd:   3,
+		},
+		{
+			name:      "only change is appending a last line",
+			dir:       "append_last_line",
+			wantOK:    true,
+			wantBegin: 3,
+			wantEnd:   3,
+		},
 	}
 
-	if cq.Description == "" {
-		t.Error("Description is empty")
-	}
+	for _, c := range cases {
+		c := c
 
-	if cq.Name == "" {
-		t.Error("Name is empty")
-	}
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
 
-	if cq.Fingerprint == "" {
-		t.Error("Fingerprint is empty")
-	}
+			testdataDir := filepath.Join("./testdata/changed_line", c.dir)
+			originalPath := filepath.Join(testdataDir, "original.yaml")
+			formattedPath := filepath.Join(testdataDir, "formatted.yaml")
 
-	if cq.Severity == "" {
-		t.Error("Severity is empty")
+			original, err := os.ReadFile(originalPath)
+			assert.NilErr(t, err)
+
+			formatted, err := os.ReadFile(formattedPath)
+			assert.NilErr(t, err)
+
+			diff := yamlfmt.FileDiff{
+				Path: filepath.ToSlash(filepath.Join("testdata/changed_line", c.dir, "original.yaml")),
+				Diff: &yamlfmt.FormatDiff{
+					Original:  original,
+					Formatted: formatted,
+				},
+			}
+
+			cq, ok := gitlab.NewCodeQuality(diff)
+			assert.Equal(t, c.wantOK, ok)
+			if !ok {
+				return
+			}
+
+			assert.Assert(t, cq.Location.Lines != nil, "Location.Lines is nil")
+			assert.Equal(t, c.wantBegin, cq.Location.Lines.Begin)
+
+			assert.Assert(t, cq.Location.Lines.End != nil, "Location.Lines.End is nil")
+			assert.Equal(t, c.wantEnd, *cq.Location.Lines.End)
+
+			assert.Equal(t, diff.Path, cq.Location.Path)
+			assert.Assert(t, cq.Description != "", "Description is empty")
+			assert.Assert(t, cq.Name != "", "Name is empty")
+			assert.Assert(t, cq.Fingerprint != "", "Fingerprint is empty")
+			assert.Assert(t, cq.Severity != "", "Severity is empty")
+		})
 	}
 }
 
@@ -248,33 +306,19 @@ key: value`,
 			diff := yamlfmt.FileDiff{
 				Path: "test.yaml",
 				Diff: &yamlfmt.FormatDiff{
-					Original:  tc.original,
-					Formatted: tc.formatted,
+					Original:  []byte(tc.original),
+					Formatted: []byte(tc.formatted),
 				},
 			}
 
 			cq, ok := gitlab.NewCodeQuality(diff)
-			if !ok {
-				t.Fatal("NewCodeQuality() returned false, expected true")
-			}
+			assert.Assert(t, ok, "NewCodeQuality() returned false, expected true")
 
-			if cq.Location.Lines == nil {
-				t.Fatal("Location.Lines is nil")
-			}
+			assert.Assert(t, cq.Location.Lines != nil, "Location.Lines is nil")
+			assert.Equal(t, tc.wantBegin, cq.Location.Lines.Begin)
 
-			gotBegin := cq.Location.Lines.Begin
-			if gotBegin != tc.wantBegin {
-				t.Errorf("Location.Lines.Begin = %d, want %d", gotBegin, tc.wantBegin)
-			}
-
-			if cq.Location.Lines.End == nil {
-				t.Fatalf("Location.Lines.End is nil")
-			}
-
-			gotEnd := *cq.Location.Lines.End
-			if gotEnd != tc.wantEnd {
-				t.Errorf("Location.Lines.End = %d, want %d", gotEnd, tc.wantEnd)
-			}
+			assert.Assert(t, cq.Location.Lines.End != nil, "Location.Lines.End is nil")
+			assert.Equal(t, tc.wantEnd, *cq.Location.Lines.End)
 		})
 	}
 }
