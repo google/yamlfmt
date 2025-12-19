@@ -66,7 +66,7 @@ func (c *FilepathCollector) CollectPaths() ([]string, error) {
 		}
 		paths, err := c.walkDirectoryForYaml(inclPath)
 		if err != nil {
-			return nil, err
+			fmt.Printf("received errors walking %s:\n%v\n", inclPath, err)
 		}
 		pathsFound = append(pathsFound, paths...)
 	}
@@ -107,7 +107,24 @@ func (c *FilepathCollector) CollectPaths() ([]string, error) {
 
 func (c *FilepathCollector) walkDirectoryForYaml(dir string) ([]string, error) {
 	var paths []string
+	var walkErrs []error
 	err := filepath.Walk(dir, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			walkErrs = append(
+				walkErrs,
+				fmt.Errorf("error for path %s: %v", path, err),
+			)
+			return nil
+		}
+		if info == nil {
+			// Defensive programming, but this case should never hit.
+			walkErrs = append(
+				walkErrs,
+				fmt.Errorf("error for path %s: %v", path, errors.New("error for pathnil file info, please report a GitHub issue if you see this failure")),
+			)
+			return nil
+		}
+
 		if info.IsDir() {
 			return nil
 		}
@@ -118,7 +135,13 @@ func (c *FilepathCollector) walkDirectoryForYaml(dir string) ([]string, error) {
 
 		return nil
 	})
-	return paths, err
+	// We join the errors for all paths and return that, so filepath.Walk's error should always be nil.
+	// This is a defensive programming maneuver against that scenario that should cause yamlfmt
+	// to surface the error and no-op for the provided path.
+	if err != nil {
+		return []string{}, err
+	}
+	return paths, errors.Join(walkErrs...)
 }
 
 func (c *FilepathCollector) extensionMatches(name string) bool {
