@@ -1,6 +1,8 @@
 module github.com/google/yamlfmt
 
-go 1.21
+go 1.22
+
+toolchain go1.24.8
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.7.1
@@ -11,4 +13,8 @@ require (
 	gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405
 )
 
-require golang.org/x/text v0.14.0 // indirect
+require (
+	go.yaml.in/yaml/v3 v3.0.3 // indirect
+	golang.org/x/text v0.14.0 // indirect
+	sigs.k8s.io/yaml v1.6.0 // indirect
+)

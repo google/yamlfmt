@@ -24,6 +24,7 @@ import (
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/formatters/basic"
+	"github.com/google/yamlfmt/formatters/kyaml"
 	"github.com/google/yamlfmt/internal/logger"
 )
 
@@ -93,7 +94,9 @@ func run() error {
 }
 
 func getFullRegistry() *yamlfmt.Registry {
-	return yamlfmt.NewFormatterRegistry(&basic.BasicFormatterFactory{})
+	registry := yamlfmt.NewFormatterRegistry(&basic.BasicFormatterFactory{})
+	registry.Add(&kyaml.KYAMLFormatterFactory{})
+	return registry
 }
 
 func getVersion() (string, string) {

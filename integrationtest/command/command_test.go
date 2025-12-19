@@ -203,3 +203,11 @@ func TestDebugDiffs(t *testing.T) {
 		Update:  *updateFlag,
 	}.Run(t)
 }
+
+func TestKyamlFlag(t *testing.T) {
+	TestCase{
+		Dir:     "kyaml_flag",
+		Command: yamlfmtWithArgs("-kyaml ."),
+		Update:  *updateFlag,
+	}.Run(t)
+}
