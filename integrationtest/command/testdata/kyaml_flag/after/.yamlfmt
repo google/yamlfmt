@@ -1,0 +1,4 @@
+# The -kyaml flag should override these and not error out.
+formatter:
+  include_document_start: true
+  retain_line_breaks: true

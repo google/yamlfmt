@@ -45,6 +45,7 @@ operation without performing it.`)
 	flagGitignorePath     *string = flag.String("gitignore_path", ".gitignore", "Path to gitignore file to use")
 	flagOutputFormat      *string = flag.String("output_format", "default", "The engine output format")
 	flagMatchType         *string = flag.String("match_type", "", "The file discovery method to use. Valid values: standard, doublestar, gitignore")
+	flagKyaml             *bool   = flag.Bool("kyaml", false, "Flag to switch to kyaml formatting. If used, all formatter configuration from detected from configuration file is overridden.")
 	flagExclude                   = arrayFlag{}
 	flagFormatter                 = arrayFlag{}
 	flagExtensions                = arrayFlag{}

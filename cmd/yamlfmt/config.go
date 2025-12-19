@@ -24,12 +24,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/command"
 	"github.com/google/yamlfmt/engine"
+	"github.com/google/yamlfmt/formatters/kyaml"
 	"github.com/google/yamlfmt/internal/collections"
 	"github.com/google/yamlfmt/internal/logger"
+	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -235,10 +236,21 @@ func validatePath(path string) error {
 }
 
 func makeCommandConfigFromData(configData map[string]any) (*command.Config, error) {
-	config := command.Config{FormatterConfig: command.NewFormatterConfig()}
-	err := mapstructure.Decode(configData, &config)
+	altFormatter, err := detectAlternateFormatterFlag()
 	if err != nil {
 		return nil, err
+	}
+
+	config := command.Config{FormatterConfig: command.NewFormatterConfig()}
+	if altFormatter != "" {
+		// If an alternate formatter was specified via CLI flag, override
+		// the formatter from the configuration.
+		config.FormatterConfig.Type = altFormatter
+	} else {
+		err := mapstructure.Decode(configData, &config)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Parse overrides for formatter configuration
@@ -346,4 +358,15 @@ func parseFormatterConfigFlag(flagValues []string) (map[string]any, error) {
 	}
 
 	return formatterValues, flagErrors.Combine()
+}
+
+func detectAlternateFormatterFlag() (string, error) {
+	// Right now there is only one alternate formatter flag so I'm
+	// being a bit cheap with the implementation. If another formatter
+	// is added, this will need to return an error if more than one
+	// is requested.
+	if *flagKyaml {
+		return kyaml.KYAMLFormatterType, nil
+	}
+	return "", nil
 }
