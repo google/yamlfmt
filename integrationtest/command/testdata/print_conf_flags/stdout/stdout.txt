@@ -18,6 +18,7 @@ formatter:
     drop_merge_tag: false
     eof_newline: false
     force_array_style: ""
+    force_quote_style: ""
     include_document_start: false
     indent: 2
     indent_root_array: false
