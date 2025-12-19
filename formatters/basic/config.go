@@ -40,6 +40,7 @@ type Config struct {
 	IndentRootArray           bool                       `mapstructure:"indent_root_array"`
 	DisableAliasKeyCorrection bool                       `mapstructure:"disable_alias_key_correction"`
 	ForceArrayStyle           yamlFeatures.SequenceStyle `mapstructure:"force_array_style"`
+	ForceQuoteStyle           yamlFeatures.QuoteStyle    `mapstructure:"force_quote_style"`
 }
 
 func DefaultConfig() *Config {

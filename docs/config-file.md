@@ -95,6 +95,7 @@ The `basic` formatter is the default formatter that takes the data provided, ser
 | `indent_root_array`         | bool           | false   | Tells the formatter to indent an array that is at the lowest indentation level of the document. |
 | `disable_alias_key_correction` | bool        | false   | Disables functionality to fix alias nodes being used as keys. See #247 for details. |
 | `force_array_style`         | `flow`, `block`, or empty | empty   | If set, forces arrays to be output in a particular style, either `flow` (`[]`) or `block` (`- x`). If unset, the style from the original document is used. |
+| `force_quote_style`         | `single`, `double`, or empty | empty   | If set, forces all nodes with quotes into either single `'` or double `"` quotes. |
 
 ### Additional Notes
 

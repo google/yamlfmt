@@ -14,7 +14,12 @@
 
 package features
 
-import "github.com/google/yamlfmt/pkg/yaml"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/google/yamlfmt/pkg/yaml"
+)
 
 type SequenceStyle string
 
@@ -23,10 +28,20 @@ const (
 	SequenceStyleFlow  SequenceStyle = "flow"
 )
 
-func FeatureForceSequenceStyle(style SequenceStyle) YAMLFeatureFunc {
+var ErrUnrecognizedSequenceStyle = errors.New("unrecognized sequence style")
+
+func FeatureForceSequenceStyle(style SequenceStyle) (YAMLFeatureFunc, error) {
 	var styleVal yaml.Style
-	if style == SequenceStyleFlow {
+	switch style {
+	case SequenceStyleFlow:
 		styleVal = yaml.FlowStyle
+	case SequenceStyleBlock:
+		// In the AST, a Sequence node marked with no style
+		// is rendered in block style. So this functionally
+		// is force setting to 0 which causes it to be rendered
+		// as block style.
+	default:
+		return nil, fmt.Errorf("%w: %s", ErrUnrecognizedSequenceStyle, style)
 	}
 	var forceStyle YAMLFeatureFunc
 	forceStyle = func(n yaml.Node) error {
@@ -39,5 +54,5 @@ func FeatureForceSequenceStyle(style SequenceStyle) YAMLFeatureFunc {
 		}
 		return err
 	}
-	return forceStyle
+	return forceStyle, nil
 }
