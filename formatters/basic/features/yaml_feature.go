@@ -23,6 +23,10 @@ type YAMLFeatureList []YAMLFeatureFunc
 
 func (y YAMLFeatureList) ApplyFeatures(node yaml.Node) error {
 	for _, f := range y {
+		// A little defensive programming, likely a condition that won't be hit.
+		if f == nil {
+			continue
+		}
 		if err := f(node); err != nil {
 			return err
 		}

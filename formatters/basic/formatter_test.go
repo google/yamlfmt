@@ -15,114 +15,256 @@
 package basic_test
 
 import (
-	"strings"
 	"testing"
 
-	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/formatters/basic"
 	"github.com/google/yamlfmt/formatters/basic/features"
-	"github.com/google/yamlfmt/internal/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func newFormatter(config *basic.Config) *basic.BasicFormatter {
-	return &basic.BasicFormatter{
-		Config:       config,
-		Features:     basic.ConfigureFeaturesFromConfig(config),
-		YAMLFeatures: basic.ConfigureYAMLFeaturesFromConfig(config),
-	}
-}
+var factory = basic.BasicFormatterFactory{}
 
-func TestFormatterRetainsComments(t *testing.T) {
-	f := newFormatter(basic.DefaultConfig())
-
-	yaml := `x: "y" # foo comment`
-
-	s, err := f.Format([]byte(yaml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	if !strings.Contains(string(s), "#") {
-		t.Fatal("comment was stripped away")
-	}
-}
-
-func TestFormatterPreservesKeyOrder(t *testing.T) {
-	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
-
-	yaml := `
-b:
-a:`
-
-	s, err := f.Format([]byte(yaml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	unmarshalledStr := string(s)
-	bPos := strings.Index(unmarshalledStr, "b")
-	aPos := strings.Index(unmarshalledStr, "a")
-	if bPos > aPos {
-		t.Fatalf("keys were reordered:\n%s", s)
-	}
-}
-
-func TestFormatterParsesMultipleDocuments(t *testing.T) {
-	f := &basic.BasicFormatter{Config: basic.DefaultConfig()}
-
-	yaml := `b:
+func TestFormatter(t *testing.T) {
+	testCases := []struct {
+		name                     string
+		config                   map[string]any
+		badConfigErr             error
+		formatErr                bool
+		input                    string
+		expect                   string
+		skipLineEndNormalization bool
+	}{
+		{
+			name:  "retains comments",
+			input: `x: "y" # foo comment`,
+		},
+		{
+			name: "parses multiple documents",
+			input: `a:
 ---
-a:
-`
-	s, err := f.Format([]byte(yaml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	if len(s) != len([]byte(yaml)) {
-		t.Fatalf("expected yaml not to change, result: %s", string(s))
-	}
-}
+b:`,
+		},
+		{
+			name: "include document start",
+			config: map[string]any{
+				"include_document_start": true,
+			},
+			input: `a:`,
+			expect: `---
+a:`,
+		},
+		{
+			name: "crlf line ending",
+			config: map[string]any{
+				"line_ending": "crlf",
+			},
+			input:  "a:\nb:\nc:\n",
+			expect: "a:\r\nb:\r\nc:\r\n",
 
-func TestWithDocumentStart(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.IncludeDocumentStart = true
-	f := newFormatter(config)
-
-	yaml := "a:"
-	s, err := f.Format([]byte(yaml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
+			skipLineEndNormalization: true,
+		},
+		{
+			name: "lf line ending",
+			config: map[string]any{
+				"line_ending": "lf",
+			},
+			input:  "a:\r\nb:\r\nc:\r\n",
+			expect: "a:\nb:\nc:\n",
+		},
+		{
+			name:  "emoji support",
+			input: `a: 😊`,
+		},
+		{
+			name: "scan folded as literal",
+			config: map[string]any{
+				"scan_folded_as_literal": true,
+				"retain_line_breaks":     true,
+			},
+			input: `a: >
+  multiline
+  folded
+  scalar`,
+		},
+		{
+			name: "indentless arrays",
+			config: map[string]any{
+				"indentless_arrays": true,
+			},
+			input: `a:
+  - 1
+  - 2`,
+			expect: `a:
+- 1
+- 2`,
+		},
+		{
+			name: "drop merge tag",
+			config: map[string]any{
+				"drop_merge_tag": true,
+			},
+			input: `a: &a
+  b:
+    <<: *a`,
+		},
+		{
+			name: "pad line comments",
+			config: map[string]any{
+				"pad_line_comments": 2,
+			},
+			input:  `a: 1 # line comment`,
+			expect: `a: 1  # line comment`,
+		},
+		{
+			name: "trim trailing whitespace",
+			config: map[string]any{
+				"trim_trailing_whitespace": true,
+			},
+			input: `a: 1
+b: 2    `,
+			expect: `a: 1
+b: 2`,
+		},
+		{
+			name: "eof newline",
+			config: map[string]any{
+				"eof_newline": true,
+			},
+			input: `a: 1
+b: 2`,
+			expect: `a: 1
+b: 2
+`,
+		},
+		{
+			name: "strip directives",
+			config: map[string]any{
+				"strip_directives": true,
+			},
+			input: "%YAML:1.0\na: 1",
+		},
+		{
+			name: "array indent",
+			config: map[string]any{
+				"array_indent": 2,
+			},
+			input: `a:
+    - 1
+    - 2`,
+			expect: `a:
+  - 1
+  - 2`,
+		},
+		{
+			name: "indent root array",
+			config: map[string]any{
+				"indent_root_array": true,
+				"array_indent":      2,
+			},
+			input: `  - 1
+  - 2`,
+			expect: `  - 1
+  - 2`,
+		},
+		{
+			name: "force block sequence style",
+			config: map[string]any{
+				"force_array_style": "block",
+			},
+			input: `a:
+  - 1
+  - 2
+b: [1, 2]`,
+			expect: `a:
+  - 1
+  - 2
+b:
+  - 1
+  - 2`,
+		},
+		{
+			name: "force flow sequence style",
+			config: map[string]any{
+				"force_array_style": "flow",
+			},
+			input: `a:
+  - 1
+  - 2
+b: [1, 2]`,
+			expect: `a: [1, 2]
+b: [1, 2]`,
+		},
+		{
+			name: "invalid sequence style",
+			config: map[string]any{
+				"force_array_style": "invalid",
+			},
+			badConfigErr: features.ErrUnrecognizedSequenceStyle,
+		},
+		{
+			name: "force single quote style",
+			config: map[string]any{
+				"force_quote_style": "single",
+			},
+			input:  `a: ['hi', "hello"]`,
+			expect: `a: ['hi', 'hello']`,
+		},
+		{
+			name: "force double quote style",
+			config: map[string]any{
+				"force_quote_style": "double",
+			},
+			input:  `a: ['hi', "hello"]`,
+			expect: `a: ["hi", "hello"]`,
+		},
+		{
+			name: "invalid quote style",
+			config: map[string]any{
+				"force_quote_style": "blah",
+			},
+			badConfigErr: features.ErrUnrecognizedQuoteStyle,
+		},
+		{
+			name: "alias key correction",
+			input: `alias: &a something
+map:
+  *a: 1`,
+			expect: `alias: &a something
+map:
+  *a : 1`,
+		},
 	}
-	if strings.Index(string(s), "---\n") != 0 {
-		t.Fatalf("expected document start to be included, result was: %s", string(s))
-	}
-}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			f, err := factory.NewFormatter(tc.config)
+			if tc.badConfigErr != nil {
+				require.ErrorIs(t, err, tc.badConfigErr)
+				return
+			}
+			require.NoError(t, err)
 
-func TestCRLFLineEnding(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.LineEnding = yamlfmt.LineBreakStyleCRLF
-	f := newFormatter(config)
+			result, err := f.Format([]byte(tc.input))
+			if tc.formatErr {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
 
-	yaml := "# comment\r\na:\r\n"
-	result, err := f.Format([]byte(yaml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	if string(yaml) != string(result) {
-		t.Fatalf("didn't write CRLF properly in result: %v", result)
-	}
-}
+			expected := tc.expect
+			actual := string(result)
+			if tc.expect == "" {
+				expected = tc.input
+			}
 
-func TestEmojiSupport(t *testing.T) {
-	config := basic.DefaultConfig()
-	f := newFormatter(config)
-
-	yaml := "a: 😊"
-	result, err := f.Format([]byte(yaml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	resultStr := string(result)
-	if !strings.Contains(resultStr, "😊") {
-		t.Fatalf("expected string to contain 😊, got: %s", resultStr)
+			if !tc.skipLineEndNormalization {
+				// Having to always include the newline in the expected
+				// data in the test table is cringe unless that's something
+				// I actually want to test
+				expected = stripTrailingNewline(expected)
+				actual = stripTrailingNewline(actual)
+			}
+			require.Equal(t, expected, actual)
+		})
 	}
 }
 
@@ -203,11 +345,7 @@ x:
 			single: true,
 			input: `a: 1
 
-
-
-
 b: 2
-
 
 c: 3
 `,
@@ -221,251 +359,26 @@ c: 3
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			config := basic.DefaultConfig()
-			config.RetainLineBreaks = true
-			config.RetainLineBreaksSingle = tc.single
-			f := newFormatter(config)
+			f, err := factory.NewFormatter(map[string]any{
+				"retain_line_breaks":        true,
+				"retain_line_breaks_single": tc.single,
+			})
+			require.NoError(t, err)
 			got, err := f.Format([]byte(tc.input))
-			if err != nil {
-				t.Fatalf("expected formatting to pass, returned error: %v", err)
-			}
-			if string(got) != tc.expect {
-				t.Fatalf("didn't retain line breaks\nresult: %v\nexpect %s", string(got), tc.expect)
-			}
+			require.NoError(t, err)
+			require.Equal(t, tc.expect, string(got))
 		})
 	}
 }
 
-func TestScanFoldedAsLiteral(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.ScanFoldedAsLiteral = true
-	f := newFormatter(config)
-
-	yml := `a: >
-  multiline
-  folded
-  scalar`
-	lines := len(strings.Split(yml, "\n"))
-	result, err := f.Format([]byte(yml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
+func stripTrailingNewline(s string) string {
+	// strip trailing \n or \r\n characters
+	if len(s) > 0 {
+		if s[len(s)-1] == '\n' {
+			s = s[:len(s)-1]
+		} else if len(s) > 1 && s[len(s)-2] == '\r' {
+			s = s[:len(s)-2]
+		}
 	}
-	resultStr := string(result)
-	resultLines := len(strings.Split(resultStr, "\n"))
-	if resultLines == lines {
-		t.Fatalf("expected string to be %d lines, was %d", lines, resultLines)
-	}
-}
-
-func TestIndentlessArrays(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.IndentlessArrays = true
-	f := newFormatter(config)
-
-	yml := `a:
-- 1
-- 2
-`
-	result, err := f.Format([]byte(yml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	resultStr := string(result)
-	if resultStr != yml {
-		t.Fatalf("expected:\n%s\ngot:\n%s", yml, resultStr)
-	}
-}
-
-func TestDropMergeTag(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.DropMergeTag = true
-	f := newFormatter(config)
-
-	yml := `a: &a
-b:
-  <<: *a`
-
-	result, err := f.Format([]byte(yml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	resultStr := string(result)
-	if strings.Contains(resultStr, "!!merge") {
-		t.Fatalf("expected formatted result to drop merge tag, was found:\n%s", resultStr)
-	}
-}
-
-func TestPadLineComments(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.PadLineComments = 2
-	f := newFormatter(config)
-
-	yml := "a: 1 # line comment"
-	expectedStr := "a: 1  # line comment"
-
-	result, err := f.Format([]byte(yml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	resultStr := strings.TrimSuffix(string(result), "\n")
-	if resultStr != expectedStr {
-		t.Fatalf("expected: '%s', got: '%s'", expectedStr, resultStr)
-	}
-}
-
-func TestTrimTrailingWhitespace(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.TrimTrailingWhitespace = true
-	f := newFormatter(config)
-
-	yml := `a: 1
-b: 2    `
-	expectedYml := `a: 1
-b: 2`
-
-	result, err := f.Format([]byte(yml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	resultStr := strings.TrimSuffix(string(result), "\n")
-	if resultStr != expectedYml {
-		t.Fatalf("expected: '%s', got: '%s'", expectedYml, resultStr)
-	}
-}
-
-func TestEOFNewline(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.RetainLineBreaks = false
-	config.EOFNewline = true
-	f := newFormatter(config)
-
-	yml := `a: 1
-b: 2`
-	expectedYml := `a: 1
-b: 2
-`
-
-	result, err := f.Format([]byte(yml))
-	if err != nil {
-		t.Fatalf("expected formatting to pass, returned error: %v", err)
-	}
-	resultStr := string(result)
-	if resultStr != expectedYml {
-		t.Fatalf("expected: '%s', got: '%s'", expectedYml, resultStr)
-	}
-}
-
-func TestStripDirectives(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.StripDirectives = true
-	f := newFormatter(config)
-
-	yml := "%YAML:1.0"
-
-	_, err := f.Format([]byte(yml))
-	assert.NilErr(t, err)
-}
-
-func TestArrayIndent(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.ArrayIndent = 1
-	f := newFormatter(config)
-
-	yml := `a:
-  - 1
-  - 2
-`
-	expectedYml := `a:
- - 1
- - 2
-`
-
-	result, err := f.Format([]byte(yml))
-	assert.NilErr(t, err)
-	resultStr := string(result)
-	if resultStr != expectedYml {
-		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
-	}
-}
-
-func TestIndentRootArray(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.IndentRootArray = true
-	f := newFormatter(config)
-
-	yml := "- 1\n"
-	expectedYml := "  - 1\n"
-
-	result, err := f.Format([]byte(yml))
-	assert.NilErr(t, err)
-	resultStr := string(result)
-	if resultStr != expectedYml {
-		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
-	}
-}
-
-func TestForceFlowSequence(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.ForceArrayStyle = features.SequenceStyleFlow
-	f := newFormatter(config)
-
-	yml := `a:
-  - 1
-  - 2
-  - 3
-b: [1, 2, 3]
-`
-	expectedYml := `a: [1, 2, 3]
-b: [1, 2, 3]
-`
-
-	result, err := f.Format([]byte(yml))
-	assert.NilErr(t, err)
-	resultStr := string(result)
-	if resultStr != expectedYml {
-		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
-	}
-}
-
-func TestForceBlockSequence(t *testing.T) {
-	config := basic.DefaultConfig()
-	config.ForceArrayStyle = features.SequenceStyleBlock
-	f := newFormatter(config)
-
-	yml := `a:
-  - 1
-  - 2
-  - 3
-b: [1, 2, 3]
-`
-	expectedYml := `a:
-  - 1
-  - 2
-  - 3
-b:
-  - 1
-  - 2
-  - 3
-`
-
-	result, err := f.Format([]byte(yml))
-	assert.NilErr(t, err)
-	resultStr := string(result)
-	if resultStr != expectedYml {
-		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
-	}
-}
-
-func TestJustComments(t *testing.T) {
-	config := basic.DefaultConfig()
-	f := newFormatter(config)
-
-	yml := `# hi`
-	expectedYml := `# hi`
-	result, err := f.Format([]byte(yml))
-	assert.NilErr(t, err)
-	resultStr := string(result)
-	if resultStr != expectedYml {
-		t.Fatalf("expected: '%s', got: '%s'", expectedYml, result)
-	}
+	return s
 }

@@ -54,7 +54,7 @@ func ConfigureFeaturesFromConfig(config *Config) yamlfmt.FeatureList {
 	return configuredFeatures
 }
 
-func ConfigureYAMLFeaturesFromConfig(config *Config) yamlFeatures.YAMLFeatureList {
+func ConfigureYAMLFeaturesFromConfig(config *Config) (yamlFeatures.YAMLFeatureList, error) {
 	var featureList yamlFeatures.YAMLFeatureList
 
 	if config.DisallowAnchors {
@@ -62,11 +62,20 @@ func ConfigureYAMLFeaturesFromConfig(config *Config) yamlFeatures.YAMLFeatureLis
 	}
 
 	if config.ForceArrayStyle != "" {
-		featureList = append(
-			featureList,
-			yamlFeatures.FeatureForceSequenceStyle(config.ForceArrayStyle),
-		)
+		sequenceStyleFeature, err := yamlFeatures.FeatureForceSequenceStyle(config.ForceArrayStyle)
+		if err != nil {
+			return featureList, err
+		}
+		featureList = append(featureList, sequenceStyleFeature)
 	}
 
-	return featureList
+	if config.ForceQuoteStyle != "" {
+		quoteStyleFeature, err := yamlFeatures.FeatureForceQuoteStyle(config.ForceQuoteStyle)
+		if err != nil {
+			return featureList, err
+		}
+		featureList = append(featureList, quoteStyleFeature)
+	}
+
+	return featureList, nil
 }
