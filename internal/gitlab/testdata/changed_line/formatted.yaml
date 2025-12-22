@@ -1,0 +1,18 @@
+# Example configuration file
+version: 1.0
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - ENV=production
+      - DEBUG=false
+
+  database:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=myapp
+      - POSTGRES_USER=admin
