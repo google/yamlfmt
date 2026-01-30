@@ -154,13 +154,17 @@ func getConfigPathFromDirTree() (string, error) {
 		return "", err
 	}
 	dir := absPath
-	for dir != filepath.Dir(dir) {
+	for true {
 		configPath, err := getConfigPathFromDir(dir)
 		if err == nil {
 			logger.Debug(logger.DebugCodeConfig, "Found config at %s", configPath)
 			return configPath, nil
 		}
+		previousDir := dir
 		dir = filepath.Dir(dir)
+		if dir == previousDir {
+			break
+		}
 	}
 	return "", errConfPathNotExist
 }
