@@ -93,6 +93,15 @@ func TestDry(t *testing.T) {
 	}.Run(t)
 }
 
+func TestSlimOutput(t *testing.T) {
+	TestCase{
+		Dir:     "slim_output",
+		Command: yamlfmtWithArgs("-lint -output_format slim ."),
+		Update:  *updateFlag,
+		IsError: true,
+	}.Run(t)
+}
+
 func TestDryQuiet(t *testing.T) {
 	TestCase{
 		Dir:     "dry_quiet",

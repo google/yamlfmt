@@ -113,7 +113,7 @@ func (fds FileDiffs) Add(diff *FileDiff) error {
 
 func (fds FileDiffs) StrOutput() string {
 	result := ""
-	sortedPaths := fds.sortedPaths()
+	sortedPaths := fds.SortedPaths()
 	for _, path := range sortedPaths {
 		fd := fds[path]
 		if fd.Diff.Changed() {
@@ -125,7 +125,7 @@ func (fds FileDiffs) StrOutput() string {
 
 func (fds FileDiffs) StrOutputQuiet() string {
 	result := ""
-	sortedPaths := fds.sortedPaths()
+	sortedPaths := fds.SortedPaths()
 	for _, path := range sortedPaths {
 		fd := fds[path]
 		if fd.Diff.Changed() {
@@ -155,7 +155,7 @@ func (fds FileDiffs) ChangedCount() int {
 	return changed
 }
 
-func (fds FileDiffs) sortedPaths() []string {
+func (fds FileDiffs) SortedPaths() []string {
 	pathKeys := []string{}
 	for path := range fds {
 		pathKeys = append(pathKeys, path)

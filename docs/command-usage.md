@@ -90,7 +90,7 @@ The string array flags can be a bit confusing. See the [String Array Flags](#str
 | KYAML                 | `-kyaml`              | bool              | `yamlfmat -kyaml`                                         | Enable the alternate [KYAML formatter](./config-file.md#kyaml-formatter). Note that using this option will completely override any formatter configuration from detected config file. |
 | Formatter Config      | `-formatter`          | []string          | `yamlfmt -formatter indent=2,include_document_start=true` | Provide configuration values for the formatter. See [Formatter Configuration Options](./config-file.md#basic-formatter) for options. Each field is specified as `configkey=value`. |
 | Debug Logging         | `-debug`              | []string          | `yamlfmt -debug paths,config`                             | Enable debug logging. See [Debug Logging](#debug-logging) for more information. |
-| Output Format         | `-output_format`      | `default`, `line` | `yamlfmt -output_format line`                             | Choose a different output format. Defaults to `default`. See [Output docs](./output.md) for more information. |
+| Output Format         | `-output_format`      | `default`, `line`, `slim`, `gitlab` | `yamlfmt -output_format slim`                             | Choose a different output format. Defaults to `default`. See [Output docs](./output.md) for more information. |
 
 #### String Array Flags
 

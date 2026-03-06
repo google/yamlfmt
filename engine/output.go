@@ -22,6 +22,9 @@ import (
 
 	"github.com/google/yamlfmt"
 	"github.com/google/yamlfmt/internal/gitlab"
+	"github.com/hexops/gotextdiff"
+	"github.com/hexops/gotextdiff/myers"
+	"github.com/hexops/gotextdiff/span"
 )
 
 type EngineOutputFormat string
@@ -29,6 +32,7 @@ type EngineOutputFormat string
 const (
 	EngineOutputDefault   EngineOutputFormat = "default"
 	EngineOutputSingeLine EngineOutputFormat = "line"
+	EngineOutputSlim      EngineOutputFormat = "slim"
 	EngineOutputGitlab    EngineOutputFormat = "gitlab"
 )
 
@@ -38,6 +42,8 @@ func getEngineOutput(t EngineOutputFormat, operation yamlfmt.Operation, files ya
 		return engineOutput{Operation: operation, Files: files, Quiet: quiet, Verbose: verbose}, nil
 	case EngineOutputSingeLine:
 		return engineOutputSingleLine{Operation: operation, Files: files, Quiet: quiet}, nil
+	case EngineOutputSlim:
+		return engineOutputSlim{Operation: operation, Files: files, Quiet: quiet, Verbose: verbose}, nil
 	case EngineOutputGitlab:
 		return engineOutputGitlab{Operation: operation, Files: files, Compact: quiet}, nil
 
@@ -102,6 +108,70 @@ func (eosl engineOutputSingleLine) String() string {
 		msg += fmt.Sprintf("%s: formatting difference found\n", fileDiff.Path)
 	}
 	return msg
+}
+
+type engineOutputSlim struct {
+	Operation yamlfmt.Operation
+	Files     yamlfmt.FileDiffs
+	Quiet     bool
+	Verbose   bool
+}
+
+func (eos engineOutputSlim) String() string {
+	var msg string
+	switch eos.Operation {
+	case yamlfmt.OperationFormat:
+		// Formatting only produces output in verbose mode.
+		if !eos.Verbose {
+			return ""
+		}
+		msg = "The following files were modified:"
+	case yamlfmt.OperationLint:
+		msg = "The following formatting differences were found:"
+		if eos.Quiet {
+			msg = "The following files had formatting differences:"
+		}
+	case yamlfmt.OperationDry:
+		if eos.Files.ChangedCount() == 0 {
+			return "No files will be formatted."
+		}
+		msg = "The following files would be formatted:"
+	}
+
+	var b strings.Builder
+	if msg != "" {
+		b.WriteString(msg + "\n\n")
+	}
+
+	if eos.Quiet {
+		b.WriteString(eos.Files.StrOutputQuiet())
+		return b.String()
+	}
+
+	for _, fileDiff := range eos.changedFileDiffs() {
+		output := slimFileDiff(fileDiff)
+		b.WriteString(output)
+	}
+	return b.String()
+}
+
+func (eos engineOutputSlim) changedFileDiffs() []*yamlfmt.FileDiff {
+	changed := make([]*yamlfmt.FileDiff, 0, eos.Files.ChangedCount())
+	for _, path := range eos.Files.SortedPaths() {
+		fileDiff := eos.Files[path]
+		if !fileDiff.Diff.Changed() {
+			continue
+		}
+		changed = append(changed, fileDiff)
+	}
+	return changed
+}
+
+func slimFileDiff(fileDiff *yamlfmt.FileDiff) string {
+	original := fileDiff.Diff.GetOriginal()
+	formatted := fileDiff.Diff.GetFormatted()
+	edits := myers.ComputeEdits(span.URIFromPath(fileDiff.Path), original, formatted)
+	return fmt.Sprint(gotextdiff.ToUnified(fileDiff.Path, fileDiff.Path, original, edits))
 }
 
 type engineOutputGitlab struct {
