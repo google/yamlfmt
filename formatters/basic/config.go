@@ -33,6 +33,7 @@ type Config struct {
 	IndentlessArrays          bool                       `mapstructure:"indentless_arrays"`
 	DropMergeTag              bool                       `mapstructure:"drop_merge_tag"`
 	PadLineComments           int                        `mapstructure:"pad_line_comments"`
+	PreserveCommentIndents    bool                       `mapstructure:"preserve_comment_indents"`
 	TrimTrailingWhitespace    bool                       `mapstructure:"trim_trailing_whitespace"`
 	EOFNewline                bool                       `mapstructure:"eof_newline"`
 	StripDirectives           bool                       `mapstructure:"strip_directives"`

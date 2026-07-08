@@ -88,6 +88,7 @@ The `basic` formatter is the default formatter that takes the data provided, ser
 | `indentless_arrays`         | bool           | false   | Render `-` array items (block sequence items) without an increased indent. |
 | `drop_merge_tag`            | bool           | false   | Assume that any well formed merge using just a `<<` token will be a merge, and drop the `!!merge` tag from the formatted result. |
 | `pad_line_comments`         | int            | 1       | The number of padding spaces to insert before line comments. |
+| `preserve_comment_indents`  | bool           | false   | Keep each line comment at the same column it had in the source. If the reformatted content would collid with the comment, use `pad_line_comments` spaces instead. |
 | `trim_trailing_whitespace`  | bool           | false   | Trim trailing whitespace from lines. |
 | `eof_newline`               | bool           | false   | Always add a newline at end of file. Useful in the scenario where `retain_line_breaks` is disabled but the trailing newline is still needed. |
 | `strip_directives`          | bool           | false   | [YAML Directives](https://yaml.org/spec/1.2.2/#3234-directives) are not supported by this formatter. This feature will attempt to strip the directives before formatting and put them back. [Use this feature at your own risk.](#strip_directives) |

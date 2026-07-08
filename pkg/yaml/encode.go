@@ -369,7 +369,7 @@ func (e *encoder) stringv(tag string, in reflect.Value) {
 	default:
 		style = yaml_DOUBLE_QUOTED_SCALAR_STYLE
 	}
-	e.emitScalar(s, "", tag, style, nil, nil, nil, nil)
+	e.emitScalar(s, "", tag, style, nil, nil, nil, nil, 0)
 }
 
 func (e *encoder) boolv(tag string, in reflect.Value) {
@@ -379,23 +379,23 @@ func (e *encoder) boolv(tag string, in reflect.Value) {
 	} else {
 		s = "false"
 	}
-	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil)
+	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil, 0)
 }
 
 func (e *encoder) intv(tag string, in reflect.Value) {
 	s := strconv.FormatInt(in.Int(), 10)
-	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil)
+	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil, 0)
 }
 
 func (e *encoder) uintv(tag string, in reflect.Value) {
 	s := strconv.FormatUint(in.Uint(), 10)
-	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil)
+	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil, 0)
 }
 
 func (e *encoder) timev(tag string, in reflect.Value) {
 	t := in.Interface().(time.Time)
 	s := t.Format(time.RFC3339Nano)
-	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil)
+	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil, 0)
 }
 
 func (e *encoder) floatv(tag string, in reflect.Value) {
@@ -414,14 +414,14 @@ func (e *encoder) floatv(tag string, in reflect.Value) {
 	case "NaN":
 		s = ".nan"
 	}
-	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil)
+	e.emitScalar(s, "", tag, yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil, 0)
 }
 
 func (e *encoder) nilv() {
-	e.emitScalar("null", "", "", yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil)
+	e.emitScalar("null", "", "", yaml_PLAIN_SCALAR_STYLE, nil, nil, nil, nil, 0)
 }
 
-func (e *encoder) emitScalar(value, anchor, tag string, style yaml_scalar_style_t, head, line, foot, tail []byte) {
+func (e *encoder) emitScalar(value, anchor, tag string, style yaml_scalar_style_t, head, line, foot, tail []byte, lineColumn int) {
 	// TODO Kill this function. Replace all initialize calls by their underlining Go literals.
 	implicit := tag == ""
 	if !implicit {
@@ -430,6 +430,7 @@ func (e *encoder) emitScalar(value, anchor, tag string, style yaml_scalar_style_
 	e.must(yaml_scalar_event_initialize(&e.event, []byte(anchor), []byte(tag), []byte(value), implicit, implicit, style))
 	e.event.head_comment = head
 	e.event.line_comment = line
+	e.event.line_comment_column = lineColumn
 	e.event.foot_comment = foot
 	e.event.tail_comment = tail
 	e.emit()
@@ -507,6 +508,7 @@ func (e *encoder) node(node *Node, tail string) {
 		}
 		e.must(yaml_sequence_end_event_initialize(&e.event))
 		e.event.line_comment = []byte(node.LineComment)
+		e.event.line_comment_column = node.LineCommentColumn
 		e.event.foot_comment = []byte(node.FootComment)
 		e.emit()
 
@@ -543,6 +545,7 @@ func (e *encoder) node(node *Node, tail string) {
 		yaml_mapping_end_event_initialize(&e.event)
 		e.event.tail_comment = []byte(tail)
 		e.event.line_comment = []byte(node.LineComment)
+		e.event.line_comment_column = node.LineCommentColumn
 		e.event.foot_comment = []byte(node.FootComment)
 		e.emit()
 
@@ -550,6 +553,7 @@ func (e *encoder) node(node *Node, tail string) {
 		yaml_alias_event_initialize(&e.event, []byte(node.Value))
 		e.event.head_comment = []byte(node.HeadComment)
 		e.event.line_comment = []byte(node.LineComment)
+		e.event.line_comment_column = node.LineCommentColumn
 		e.event.foot_comment = []byte(node.FootComment)
 		e.emit()
 
@@ -584,7 +588,7 @@ func (e *encoder) node(node *Node, tail string) {
 			style = yaml_DOUBLE_QUOTED_SCALAR_STYLE
 		}
 
-		e.emitScalar(value, node.Anchor, tag, style, []byte(node.HeadComment), []byte(node.LineComment), []byte(node.FootComment), []byte(tail))
+		e.emitScalar(value, node.Anchor, tag, style, []byte(node.HeadComment), []byte(node.LineComment), []byte(node.FootComment), []byte(tail), node.LineCommentColumn)
 	default:
 		failf("cannot encode node with unknown kind %d", node.Kind)
 	}

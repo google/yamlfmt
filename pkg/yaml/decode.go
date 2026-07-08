@@ -188,6 +188,7 @@ func (p *parser) node(kind Kind, defaultTag, tag, value string) *Node {
 		n.Column = p.event.start_mark.column + 1
 		n.HeadComment = string(p.event.head_comment)
 		n.LineComment = string(p.event.line_comment)
+		n.LineCommentColumn = p.event.line_comment_column
 		n.FootComment = string(p.event.foot_comment)
 	}
 	return n
@@ -262,6 +263,7 @@ func (p *parser) sequence() *Node {
 		p.parseChild(n)
 	}
 	n.LineComment = string(p.event.line_comment)
+	n.LineCommentColumn = p.event.line_comment_column
 	n.FootComment = string(p.event.foot_comment)
 	p.expect(yaml_SEQUENCE_END_EVENT)
 	return n
@@ -298,6 +300,7 @@ func (p *parser) mapping() *Node {
 		}
 	}
 	n.LineComment = string(p.event.line_comment)
+	n.LineCommentColumn = p.event.line_comment_column
 	n.FootComment = string(p.event.foot_comment)
 	if n.Style&FlowStyle == 0 && n.FootComment != "" && len(n.Content) > 1 {
 		n.Content[len(n.Content)-2].FootComment = n.FootComment

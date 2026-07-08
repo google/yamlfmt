@@ -116,6 +116,77 @@ a:`,
 			expect: `a: 1  # line comment`,
 		},
 		{
+			name: "preserve comment indents keeps manual column alignment",
+			config: map[string]any{
+				"preserve_comment_indents": true,
+			},
+			input: `steps:
+  - a    # first
+  - bb   # second`,
+			expect: `steps:
+  - a    # first
+  - bb   # second`,
+		},
+		{
+			name: "without preserve comment indents alignment collapses",
+			input: `steps:
+  - a    # first
+  - bb   # second`,
+			expect: `steps:
+  - a # first
+  - bb # second`,
+		},
+		{
+			name: "preserve comment indents falls back when content overflows original column",
+			config: map[string]any{
+				"indent":                   4,
+				"preserve_comment_indents": true,
+			},
+			input: `a:
+  b: c # x`,
+			expect: `a:
+    b: c # x`,
+		},
+		{
+			// Content grows (indent 2 -> 4) but the '#' column (11) is still
+			// reachable: the column is held and the gap SHRINKS from 4 to 2.
+			name: "preserve comment indents holds column when content grows within reach",
+			config: map[string]any{
+				"indent":                   4,
+				"preserve_comment_indents": true,
+			},
+			input: `a:
+  bb: c    # x`,
+			expect: `a:
+    bb: c  # x`,
+		},
+		{
+			// Content shrinks (indent 4 -> 2): the column (11) is held and the
+			// gap WIDENS from 2 to 4.
+			name: "preserve comment indents holds column when content shrinks",
+			config: map[string]any{
+				"indent":                   2,
+				"preserve_comment_indents": true,
+			},
+			input: `a:
+    bb: c  # x`,
+			expect: `a:
+  bb: c    # x`,
+		},
+		{
+			// Overflow fallback uses the pad_line_comments floor (3), not 1.
+			name: "preserve comment indents fallback honors pad_line_comments",
+			config: map[string]any{
+				"indent":                   4,
+				"pad_line_comments":        3,
+				"preserve_comment_indents": true,
+			},
+			input: `a:
+  b: c # x`,
+			expect: `a:
+    b: c   # x`,
+		},
+		{
 			name: "trim trailing whitespace",
 			config: map[string]any{
 				"trim_trailing_whitespace": true,
@@ -264,6 +335,51 @@ map:
 				actual = stripTrailingNewline(actual)
 			}
 			require.Equal(t, expected, actual)
+		})
+	}
+}
+
+// TestPreserveCommentIndentsIdempotent guards the property lint/check mode
+// relies on: formatting an already-formatted file must be a no-op. After the
+// first pass each comment's '#' sits at a column the parser reads back as its
+// new source column, so a second pass must produce identical bytes.
+func TestPreserveCommentIndentsIdempotent(t *testing.T) {
+	testCases := []struct {
+		name   string
+		config map[string]any
+		input  string
+	}{
+		{
+			name:   "aligned columns",
+			config: map[string]any{"preserve_comment_indents": true},
+			input: `steps:
+  - a    # first
+  - bb   # second`,
+		},
+		{
+			name:   "content grew, gap shrank",
+			config: map[string]any{"indent": 4, "preserve_comment_indents": true},
+			input: `a:
+  bb: c    # x`,
+		},
+		{
+			name:   "overflow fallback",
+			config: map[string]any{"indent": 4, "preserve_comment_indents": true},
+			input: `a:
+  b: c # x`,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			f, err := factory.NewFormatter(tc.config)
+			require.NoError(t, err)
+
+			once, err := f.Format([]byte(tc.input))
+			require.NoError(t, err)
+			twice, err := f.Format(once)
+			require.NoError(t, err)
+
+			require.Equal(t, string(once), string(twice), "second format pass changed the output")
 		})
 	}
 }

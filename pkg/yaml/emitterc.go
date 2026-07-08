@@ -812,7 +812,9 @@ func yaml_emitter_emit_block_mapping_key(emitter *yaml_emitter_t, event *yaml_ev
 		//      scanner associates line comments with the value. Either way,
 		//      save the line comment and render it appropriately later.
 		emitter.key_line_comment = emitter.line_comment
+		emitter.key_line_comment_column = emitter.line_comment_column
 		emitter.line_comment = nil
+		emitter.line_comment_column = 0
 	}
 	if yaml_emitter_check_simple_key(emitter) {
 		emitter.states = append(emitter.states, yaml_EMIT_BLOCK_MAPPING_SIMPLE_VALUE_STATE)
@@ -849,15 +851,19 @@ func yaml_emitter_emit_block_mapping_value(emitter *yaml_emitter_t, event *yaml_
 				// so just let it handle the line comment as usual. If it has a
 				// line comment, we can't have both so the one from the key is lost.
 				emitter.line_comment = emitter.key_line_comment
+				emitter.line_comment_column = emitter.key_line_comment_column
 				emitter.key_line_comment = nil
+				emitter.key_line_comment_column = 0
 			}
 		} else if event.sequence_style() != yaml_FLOW_SEQUENCE_STYLE && (event.typ == yaml_MAPPING_START_EVENT || event.typ == yaml_SEQUENCE_START_EVENT) {
 			// An indented block follows, so write the comment right now.
 			emitter.line_comment, emitter.key_line_comment = emitter.key_line_comment, emitter.line_comment
+			emitter.line_comment_column, emitter.key_line_comment_column = emitter.key_line_comment_column, emitter.line_comment_column
 			if !yaml_emitter_process_line_comment(emitter) {
 				return false
 			}
 			emitter.line_comment, emitter.key_line_comment = emitter.key_line_comment, emitter.line_comment
+			emitter.line_comment_column, emitter.key_line_comment_column = emitter.key_line_comment_column, emitter.line_comment_column
 		}
 	}
 	emitter.states = append(emitter.states, yaml_EMIT_BLOCK_MAPPING_KEY_STATE)
@@ -1181,8 +1187,17 @@ func yaml_emitter_process_line_comment(emitter *yaml_emitter_t) bool {
 		return true
 	}
 	if !emitter.whitespace {
+		pad := emitter.pad_line_comments
+		// Restore the author's alignment if asked: keep the '#' at the column
+		// it had in the source.
+		// If the reformatted content would collide, fallsback to pad_line_comments.
+		if emitter.preserve_comment_indents && emitter.line_comment_column > emitter.column {
+			if gap := emitter.line_comment_column - emitter.column; gap > pad {
+				pad = gap
+			}
+		}
 		// Insert as many spaces before the line comment as requested.
-		for i := 0; i < emitter.pad_line_comments; i++ {
+		for i := 0; i < pad; i++ {
 			if !put(emitter, ' ') {
 				return false
 			}
@@ -1192,6 +1207,7 @@ func yaml_emitter_process_line_comment(emitter *yaml_emitter_t) bool {
 		return false
 	}
 	emitter.line_comment = emitter.line_comment[:0]
+	emitter.line_comment_column = 0
 	return true
 }
 
@@ -1453,6 +1469,7 @@ func yaml_emitter_analyze_event(emitter *yaml_emitter_t, event *yaml_event_t) bo
 	}
 	if len(event.line_comment) > 0 {
 		emitter.line_comment = event.line_comment
+		emitter.line_comment_column = event.line_comment_column
 	}
 	if len(event.foot_comment) > 0 {
 		emitter.foot_comment = event.foot_comment
