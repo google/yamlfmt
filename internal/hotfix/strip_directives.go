@@ -15,12 +15,11 @@
 package hotfix
 
 import (
-	"bufio"
-	"bytes"
 	"context"
 	"strings"
 
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/linescan"
 )
 
 type directiveKey string
@@ -51,8 +50,7 @@ func MakeFeatureStripDirectives(lineSepChar string) yamlfmt.Feature {
 func stripDirectivesFeature(lineSepChar string) yamlfmt.FeatureFunc {
 	return func(ctx context.Context, content []byte) (context.Context, []byte, error) {
 		directives := []Directive{}
-		reader := bytes.NewReader(content)
-		scanner := bufio.NewScanner(reader)
+		scanner := linescan.NewScanner(content)
 		result := ""
 		currLine := 1
 		for scanner.Scan() {
@@ -76,8 +74,7 @@ func restoreDirectivesFeature(lineSepChar string) yamlfmt.FeatureFunc {
 		directives := DirectivesFromContext(ctx)
 		directiveIdx := 0
 		doneDirectives := directiveIdx == len(directives)
-		reader := bytes.NewReader(content)
-		scanner := bufio.NewScanner(reader)
+		scanner := linescan.NewScanner(content)
 		result := ""
 		currLine := 1
 		for scanner.Scan() {

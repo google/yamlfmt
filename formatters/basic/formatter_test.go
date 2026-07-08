@@ -15,6 +15,8 @@
 package basic_test
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/google/yamlfmt/formatters/basic"
@@ -367,6 +369,28 @@ c: 3
 			got, err := f.Format([]byte(tc.input))
 			require.NoError(t, err)
 			require.Equal(t, tc.expect, string(got))
+		})
+	}
+}
+
+// TestRetainLineBreaksLongLine is a regression test for a line longer than
+// bufio.Scanner's default 64KiB token limit. The retain-line-breaks feature
+// scans the document line by line; before the fix this failed with
+// "bufio.Scanner: token too long" on real YAML carrying a large single-line
+// value (e.g. SwiftPM .build manifests). See internal/linescan.
+func TestRetainLineBreaksLongLine(t *testing.T) {
+	longValue := strings.Repeat("x", 200*1024) // 200KiB, well past the 64KiB limit
+	input := "a: 1\n\nbig: " + longValue + "\nb: 2\n"
+	for _, single := range []bool{false, true} {
+		t.Run(fmt.Sprintf("single=%t", single), func(t *testing.T) {
+			f, err := factory.NewFormatter(map[string]any{
+				"retain_line_breaks":        true,
+				"retain_line_breaks_single": single,
+			})
+			require.NoError(t, err)
+			got, err := f.Format([]byte(input))
+			require.NoError(t, err)
+			require.Contains(t, string(got), longValue, "the long single-line value must survive formatting")
 		})
 	}
 }

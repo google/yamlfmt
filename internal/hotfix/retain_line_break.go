@@ -18,12 +18,12 @@
 package hotfix
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"strings"
 
 	"github.com/google/yamlfmt"
+	"github.com/google/yamlfmt/internal/linescan"
 )
 
 const lineBreakPlaceholder = "#magic___^_^___line"
@@ -54,8 +54,7 @@ func MakeFeatureRetainLineBreak(linebreakStr string, chomp bool) yamlfmt.Feature
 func replaceLineBreakFeature(newlineStr string, chomp bool) yamlfmt.FeatureFunc {
 	return func(_ context.Context, content []byte) (context.Context, []byte, error) {
 		var buf bytes.Buffer
-		reader := bytes.NewReader(content)
-		scanner := bufio.NewScanner(reader)
+		scanner := linescan.NewScanner(content)
 		var inLineBreaks bool
 		var padding paddinger
 		for scanner.Scan() {
@@ -82,8 +81,7 @@ func replaceLineBreakFeature(newlineStr string, chomp bool) yamlfmt.FeatureFunc 
 func restoreLineBreakFeature(newlineStr string) yamlfmt.FeatureFunc {
 	return func(_ context.Context, content []byte) (context.Context, []byte, error) {
 		var buf bytes.Buffer
-		reader := bytes.NewReader(content)
-		scanner := bufio.NewScanner(reader)
+		scanner := linescan.NewScanner(content)
 		for scanner.Scan() {
 			txt := scanner.Text()
 			if strings.TrimSpace(txt) == "" {
