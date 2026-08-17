@@ -1052,6 +1052,17 @@ func yaml_emitter_select_scalar_style(emitter *yaml_emitter_t, event *yaml_event
 	}
 
 	if style == yaml_PLAIN_SCALAR_STYLE {
+		// An untagged empty plain scalar resolves to null. It cannot be written
+		// as an empty plain scalar in flow context, and quoting it would emit
+		// the empty string instead, which is a different value. Write the null
+		// explicitly so the value survives. Block context is unaffected: an
+		// empty plain scalar is legal there and already round trips.
+		if emitter.flow_level > 0 && no_tag && event.implicit &&
+			len(emitter.scalar_data.value) == 0 {
+			if !yaml_emitter_analyze_scalar(emitter, []byte("null")) {
+				return false
+			}
+		}
 		if emitter.flow_level > 0 && !emitter.scalar_data.flow_plain_allowed ||
 			emitter.flow_level == 0 && !emitter.scalar_data.block_plain_allowed {
 			style = yaml_SINGLE_QUOTED_SCALAR_STYLE
