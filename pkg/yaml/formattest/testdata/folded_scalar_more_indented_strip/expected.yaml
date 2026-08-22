@@ -1,0 +1,6 @@
+config:
+  sqlQuery: >-
+    SELECT
+      id,
+      name
+    FROM table
