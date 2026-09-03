@@ -97,9 +97,19 @@ type engineOutputSingleLine struct {
 }
 
 func (eosl engineOutputSingleLine) String() string {
+	// Only report the files that actually have a formatting difference.
+	// Files that were left untouched are not relevant to the output.
+	changedPaths := make([]string, 0, len(eosl.Files))
+	for path, fileDiff := range eosl.Files {
+		if fileDiff.Diff.Changed() {
+			changedPaths = append(changedPaths, path)
+		}
+	}
+	sort.Strings(changedPaths)
+
 	var msg string
-	for _, fileDiff := range eosl.Files {
-		msg += fmt.Sprintf("%s: formatting difference found\n", fileDiff.Path)
+	for _, path := range changedPaths {
+		msg += fmt.Sprintf("%s: formatting difference found\n", path)
 	}
 	return msg
 }
