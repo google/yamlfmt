@@ -538,3 +538,44 @@ func TestPatternFile(t *testing.T) {
 		})
 	}
 }
+
+func TestFilepathCollectorDirectoryBoundaries(t *testing.T) {
+	root := t.TempDir()
+	for _, name := range []string{"vendor/config.yaml", "vendor/nested/config.yaml", "vendor-local/config.yaml", "vendor.yaml"} {
+		filename := filepath.Join(root, filepath.FromSlash(name))
+		if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filename, []byte("a: 1\n"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, tc := range []struct {
+		name, exclude string
+		want          []string
+	}{
+		{"directory", filepath.Join(root, "vendor"), []string{"vendor-local/config.yaml", "vendor.yaml"}},
+		{"trailing separator", filepath.Join(root, "vendor") + string(filepath.Separator), []string{"vendor-local/config.yaml", "vendor.yaml"}},
+		{"dot segment", filepath.Join(root, "vendor") + string(filepath.Separator) + ".", []string{"vendor-local/config.yaml", "vendor.yaml"}},
+		{"root directory", root, nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			collector := yamlfmt.FilepathCollector{Include: []string{root}, Exclude: []string{tc.exclude}, Extensions: []string{"yaml"}}
+			got, err := collector.CollectPaths()
+			if err != nil {
+				t.Fatal(err)
+			}
+			var names []string
+			for _, filename := range got {
+				relative, err := filepath.Rel(root, filename)
+				if err != nil {
+					t.Fatal(err)
+				}
+				names = append(names, filepath.ToSlash(relative))
+			}
+			if diff := cmp.Diff(tc.want, names, cmpopts.SortSlices(func(a, b string) bool { return a < b })); diff != "" {
+				t.Fatalf("directory exclusion mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
