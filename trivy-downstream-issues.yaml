@@ -1,0 +1,132 @@
+# Accepted-risk suppressions for CVEs baked into vendored lint/format CLI binaries.
+#
+# yamlfmt and dockerfmt are downloaded as prebuilt release binaries (already pinned
+# to latest upstream) and markdownlint-cli2 via bun; all three only ever run locally
+# during `make fmt`/CI on our own repo files. None act as a TLS/HTTP server, parse
+# untrusted network/DNS/email/XML input, or read TOML config in this repo. Renovate
+# keeps these pinned versions current, so these entries become no-ops once upstream
+# ships a rebuild against patched Go stdlib/deps. Revisit at expired_at.
+vulnerabilities:
+  # --- shared: Go stdlib/x-net CVEs baked into both the yamlfmt and dockerfmt binaries ---
+  - id: CVE-2026-56862 # crypto/tls: DoS via indefinite KeyUpdate messages
+    statement: "yamlfmt/dockerfmt: Go stdlib CVE; not used as a TLS server/client."
+    expired_at: 2027-10-01
+  - id: CVE-2026-56860 # net/url: DoS via quadratic complexity in path resolution
+    statement: "yamlfmt/dockerfmt: Go stdlib CVE; never parses untrusted URLs."
+    expired_at: 2027-10-01
+  - id: CVE-2026-56859 # encoding/xml: DoS via XML decoding recursion depth
+    statement: "yamlfmt/dockerfmt: Go stdlib CVE; never decodes untrusted XML."
+    expired_at: 2027-10-01
+  - id: CVE-2026-56858 # html/template: XSS via pathological input
+    statement: "yamlfmt/dockerfmt: Go stdlib CVE; tool renders no HTML templates."
+    expired_at: 2027-10-01
+  - id: CVE-2026-56853 # net/http: unencrypted HTTP/2 connections vulnerable to DoS
+    statement: "yamlfmt/dockerfmt: Go stdlib CVE; not used as an HTTP server."
+    expired_at: 2027-10-01
+  - id: CVE-2026-39822 # os.Root: symlink following directory traversal
+    statement: "yamlfmt/dockerfmt: Go stdlib CVE; formats only our own repo files."
+    expired_at: 2027-10-01
+  - id: CVE-2026-39821 # golang.org/x/net/idna: privilege escalation via Punycode processing
+    statement: "yamlfmt/dockerfmt: Go module CVE; never resolves untrusted hostnames."
+    expired_at: 2027-10-01
+  - id: CVE-2026-33818 # encoding/asn1: DoS via excessive recursion in Unmarshal
+    statement: "yamlfmt/dockerfmt: Go stdlib CVE; never decodes untrusted ASN.1."
+    expired_at: 2027-10-01
+  - id: CVE-2026-42505 # crypto/tls: information disclosure in Encrypted Client Hello
+    statement: "yamlfmt/dockerfmt: Go stdlib CVE; not used as a TLS server/client."
+    expired_at: 2027-10-01
+
+  # --- yamlfmt-only: Go stdlib/x-net CVEs baked into the yamlfmt binary ---
+  - id: CVE-2025-68121 # crypto/tls: incorrect cert validation on session resumption
+    statement: "yamlfmt: Go stdlib CVE; not used as a TLS server/client."
+    expired_at: 2027-10-01
+  - id: CVE-2026-27145 # crypto/x509: DoS via excessive DNS SAN entries
+    statement: "yamlfmt: Go stdlib CVE; never validates untrusted certs."
+    expired_at: 2027-10-01
+  - id: CVE-2026-42504 # mime: DoS via crafted MIME header
+    statement: "yamlfmt: Go stdlib CVE; never parses untrusted MIME."
+    expired_at: 2027-10-01
+  - id: CVE-2026-42499 # net/mail: DoS via pathological email address parsing
+    statement: "yamlfmt: Go stdlib CVE; never parses untrusted email."
+    expired_at: 2027-10-01
+  - id: CVE-2026-39836 # net: DoS via NUL byte in Dial/LookupPort on Windows
+    statement: "yamlfmt: Go stdlib CVE; runs on Linux, no network dialing."
+    expired_at: 2027-10-01
+  - id: CVE-2026-39820 # net/mail: DoS via crafted email inputs
+    statement: "yamlfmt: Go stdlib CVE; never parses untrusted email."
+    expired_at: 2027-10-01
+  - id: CVE-2026-33814 # golang.org/x/net http2: DoS via malformed SETTINGS_MAX_FRAME_SIZE frame
+    statement: "yamlfmt: Go module CVE; not used as an HTTP/2 endpoint."
+    expired_at: 2027-10-01
+  - id: CVE-2026-33811 # net: DoS via long CNAME response in LookupCNAME
+    statement: "yamlfmt: Go stdlib CVE; performs no DNS lookups."
+    expired_at: 2027-10-01
+  - id: CVE-2026-32283 # crypto/tls: DoS via multiple TLS 1.3 key update messages
+    statement: "yamlfmt: Go stdlib CVE; not used as a TLS server/client."
+    expired_at: 2027-10-01
+  - id: CVE-2026-32281 # crypto/x509: DoS via inefficient cert chain validation
+    statement: "yamlfmt: Go stdlib CVE; never validates untrusted certs."
+    expired_at: 2027-10-01
+  - id: CVE-2026-32280 # crypto/x509/tls: DoS in certificate chain building
+    statement: "yamlfmt: Go stdlib CVE; never validates untrusted certs."
+    expired_at: 2027-10-01
+  - id: CVE-2026-25679 # net/url: incorrect parsing of IPv6 host literals
+    statement: "yamlfmt: Go stdlib CVE; never parses untrusted URLs."
+    expired_at: 2027-10-01
+  - id: CVE-2025-61726 # net/url: memory exhaustion in query parameter parsing
+    statement: "yamlfmt: Go stdlib CVE; never parses untrusted URLs."
+    expired_at: 2027-10-01
+  - id: CVE-2026-42507 # net/textproto: misleading error messages via input injection
+    statement: "yamlfmt: Go stdlib CVE; never parses untrusted input over textproto."
+    expired_at: 2027-10-01
+  - id: CVE-2026-39826 # html/template: XSS via incorrect script tag escaping
+    statement: "yamlfmt: Go stdlib CVE; tool renders no HTML templates."
+    expired_at: 2027-10-01
+  - id: CVE-2026-39825 # net/http/httputil: ReverseProxy forwards hidden query parameters
+    statement: "yamlfmt: Go stdlib CVE; not used as a reverse proxy."
+    expired_at: 2027-10-01
+  - id: CVE-2026-39823 # html/template: XSS via improper URL escaping in meta tag content
+    statement: "yamlfmt: Go stdlib CVE; tool renders no HTML templates."
+    expired_at: 2027-10-01
+  - id: CVE-2026-32289 # html/template: XSS via brace depth tracking in JS template literals
+    statement: "yamlfmt: Go stdlib CVE; tool renders no HTML templates."
+    expired_at: 2027-10-01
+  - id: CVE-2026-32288 # archive/tar: DoS via maliciously-crafted archive
+    statement: "yamlfmt: Go stdlib CVE; extracts only pinned release tarballs at build time."
+    expired_at: 2027-10-01
+  - id: CVE-2026-32282 # internal/syscall/unix: Root.Chmod can follow symlinks out of the root
+    statement: "yamlfmt: Go stdlib CVE; formats only our own repo files."
+    expired_at: 2027-10-01
+  - id: CVE-2025-61728 # archive/zip: excessive CPU consumption when building archive index
+    statement: "yamlfmt: Go stdlib CVE; never builds/reads untrusted zip archives."
+    expired_at: 2027-10-01
+
+  # --- dockerfmt-only: Go module CVEs baked into the dockerfmt binary ---
+  - id: CVE-2026-46600 # golang.org/x/net/dns/dnsmessage: DoS via invalid DNS record parsing
+    statement: "dockerfmt: Go module CVE; performs no DNS lookups."
+    expired_at: 2027-10-01
+  - id: CVE-2026-56865 # golang.org/x/mod/sumdb/tlog: supply chain compromise via tile verification bypass
+    statement: "dockerfmt: Go module CVE; not used for module verification."
+    expired_at: 2027-10-01
+  - id: CVE-2026-56864 # golang.org/x/mod/sumdb: integrity bypass via malicious GOSUMDB
+    statement: "dockerfmt: Go module CVE; not used for module verification."
+    expired_at: 2027-10-01
+
+  # --- dockerfmt-only: github.com/moby/buildkit dependency (Dockerfile parser only, no daemon) ---
+  - id: CVE-2026-33748 # BuildKit: unauthorized file access via Git URL fragment subdir components
+    statement: "dockerfmt: buildkit dependency CVE; imports Dockerfile parser only, no build daemon runs."
+    expired_at: 2027-10-01
+  - id: CVE-2026-33747 # BuildKit: arbitrary file write and code execution via untrusted frontend
+    statement: "dockerfmt: buildkit dependency CVE; imports Dockerfile parser only, no build daemon runs."
+    expired_at: 2027-10-01
+  - id: CVE-2026-61711 # BuildKit: security bypass allows disabling container protections
+    statement: "dockerfmt: buildkit dependency CVE; imports Dockerfile parser only, no build daemon runs."
+    expired_at: 2027-10-01
+  - id: CVE-2026-61712 # BuildKit: DoS via unbounded group parsing
+    statement: "dockerfmt: buildkit dependency CVE; imports Dockerfile parser only, no build daemon runs."
+    expired_at: 2027-10-01
+
+  # --- markdownlint-cli2's smol-toml dependency (optional TOML config support, unused here) ---
+  - id: CVE-2026-85730 # smol-toml: DoS via malformed TOML documents
+    statement: "markdownlint-cli2: smol-toml dependency CVE; no .toml markdownlint config in this repo"
+    expired_at: 2027-10-01
