@@ -47,7 +47,7 @@ The command package defines the main command engine that `cmd/yamlfmt` uses. It 
 | `regex_exclude`          | []string            | []            | Regex patterns to match file contents for, if the file content matches the regex the file will be excluded. Use [Go regexes](https://regex101.com/). |
 | `extensions`             | []string            | []            | The extensions to use for standard mode path collection. See [Specifying Paths][] for more details. |
 | `formatter`              | map[string]any      | `type: basic` | Formatter settings. See [Formatter](#formatter) for more details. |
-| `output_format`          | `default` or `line` | `default`     | The output format to use. See [Output docs](./output.md) for more details. |
+| `output_format`          | `default`, `line`, `slim`, or `gitlab` | `default`     | The output format to use. See [Output docs](./output.md) for more details. |
 
 ## Formatter
 
