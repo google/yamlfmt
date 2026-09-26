@@ -650,7 +650,7 @@ func yaml_emitter_emit_flow_mapping_key(emitter *yaml_emitter_t, event *yaml_eve
 	}
 
 	if event.typ == yaml_MAPPING_END_EVENT {
-		if (emitter.canonical || len(emitter.head_comment)+len(emitter.foot_comment)+len(emitter.tail_comment) > 0) && !first && !trail {
+		if emitter.canonical && !first && !trail {
 			if !yaml_emitter_write_indicator(emitter, []byte{','}, false, false, false) {
 				return false
 			}

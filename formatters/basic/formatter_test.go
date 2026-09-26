@@ -56,6 +56,21 @@ b:`,
 a:`,
 		},
 		{
+			// Regression test for https://github.com/google/yamlfmt/issues/110
+			// A blank line below a flow mapping sequence item (via retain_line_breaks)
+			// used to emit a superfluous trailing comma before the closing brace.
+			name: "no superfluous comma in flow style",
+			config: map[string]any{
+				"include_document_start": true,
+				"retain_line_breaks":     true,
+				// DefaultConfig picks CRLF on Windows; pin LF so the
+				// expected output is identical across platforms.
+				"line_ending": "lf",
+			},
+			input:  "---\n- {foo: bar}\n\n",
+			expect: "---\n- {foo: bar}\n\n",
+		},
+		{
 			name: "crlf line ending",
 			config: map[string]any{
 				"line_ending": "crlf",
