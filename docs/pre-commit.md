@@ -6,7 +6,7 @@ Starting in v0.7.1, `yamlfmt` can be used as a hook for the popular [pre-commit]
 
 ```yaml
 - repo: https://github.com/google/yamlfmt
-  rev: v0.19.0
+  rev: v0.21.0
   hooks:
     - id: yamlfmt
 ```
@@ -19,7 +19,7 @@ If you would prefer to manage your `yamlfmt` installation yourself, you can have
 
 ```yaml
 - repo: https://github.com/google/yamlfmt
-  rev: v0.19.0
+  rev: v0.21.0
   hooks:
     - id: yamlfmt
       language: system
@@ -31,7 +31,7 @@ By default, `yamlfmt` will run on all staged `.yaml` files. If you want to run o
 
 ```yaml
 - repo: https://github.com/google/yamlfmt
-  rev: v0.19.0
+  rev: v0.21.0
   hooks:
     - id: yamlfmt
       types: [file]
@@ -46,7 +46,7 @@ If you are providing your own `yamlfmt` configuration file, the default hook exp
 
 ```yaml
 - repo: https://github.com/google/yamlfmt
-  rev: v0.19.0
+  rev: v0.21.0
   hooks:
     - id: yamlfmt
       pass_filenames: false
