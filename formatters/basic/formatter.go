@@ -118,6 +118,7 @@ func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 	e.SetIndentlessBlockSequence(f.Config.IndentlessArrays)
 	e.SetDropMergeTag(f.Config.DropMergeTag)
 	e.SetPadLineComments(f.Config.PadLineComments)
+	e.SetPreserveCommentIndents(f.Config.PreserveCommentIndents)
 
 	if f.Config.ArrayIndent > 0 {
 		e.SetArrayIndent(f.Config.ArrayIndent)

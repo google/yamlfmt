@@ -309,6 +309,11 @@ type yaml_event_t struct {
 	foot_comment []byte
 	tail_comment []byte
 
+	// line_comment_column is the source column of the '#' of line_comment,
+	// carried so the emitter can restore manual comment alignment (see
+	// preserve_comment_indents on the emitter). Zero when unknown.
+	line_comment_column int
+
 	// The anchor (for yaml_SCALAR_EVENT, yaml_SEQUENCE_START_EVENT, yaml_MAPPING_START_EVENT, yaml_ALIAS_EVENT).
 	anchor []byte
 
@@ -608,6 +613,8 @@ type yaml_parser_t struct {
 	tail_comment []byte // Foot comment that happens at the end of a block.
 	stem_comment []byte // Comment in item preceding a nested structure (list inside list item, etc)
 
+	line_comment_column int // Source column of the '#' of line_comment (see the field of the same name on the event).
+
 	comments      []yaml_comment_t // The folded comments for all parsed tokens
 	comments_head int
 
@@ -741,6 +748,7 @@ type yaml_emitter_t struct {
 	explicit_document_start   bool         // Force an explicit document start
 	assume_folded_as_literal  bool         // Assume blocks were scanned as literals
 	pad_line_comments         int          // The number of spaces to insert before line comments.
+	preserve_comment_indents  bool         // Restore each line comment to its original source column when possible.
 	correct_alias_keys        bool         // Whether to correct alias nodes used as map keys.
 
 	state  yaml_emitter_state_t   // The current emitter state.
@@ -801,6 +809,11 @@ type yaml_emitter_t struct {
 	tail_comment []byte
 
 	key_line_comment []byte
+
+	// Source columns of the '#' for line_comment / key_line_comment, used by
+	// preserve_comment_indents to restore the original alignment. 0 when unknown.
+	line_comment_column     int
+	key_line_comment_column int
 
 	// Dumper stuff
 

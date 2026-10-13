@@ -26,6 +26,7 @@ formatter:
     line_ending: lf
     max_line_length: 0
     pad_line_comments: 1
+    preserve_comment_indents: false
     retain_line_breaks: true
     retain_line_breaks_single: false
     scan_folded_as_literal: false

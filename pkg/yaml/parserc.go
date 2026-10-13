@@ -99,6 +99,10 @@ func yaml_parser_unfold_comments(parser *yaml_parser_t, token *yaml_token_t) {
 		if len(comment.line) > 0 {
 			if len(parser.line_comment) > 0 {
 				parser.line_comment = append(parser.line_comment, '\n')
+			} else {
+				// Remember the column of the first '#' so the emitter can
+				// restore the author's alignment.
+				parser.line_comment_column = comment.start_mark.column
 			}
 			parser.line_comment = append(parser.line_comment, comment.line...)
 		}
@@ -422,9 +426,11 @@ func yaml_parser_parse_document_end(parser *yaml_parser_t, event *yaml_event_t) 
 func yaml_parser_set_event_comments(parser *yaml_parser_t, event *yaml_event_t) {
 	event.head_comment = parser.head_comment
 	event.line_comment = parser.line_comment
+	event.line_comment_column = parser.line_comment_column
 	event.foot_comment = parser.foot_comment
 	parser.head_comment = nil
 	parser.line_comment = nil
+	parser.line_comment_column = 0
 	parser.foot_comment = nil
 	parser.tail_comment = nil
 	parser.stem_comment = nil
