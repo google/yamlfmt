@@ -36,6 +36,16 @@ func trimTrailingWhitespaceFeature(linebreakStr string) yamlfmt.FeatureFunc {
 		for s.Scan() {
 			newLines = append(newLines, strings.TrimRight(s.Text(), " "))
 		}
+		// ScanLines omits the final line break, which affects block scalar chomping.
+		if len(content) > 0 {
+			switch content[len(content)-1] {
+			case '\n':
+				newLines = append(newLines, "")
+			case '\r':
+				// Keep a bare CR separate from any preceding CR rather than forming CRLF.
+				newLines[len(newLines)-1] += "\r"
+			}
+		}
 		return nil, []byte(strings.Join(newLines, linebreakStr)), nil
 	}
 }
