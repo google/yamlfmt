@@ -21,6 +21,7 @@ import (
 
 	"github.com/google/yamlfmt/formatters/basic"
 	"github.com/google/yamlfmt/formatters/basic/features"
+	"github.com/google/yamlfmt/pkg/yaml"
 	"github.com/stretchr/testify/require"
 )
 
@@ -405,4 +406,48 @@ func stripTrailingNewline(s string) string {
 		}
 	}
 	return s
+}
+
+func TestTrimTrailingWhitespacePreservesScalarValues(t *testing.T) {
+	testCases := []struct {
+		name  string
+		input string
+	}{
+		{"empty input", ""},
+		{"literal", "scalar: |\n  foo\n"},
+		{"folded", "scalar: >\n  foo\n"},
+		{"literal keep", "scalar: |+\n  foo\n\n"},
+		{"literal strip", "scalar: |-\n  foo\n"},
+		{"folded strip", "scalar: >-\n  foo\n"},
+		{"multiple scalars", "first: |\n  foo\nscalar: |\n  bar\n"},
+		{"unterminated literal", "scalar: |\n  foo"},
+		{"plain", "scalar: foo   \n"},
+	}
+	for _, tc := range testCases {
+		for _, inputLineEnding := range []string{"\n", "\r\n", "\r"} {
+			for _, outputLineEnding := range []string{"lf", "crlf"} {
+				for _, eofNewline := range []bool{false, true} {
+					name := fmt.Sprintf("%s/input=%q/output=%s/eof=%v", tc.name, inputLineEnding, outputLineEnding, eofNewline)
+					t.Run(name, func(t *testing.T) {
+						input := strings.ReplaceAll(tc.input, "\n", inputLineEnding)
+						f, err := factory.NewFormatter(map[string]any{
+							"trim_trailing_whitespace": true,
+							"line_ending":              outputLineEnding,
+							"eof_newline":              eofNewline,
+						})
+						require.NoError(t, err)
+						output, err := f.Format([]byte(input))
+						require.NoError(t, err)
+						var before, after map[string]any
+						require.NoError(t, yaml.Unmarshal([]byte(input), &before))
+						require.NoError(t, yaml.Unmarshal(output, &after))
+						require.Equal(t, before, after)
+						second, err := f.Format(output)
+						require.NoError(t, err)
+						require.Equal(t, output, second)
+					})
+				}
+			}
+		}
+	}
 }
