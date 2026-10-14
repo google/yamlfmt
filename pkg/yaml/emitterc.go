@@ -173,13 +173,10 @@ func yaml_emitter_need_more_events(emitter *yaml_emitter_t) bool {
 	switch emitter.events[emitter.events_head].typ {
 	case yaml_DOCUMENT_START_EVENT:
 		accumulate = 1
-		break
 	case yaml_SEQUENCE_START_EVENT:
 		accumulate = 2
-		break
 	case yaml_MAPPING_START_EVENT:
 		accumulate = 3
-		break
 	default:
 		return false
 	}
@@ -386,7 +383,7 @@ func yaml_emitter_emit_document_start(emitter *yaml_emitter_t, event *yaml_event
 			}
 		}
 
-		for i := 0; i < len(default_tag_directives); i++ {
+		for i := range default_tag_directives {
 			tag_directive := &default_tag_directives[i]
 			if !yaml_emitter_append_tag_directive(emitter, tag_directive, true) {
 				return false
@@ -873,10 +870,6 @@ func yaml_emitter_emit_block_mapping_value(emitter *yaml_emitter_t, event *yaml_
 	return true
 }
 
-func yaml_emitter_silent_nil_event(emitter *yaml_emitter_t, event *yaml_event_t) bool {
-	return event.typ == yaml_SCALAR_EVENT && event.implicit && !emitter.canonical && len(emitter.scalar_data.value) == 0
-}
-
 // Expect a node.
 func yaml_emitter_emit_node(emitter *yaml_emitter_t, event *yaml_event_t,
 	root bool, sequence bool, mapping bool, simple_key bool) bool {
@@ -1156,10 +1149,7 @@ func yaml_emitter_process_head_comment(emitter *yaml_emitter_t) bool {
 			return false
 		}
 		emitter.tail_comment = emitter.tail_comment[:0]
-		emitter.foot_indent = emitter.indent
-		if emitter.foot_indent < 0 {
-			emitter.foot_indent = 0
-		}
+		emitter.foot_indent = max(0, emitter.indent)
 	}
 
 	if len(emitter.head_comment) == 0 {
@@ -1207,10 +1197,7 @@ func yaml_emitter_process_foot_comment(emitter *yaml_emitter_t) bool {
 		return false
 	}
 	emitter.foot_comment = emitter.foot_comment[:0]
-	emitter.foot_indent = emitter.indent
-	if emitter.foot_indent < 0 {
-		emitter.foot_indent = 0
-	}
+	emitter.foot_indent = max(0, emitter.indent)
 	return true
 }
 
@@ -1523,10 +1510,7 @@ func yaml_emitter_write_bom(emitter *yaml_emitter_t) bool {
 }
 
 func yaml_emitter_write_indent(emitter *yaml_emitter_t) bool {
-	indent := emitter.indent
-	if indent < 0 {
-		indent = 0
-	}
+	indent := max(0, emitter.indent)
 	if !emitter.indention || emitter.column > indent || (emitter.column == indent && !emitter.whitespace) {
 		if !put_break(emitter) {
 			return false
@@ -1607,7 +1591,7 @@ func yaml_emitter_write_tag_content(emitter *yaml_emitter_t, value []byte, need_
 			}
 		} else {
 			w := width(value[i])
-			for k := 0; k < w; k++ {
+			for range w {
 				octet := value[i]
 				i++
 				if !put(emitter, '%') {
@@ -1978,11 +1962,11 @@ func yaml_emitter_write_folded_scalar(emitter *yaml_emitter_t, value []byte) boo
 	for i := 0; i < len(value); {
 		if is_break(value, i) {
 			if !breaks && !leading_spaces && value[i] == '\n' {
-				k := 0
-				for is_break(value, k) {
+				k := i
+				for k < len(value) && is_break(value, k) {
 					k += width(value[k])
 				}
-				if !emitter.assume_folded_as_literal && !is_blankz(value, k) {
+				if k < len(value) && !emitter.assume_folded_as_literal && !is_blankz(value, k) {
 					if !put_break(emitter) {
 						return false
 					}

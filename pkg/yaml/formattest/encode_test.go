@@ -66,6 +66,24 @@ func TestBlockScalar(t *testing.T) {
 	}.Run(t)
 }
 
+func TestFoldedScalarMoreIndented(t *testing.T) {
+	configureEncoder := func(enc *yaml.Encoder) {
+		enc.SetIndent(2)
+	}
+	formatTestCase{
+		name:             "folded scalar with more-indented lines (strip)",
+		folder:           "folded_scalar_more_indented_strip",
+		configureDecoder: noopDecoder,
+		configureEncoder: configureEncoder,
+	}.Run(t)
+	formatTestCase{
+		name:             "folded scalar with more-indented lines (clip)",
+		folder:           "folded_scalar_more_indented_clip",
+		configureDecoder: noopDecoder,
+		configureEncoder: configureEncoder,
+	}.Run(t)
+}
+
 func TestDropMergeTag(t *testing.T) {
 	formatTestCase{
 		name:             "drop merge tag",
