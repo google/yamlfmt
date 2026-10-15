@@ -1,0 +1,8 @@
+The following formatting differences were found:
+
+--- x.yaml
++++ x.yaml
+@@ -1,2 +1,2 @@
+ a:
+-  b : 1
++  b: 1

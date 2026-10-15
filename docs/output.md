@@ -33,6 +33,22 @@ y.yaml: formatting difference found
 z.yaml: formatting difference found
 ```
 
+## `slim`
+
+Prints a unified diff with nearby context lines instead of the full side-by-side file view.
+
+Example:
+```
+The following formatting differences were found:
+
+--- x.yaml
++++ x.yaml
+@@ -1,2 +1,2 @@
+ a:
+- b:1
++ b: 1
+```
+
 ## `gitlab`
 
 Generates a [GitLab Code Quality report](https://docs.gitlab.com/ee/ci/testing/code_quality.html#code-quality-report-format).

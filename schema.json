@@ -83,7 +83,9 @@
       "type": "string",
       "enum": [
         "default",
-        "line"
+        "line",
+        "slim",
+        "gitlab"
       ],
       "default": "default",
       "description": "The output format to use. See Output docs for more details."
