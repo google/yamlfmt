@@ -86,7 +86,8 @@ func (c *FilepathCollector) CollectPaths() ([]string, error) {
 		if info.IsDir() {
 			logger.Debug(logger.DebugCodePaths, "for exclude dir: %s", exclPath)
 			for foundPath := range pathsFoundSet {
-				if strings.HasPrefix(foundPath, exclPath) {
+				relativePath, err := filepath.Rel(exclPath, foundPath)
+				if err == nil && relativePath != ".." && !strings.HasPrefix(relativePath, ".."+string(filepath.Separator)) {
 					logger.Debug(logger.DebugCodePaths, "excluding %s", foundPath)
 					pathsToFormat.Remove(foundPath)
 				}
