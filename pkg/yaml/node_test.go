@@ -2892,3 +2892,54 @@ func fprintCommentSet(out io.Writer, node *yaml.Node) {
 		fmt.Fprintf(out, "%q / %q / %q", node.HeadComment, node.LineComment, node.FootComment)
 	}
 }
+
+// TestNodeRoundtripPreservesData checks that decoding a document into a Node
+// and encoding it again never changes the data the document holds. The emitter
+// wrote an implicit null in a flow mapping as an empty single quoted scalar,
+// which reads back as a string, so a round trip changed the value silently.
+//
+// The comparison decodes both the source and the emitted output into plain Go
+// values, so it does not depend on the shape of any case and new cases can be
+// added freely.
+func (s *S) TestNodeRoundtripPreservesData(c *C) {
+	sources := []string{
+		// Implicit null in flow style, the regression this guards.
+		"a: {b: }\n",
+		"nested: {a: {b: }}\n",
+		"deep: {a: {b: {c: {d: }}}}\n",
+		"trailing: {a: 1, b: }\n",
+		"leading: {a: , b: 1}\n",
+		"every: {a: , b: , c: }\n",
+		// Flow nulls reached through sequences.
+		"seq: [{a: }, {b: 1}]\n",
+		"block seq:\n  - {a: }\n  - {b: }\n",
+		"both: {a: {b: }, c: [1, {d: }]}\n",
+		// Spellings that already survived, kept so they cannot regress.
+		"a: {b: null}\n",
+		"a: {b: ~}\n",
+		"a:\n  b:\n",
+		// Empty strings must stay strings, not become null.
+		"a: {b: \"\"}\n",
+		"a: {b: ''}\n",
+		"a:\n  b: \"\"\n",
+		"mixed: {a: , b: 1, c: \"\", d: null, e: ~, f: text}\n",
+	}
+
+	for _, source := range sources {
+		var node yaml.Node
+		err := yaml.Unmarshal([]byte(source), &node)
+		c.Assert(err, IsNil, Commentf("source %q", source))
+
+		out, err := yaml.Marshal(&node)
+		c.Assert(err, IsNil, Commentf("source %q", source))
+
+		var want, got interface{}
+		err = yaml.Unmarshal([]byte(source), &want)
+		c.Assert(err, IsNil, Commentf("source %q", source))
+		err = yaml.Unmarshal(out, &got)
+		c.Assert(err, IsNil, Commentf("source %q emitted %q", source, out))
+
+		c.Check(got, DeepEquals, want,
+			Commentf("source %q emitted %q", source, out))
+	}
+}
