@@ -1056,7 +1056,7 @@ func yaml_emitter_select_scalar_style(emitter *yaml_emitter_t, event *yaml_event
 			emitter.flow_level == 0 && !emitter.scalar_data.block_plain_allowed {
 			style = yaml_SINGLE_QUOTED_SCALAR_STYLE
 		}
-		if len(emitter.scalar_data.value) == 0 && (emitter.flow_level > 0 || emitter.simple_key_context) {
+		if len(emitter.scalar_data.value) == 0 && emitter.simple_key_context {
 			style = yaml_SINGLE_QUOTED_SCALAR_STYLE
 		}
 		if no_tag && !event.implicit {
@@ -1312,7 +1312,7 @@ func yaml_emitter_analyze_scalar(emitter *yaml_emitter_t, value []byte) bool {
 
 	if len(value) == 0 {
 		emitter.scalar_data.multiline = false
-		emitter.scalar_data.flow_plain_allowed = false
+		emitter.scalar_data.flow_plain_allowed = true
 		emitter.scalar_data.block_plain_allowed = true
 		emitter.scalar_data.single_quoted_allowed = true
 		emitter.scalar_data.block_allowed = false

@@ -235,6 +235,11 @@ map:
 map:
   *a : 1`,
 		},
+		{
+			name:   "retains implicit null in flow mapping",
+			input:  `a: {b: }`,
+			expect: `a: {b:}`,
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -397,12 +402,7 @@ func TestRetainLineBreaksLongLine(t *testing.T) {
 
 func stripTrailingNewline(s string) string {
 	// strip trailing \n or \r\n characters
-	if len(s) > 0 {
-		if s[len(s)-1] == '\n' {
-			s = s[:len(s)-1]
-		} else if len(s) > 1 && s[len(s)-2] == '\r' {
-			s = s[:len(s)-2]
-		}
-	}
+	s = strings.TrimSuffix(s, "\r\n")
+	s = strings.TrimSuffix(s, "\n")
 	return s
 }

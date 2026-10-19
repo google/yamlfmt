@@ -2856,6 +2856,17 @@ func (s *S) TestNodeOmitEmpty(c *C) {
 	c.Assert(err, ErrorMatches, "yaml: cannot encode node with unknown kind 0")
 }
 
+func (s *S) TestFlowMappingImplicitNull(c *C) {
+	input := "a: {b: }\n"
+	var n yaml.Node
+	err := yaml.Unmarshal([]byte(input), &n)
+	c.Assert(err, IsNil)
+
+	data, err := yaml.Marshal(&n)
+	c.Assert(err, IsNil)
+	c.Assert(string(data), Equals, "a: {b:}\n")
+}
+
 func fprintComments(out io.Writer, node *yaml.Node, indent string) {
 	switch node.Kind {
 	case yaml.ScalarNode:
