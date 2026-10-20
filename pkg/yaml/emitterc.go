@@ -1424,7 +1424,15 @@ func yaml_emitter_analyze_scalar(emitter *yaml_emitter_t, value []byte) bool {
 		emitter.scalar_data.block_plain_allowed = false
 		emitter.scalar_data.single_quoted_allowed = false
 	}
-	if space_break || special_characters {
+	// Block scalars preserve content including trailing whitespace before
+	// newlines (YAML 1.2 §8.1.2 literal, §8.1.3 folded), so space_break alone
+	// shouldn't disqualify block style. Dropping it here lets values that
+	// contain trailing-space lines or whitespace-only lines stay in | or >
+	// form instead of being forced to double-quoted (google/yamlfmt#86).
+	// block_allowed gates both | and >; both round-trip such content to the
+	// original input's spec value (verified for > under scan_folded_as_literal
+	// too — the prior double-quoted fallback was the case that drifted).
+	if special_characters {
 		emitter.scalar_data.block_allowed = false
 	}
 	if line_breaks {
@@ -1978,11 +1986,11 @@ func yaml_emitter_write_folded_scalar(emitter *yaml_emitter_t, value []byte) boo
 	for i := 0; i < len(value); {
 		if is_break(value, i) {
 			if !breaks && !leading_spaces && value[i] == '\n' {
-				k := 0
-				for is_break(value, k) {
+				k := i
+				for k < len(value) && is_break(value, k) {
 					k += width(value[k])
 				}
-				if !emitter.assume_folded_as_literal && !is_blankz(value, k) {
+				if k < len(value) && !emitter.assume_folded_as_literal && !is_blankz(value, k) {
 					if !put_break(emitter) {
 						return false
 					}

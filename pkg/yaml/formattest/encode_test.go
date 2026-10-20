@@ -53,6 +53,20 @@ func TestIndentedToIndentless(t *testing.T) {
 	}.Run(t)
 }
 
+func TestLiteralBlockTrailingSpace(t *testing.T) {
+	// Literal block scalars (|) preserve all content including trailing
+	// whitespace and whitespace-only interior lines (YAML 1.2 §8.1.3).
+	// The encoder previously forced these to double-quoted via the
+	// space_break heuristic (google/yamlfmt#86); they should now round-trip
+	// in literal form.
+	formatTestCase{
+		name:             "literal block trailing space round-trips",
+		folder:           "literal_block_trailing_space",
+		configureDecoder: noopDecoder,
+		configureEncoder: noopEncoder,
+	}.Run(t)
+}
+
 func TestBlockScalar(t *testing.T) {
 	formatTestCase{
 		name:   "block scalar decoding and encoding",

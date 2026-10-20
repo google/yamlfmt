@@ -221,6 +221,9 @@ type yaml_token_t struct {
 	// The start/end of the token.
 	start_mark, end_mark yaml_mark_t
 
+	// End of block scalar content, excluding breaks discarded by chomping.
+	scalar_content_end_mark yaml_mark_t
+
 	// The stream encoding (for yaml_STREAM_START_TOKEN).
 	encoding yaml_encoding_t
 

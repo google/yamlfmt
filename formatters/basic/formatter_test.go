@@ -343,6 +343,43 @@ x:
 `,
 		},
 		{
+			// Trailing whitespace on a content line used to force the emitter
+			// to fall back to a double-quoted scalar (google/yamlfmt#86). Block
+			// style is now preserved (the space_break heuristic no longer
+			// disqualifies it), so the trailing space and the blank line both
+			// survive in literal form. This also covers google/yamlfmt#280:
+			// the retain_line_breaks placeholder would previously leak into
+			// the quoted output here.
+			name: "literal string with trailing space stays literal",
+			input: "script: |\n" +
+				"    when {\n" +
+				"        deep\n" +
+				"    }; \n" + // note trailing space
+				"\n" +
+				"    permit();\n",
+			expect: "script: |\n" +
+				"  when {\n" +
+				"      deep\n" +
+				"  }; \n" + // trailing space preserved
+				"\n" +
+				"  permit();\n",
+		},
+		{
+			// A whitespace-only line inside a literal block scalar whose
+			// width exceeds the block indent is content, not a blank line
+			// (google/yamlfmt#86). The placeholder mechanism must round-trip
+			// that content rather than collapsing it to an empty line.
+			name: "literal string with whitespace-only content line",
+			input: "script: |\n" +
+				"  echo a\n" +
+				"    \n" + // 4sp on a 2-indent block: content is "  "
+				"  echo b\n",
+			expect: "script: |\n" +
+				"  echo a\n" +
+				"    \n" +
+				"  echo b\n",
+		},
+		{
 			name:   "retain single line break",
 			single: true,
 			input: `a: 1
@@ -358,6 +395,87 @@ b: 2
 c: 3
 `,
 		},
+		{
+			// A blank line inside a > folded scalar is a paragraph break and
+			// part of the scalar's value (YAML §8.1.3). The placeholder must
+			// not be inserted there.
+			name: "folded scalar blank line is content",
+			input: "text: >\n" +
+				"  para1\n" +
+				"\n" +
+				"  para2\n",
+			expect: "text: >\n" +
+				"  para1\n" +
+				"\n" +
+				"  para2\n",
+		},
+		{
+			// A source-level blank line inside a multi-line "..." scalar
+			// encodes a single \n in the value (YAML §7.3.1). The encoder
+			// re-emits the value as a single-line double-quoted scalar with an
+			// explicit \n; the round-tripped value must be unchanged.
+			name: "double-quoted scalar blank line is content",
+			input: "msg: \"line1\n" +
+				"\n" +
+				"  line2\"\n",
+			expect: "msg: \"line1\\nline2\"\n",
+		},
+		{
+			// Same for single-quoted; the encoder happens to keep the
+			// multi-line layout, including the content blank.
+			name: "single-quoted scalar blank line is content",
+			input: "msg: 'line1\n" +
+				"\n" +
+				"  line2'\n",
+			expect: "msg: 'line1\n" +
+				"\n" +
+				"  line2'\n",
+		},
+		{
+			// retain_line_breaks_single chomps consecutive structural blanks
+			// to one, but blank lines inside a literal scalar are content and
+			// must not be chomped.
+			name:   "chomp leaves scalar-content blanks alone",
+			single: true,
+			input: "script: |\n" +
+				"  a\n" +
+				"\n" +
+				"\n" +
+				"  b\n" +
+				"x: 1\n" +
+				"\n" +
+				"\n" +
+				"y: 2\n",
+			expect: "script: |\n" +
+				"  a\n" +
+				"\n" +
+				"\n" +
+				"  b\n" +
+				"x: 1\n" +
+				"\n" +
+				"y: 2\n",
+		},
+		{
+			// A blank line between a sequence item and a less-indented
+			// comment block. The placeholder must be inserted at the indent
+			// of the *following* line: if it took the previous line's
+			// (deeper) indent, the scanner would split it from the comment
+			// block, attaching the comment to the next item instead and
+			// emitting it at a different column. The mismatched column
+			// reattaches differently on the next pass, so formatting would
+			// only converge after a second run.
+			name: "outdented comment after blank between sequence items",
+			input: "items:\n" +
+				"  - path: a\n" +
+				"\n" +
+				"# comment\n" +
+				"  - path: b\n",
+			expect: "items:\n" +
+				"  - path: a\n" +
+				"\n" +
+				"    # comment\n" +
+				"  - path: b\n",
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -369,6 +487,9 @@ c: 3
 			got, err := f.Format([]byte(tc.input))
 			require.NoError(t, err)
 			require.Equal(t, tc.expect, string(got))
+			again, err := f.Format(got)
+			require.NoError(t, err)
+			require.Equal(t, string(got), string(again), "formatting is not idempotent")
 		})
 	}
 }
@@ -395,6 +516,28 @@ func TestRetainLineBreaksLongLine(t *testing.T) {
 	}
 }
 
+func TestRetainLineBreaksFlowRestyledScalar(t *testing.T) {
+	// With force_array_style=flow, a | block scalar inside an array is
+	// re-emitted as a double-quoted flow scalar. The retain_line_breaks hotfix
+	// skips placeholder insertion for blank lines inside the input scalar (the
+	// scanner marks them as content), so no placeholder reaches the encoder and
+	// none can leak into the restyled output.
+	f, err := factory.NewFormatter(map[string]any{
+		"retain_line_breaks": true,
+		"force_array_style":  "flow",
+	})
+	require.NoError(t, err)
+	in := "items:\n" +
+		"  - |\n" +
+		"    line1\n" +
+		"\n" +
+		"    line2\n"
+	got, err := f.Format([]byte(in))
+	require.NoError(t, err)
+	require.NotContains(t, string(got), "magic___", "placeholder leaked into output")
+	require.Equal(t, `items: ["line1\n\nline2\n"]`+"\n", string(got))
+}
+
 func stripTrailingNewline(s string) string {
 	// strip trailing \n or \r\n characters
 	if len(s) > 0 {
@@ -405,4 +548,16 @@ func stripTrailingNewline(s string) string {
 		}
 	}
 	return s
+}
+
+func TestRetainLineBreaksLiteralSentinelWithoutBlank(t *testing.T) {
+	f, err := factory.NewFormatter(map[string]any{"retain_line_breaks": true})
+	require.NoError(t, err)
+	in := "message: |\n  #magic___^_^___line\n  hello\n"
+	got, err := f.Format([]byte(in))
+	require.NoError(t, err)
+	require.Equal(t, in, string(got))
+	again, err := f.Format(got)
+	require.NoError(t, err)
+	require.Equal(t, string(got), string(again))
 }

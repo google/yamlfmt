@@ -1,0 +1,7 @@
+trailing: |
+  echo one   
+  echo two
+interior: |
+  echo a
+    
+  echo b

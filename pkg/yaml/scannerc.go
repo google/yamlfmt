@@ -2292,6 +2292,7 @@ func yaml_parser_scan_block_scalar(parser *yaml_parser_t, token *yaml_token_t, l
 	}
 
 	end_mark := parser.mark
+	content_end_mark := parser.mark
 
 	// Set the indentation level if it was specified.
 	var indent int
@@ -2352,6 +2353,7 @@ func yaml_parser_scan_block_scalar(parser *yaml_parser_t, token *yaml_token_t, l
 		}
 
 		leading_break = read_line(parser, leading_break)
+		content_end_mark = parser.mark
 
 		// Eat the following indentation spaces and line breaks.
 		if !yaml_parser_scan_block_scalar_breaks(parser, &indent, &trailing_breaks, start_mark, &end_mark) {
@@ -2365,15 +2367,17 @@ func yaml_parser_scan_block_scalar(parser *yaml_parser_t, token *yaml_token_t, l
 	}
 	if chomping == 1 {
 		s = append(s, trailing_breaks...)
+		content_end_mark = end_mark
 	}
 
 	// Create a token.
 	*token = yaml_token_t{
-		typ:        yaml_SCALAR_TOKEN,
-		start_mark: start_mark,
-		end_mark:   end_mark,
-		value:      s,
-		style:      yaml_LITERAL_SCALAR_STYLE,
+		typ:                     yaml_SCALAR_TOKEN,
+		scalar_content_end_mark: content_end_mark,
+		start_mark:              start_mark,
+		end_mark:                end_mark,
+		value:                   s,
+		style:                   yaml_LITERAL_SCALAR_STYLE,
 	}
 	if !literal {
 		token.style = yaml_FOLDED_SCALAR_STYLE
