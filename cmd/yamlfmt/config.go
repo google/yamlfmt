@@ -225,15 +225,15 @@ func validatePath(path string) error {
 				err:  errConfPathNotExist,
 			}
 		}
-		if info.IsDir() {
-			return &configPathError{
-				path: path,
-				err:  errConfPathIsDir,
-			}
-		}
 		return &configPathError{
 			path: path,
 			err:  err,
+		}
+	}
+	if info.IsDir() {
+		return &configPathError{
+			path: path,
+			err:  errConfPathIsDir,
 		}
 	}
 	return nil
