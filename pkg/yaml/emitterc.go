@@ -1177,7 +1177,19 @@ func yaml_emitter_process_head_comment(emitter *yaml_emitter_t) bool {
 
 // Write an line comment.
 func yaml_emitter_process_line_comment(emitter *yaml_emitter_t) bool {
+	return yaml_emitter_process_line_comment_linebreak(emitter, false)
+}
+
+// Write a line comment. If there is no line comment and linebreak is true,
+// write a line break instead, so that the caller always continues on a new
+// line. Block scalars need this: without it, a leading line break in the
+// scalar value would be used to end the header line and would be lost.
+// See https://github.com/go-yaml/yaml/issues/755
+func yaml_emitter_process_line_comment_linebreak(emitter *yaml_emitter_t, linebreak bool) bool {
 	if len(emitter.line_comment) == 0 {
+		if linebreak && !put_break(emitter) {
+			return false
+		}
 		return true
 	}
 	if !emitter.whitespace {
@@ -1929,7 +1941,7 @@ func yaml_emitter_write_literal_scalar(emitter *yaml_emitter_t, value []byte) bo
 	if !yaml_emitter_write_block_scalar_hints(emitter, value) {
 		return false
 	}
-	if !yaml_emitter_process_line_comment(emitter) {
+	if !yaml_emitter_process_line_comment_linebreak(emitter, true) {
 		return false
 	}
 	//emitter.indention = true
@@ -1966,7 +1978,7 @@ func yaml_emitter_write_folded_scalar(emitter *yaml_emitter_t, value []byte) boo
 	if !yaml_emitter_write_block_scalar_hints(emitter, value) {
 		return false
 	}
-	if !yaml_emitter_process_line_comment(emitter) {
+	if !yaml_emitter_process_line_comment_linebreak(emitter, true) {
 		return false
 	}
 
