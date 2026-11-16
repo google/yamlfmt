@@ -227,6 +227,17 @@ b: [1, 2]`,
 			badConfigErr: features.ErrUnrecognizedQuoteStyle,
 		},
 		{
+			name: "block scalar keeps leading blank line",
+			input: `a: |
+
+  b
+`,
+			expect: `a: |2
+
+  b
+`,
+		},
+		{
 			name: "alias key correction",
 			input: `alias: &a something
 map:

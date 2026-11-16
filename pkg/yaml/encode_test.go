@@ -660,6 +660,33 @@ func (s *S) TestSetIndent(c *C) {
 	c.Assert(buf.String(), Equals, "a:\n        b:\n                c: d\n")
 }
 
+func (s *S) TestBlockScalarLeadingLineBreak(c *C) {
+	// A line break at the start of a block scalar is part of the content.
+	// It must not be used up to end the header line.
+	// See https://github.com/go-yaml/yaml/issues/755
+	for _, style := range []yaml.Style{yaml.LiteralStyle, yaml.FoldedStyle} {
+		for _, value := range []string{"\nb\n", "\n\nb\n", "\n"} {
+			node := &yaml.Node{
+				Kind: yaml.MappingNode,
+				Content: []*yaml.Node{
+					{Kind: yaml.ScalarNode, Value: "a"},
+					{Kind: yaml.ScalarNode, Value: value, Style: style},
+				},
+			}
+			data, err := yaml.Marshal(node)
+			c.Assert(err, IsNil)
+			var out map[string]string
+			err = yaml.Unmarshal(data, &out)
+			c.Assert(err, IsNil)
+			c.Assert(out["a"], Equals, value, Commentf("encoded as %q", data))
+		}
+	}
+
+	data, err := yaml.Marshal(map[string]string{"a": "\nb\n"})
+	c.Assert(err, IsNil)
+	c.Assert(string(data), Equals, "a: |4\n\n    b\n")
+}
+
 func (s *S) TestSetLineBreak(c *C) {
 	var buf bytes.Buffer
 	enc := yaml.NewEncoder(&buf)
