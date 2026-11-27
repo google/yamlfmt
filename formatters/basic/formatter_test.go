@@ -235,6 +235,21 @@ map:
 map:
   *a : 1`,
 		},
+		{
+			name:   "literal block scalar keeps leading empty line",
+			input:  "a: |\n\n  text\n",
+			expect: "a: |2\n\n  text\n",
+		},
+		{
+			name:   "folded block scalar keeps leading empty line",
+			input:  "a: >-\n\n  text\n",
+			expect: "a: >2-\n\n  text\n",
+		},
+		{
+			name:   "block scalar with line comment keeps leading empty line",
+			input:  "a: | # c\n\n  text\n",
+			expect: "a: |2 # c\n\n  text\n",
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
