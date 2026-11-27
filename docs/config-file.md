@@ -79,6 +79,7 @@ The `basic` formatter is the default formatter that takes the data provided, ser
 |:----------------------------|:---------------|:--------|:------------|
 | `indent`                    | int            | 2       | The indentation level in spaces to use for the formatted YAML. |
 | `include_document_start`    | bool           | false   | Include `---` at document start. |
+| `preserve_document_start`   | bool           | false   | Keep an existing initial `---` without adding one when it is absent. If `include_document_start` is true, the formatter always includes the initial marker. Separators between documents are always kept. |
 | `line_ending`               | `lf` or `crlf` | `crlf` on Windows, `lf` otherwise | Parse and write the file with "lf" or "crlf" line endings. This setting will be overwritten by the global `line_ending`. |
 | `retain_line_breaks`        | bool           | false   | Retain line breaks in formatted YAML. |
 | `retain_line_breaks_single` | bool           | false   | (NOTE: Takes precedence over `retain_line_breaks`) Retain line breaks in formatted YAML, but only keep a single line in groups of many blank lines. |

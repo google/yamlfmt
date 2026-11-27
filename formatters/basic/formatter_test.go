@@ -56,6 +56,50 @@ b:`,
 a:`,
 		},
 		{
+			name:   "remove optional document start by default",
+			input:  "---\na:  1",
+			expect: "a: 1",
+		},
+		{
+			name:   "preserve an explicit document start",
+			config: map[string]any{"preserve_document_start": true},
+			input:  "---\na:  1",
+			expect: "---\na: 1",
+		},
+		{
+			name:   "preserve a document start after a comment",
+			config: map[string]any{"preserve_document_start": true},
+			input:  "# header\n---\na:  1",
+			expect: "# header\n---\na: 1",
+		},
+		{
+			name:   "preserve starts in an explicit multi-document stream",
+			config: map[string]any{"preserve_document_start": true},
+			input:  "---\na:  1\n---\nb:  2",
+			expect: "---\na: 1\n---\nb: 2",
+		},
+		{
+			name:   "preserve separators without adding an initial marker",
+			config: map[string]any{"preserve_document_start": true},
+			input:  "a:  1\n---\nb:  2",
+			expect: "a: 1\n---\nb: 2",
+		},
+		{
+			name:   "do not treat scalar text as a document start",
+			config: map[string]any{"preserve_document_start": true},
+			input:  "---scalar:  1",
+			expect: "'---scalar': 1",
+		},
+		{
+			name: "include document start overrides preserve",
+			config: map[string]any{
+				"include_document_start":  true,
+				"preserve_document_start": true,
+			},
+			input:  "a:  1",
+			expect: "---\na: 1",
+		},
+		{
 			name: "crlf line ending",
 			config: map[string]any{
 				"line_ending": "crlf",

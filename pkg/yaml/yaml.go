@@ -113,6 +113,12 @@ func (dec *Decoder) SetScanBlockScalarAsLiteral(scanLiteral bool) {
 	yaml_parser_set_scan_folded_as_literal(&dec.parser.parser, scanLiteral)
 }
 
+// ExplicitDocumentStart reports whether the current document began with a
+// document start marker (---). Call it after Decode returns nil.
+func (dec *Decoder) ExplicitDocumentStart() bool {
+	return dec.parser.explicitDocumentStart
+}
+
 // Decode reads the next YAML-encoded value from its input
 // and stores it in the value pointed to by v.
 //
