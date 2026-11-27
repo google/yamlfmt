@@ -36,6 +36,8 @@ type parser struct {
 	anchors  map[string]*Node
 	doneInit bool
 	textless bool
+
+	explicitDocumentStart bool
 }
 
 func newParser(b []byte) *parser {
@@ -202,6 +204,7 @@ func (p *parser) parseChild(parent *Node) *Node {
 func (p *parser) document() *Node {
 	n := p.node(DocumentNode, "", "", "")
 	p.doc = n
+	p.explicitDocumentStart = !p.event.implicit
 	p.expect(yaml_DOCUMENT_START_EVENT)
 	p.parseChild(n)
 	if p.peek() == yaml_DOCUMENT_END_EVENT {

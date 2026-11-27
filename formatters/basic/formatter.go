@@ -52,6 +52,7 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	reader := bytes.NewReader(yamlContent)
 	decoder := f.getNewDecoder(reader)
 	documents := []yaml.Node{}
+	explicitDocumentStart := f.Config.IncludeDocumentStart
 	for {
 		var docNode yaml.Node
 		err := decoder.Decode(&docNode)
@@ -60,6 +61,9 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 				break
 			}
 			return nil, err
+		}
+		if len(documents) == 0 && f.Config.PreserveDocumentStart {
+			explicitDocumentStart = explicitDocumentStart || decoder.ExplicitDocumentStart()
 		}
 		documents = append(documents, docNode)
 	}
@@ -76,7 +80,7 @@ func (f *BasicFormatter) Format(input []byte) ([]byte, error) {
 	}
 
 	var b bytes.Buffer
-	e := f.getNewEncoder(&b)
+	e := f.getNewEncoder(&b, explicitDocumentStart)
 	for _, doc := range documents {
 		err := e.Encode(&doc)
 		if err != nil {
@@ -101,7 +105,7 @@ func (f *BasicFormatter) getNewDecoder(reader io.Reader) *yaml.Decoder {
 	return d
 }
 
-func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
+func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer, explicitDocumentStart bool) *yaml.Encoder {
 	e := yaml.NewEncoder(buf)
 	e.SetIndent(f.Config.Indent)
 
@@ -113,7 +117,7 @@ func (f *BasicFormatter) getNewEncoder(buf *bytes.Buffer) *yaml.Encoder {
 		e.SetLineBreakStyle(yaml.LineBreakStyleCRLF)
 	}
 
-	e.SetExplicitDocumentStart(f.Config.IncludeDocumentStart)
+	e.SetExplicitDocumentStart(explicitDocumentStart)
 	e.SetAssumeBlockAsLiteral(f.Config.ScanFoldedAsLiteral)
 	e.SetIndentlessBlockSequence(f.Config.IndentlessArrays)
 	e.SetDropMergeTag(f.Config.DropMergeTag)
